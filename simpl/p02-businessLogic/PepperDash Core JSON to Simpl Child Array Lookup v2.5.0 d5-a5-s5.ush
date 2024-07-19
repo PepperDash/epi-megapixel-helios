@@ -1,0 +1,577 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.06.00
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=Json To Simpl Child Array Lookup\\\\This module will allow the Simpl||1
+  Cmn2=programmer to extract the values of arbitrary\\JSON properties from||1
+  Cmn3=a JSON file loaded onto the processor.  The programmer \\can set||1
+  Cmn4=the "path" of the various Digital, Analog and String values they||1
+  Cmn5=wish\\to receive from the JSON and the respective outputs will show||1
+  Cmn6=those values. \\||`
+  Cmn7=\\This module will look up an object in a JSON array, given a property\\
+  Cmn8=name and value. It will output the desired properties of that object.
+  Cmn9=||2For\\example, it could look up a display from a Devices array:
+  Cmn10=\\	PathPrefix = "Config.Devices" \\	SearchPropertyName = "Key"\\
+  Cmn11=	SearchPropertyValue = "Display4"\\\\This module is a "child" module||1
+  Cmn12=designed to be linked to a one-file Master\\module, Json to Simpl||1
+  Cmn13=File Master 2.x.x.usp.  Many of these or other child \\modules can||1
+  Cmn14=be linked to a single file module, which allows JSON data to be\\
+  Cmn15=divided and distributed around in code and in modules.\\\\A path||1
+  Cmn16=follows the JPath convention. Dotted syntax or array[] names to||1
+  Cmn17=move\\into the JSON object tree.  For example RoomData.Name will||1
+  Cmn18=read the Name property\\of the RoomData property.  RoomData.Devices[3].
+  Cmn19=Name will read the Name of\\the 4th device in the Devices array.
+  Cmn20=||1Array indexes are zero-based.\\\\All property names are case sensitive.
+  Cmn21=\\\\In addition, there is a .Count property that has been added||1
+  Cmn22=to read the number\\of child properties under a given object.  For||1
+  Cmn23=example RoomData.Devices.Count\\could return 6 if there are 6 devices||1
+  Cmn24=in an array.\\         \\Incorrect paths will output low, 0 or an||1
+  Cmn25=empty string and should not throw any errors.\\\\To change the number||1
+  Cmn26=of outputs, open up the S+ file and modify the constants \\at the||1
+  Cmn27=top of the file:\\	#DEFINE_CONSTANT MAX_COUNT_DIGITAL	5\\	#DEFINE_CONSTANT||1
+  Cmn28=MAX_COUNT_ANALOG	10\\	#DEFINE_CONSTANT MAX_COUNT_STRING	10\\\\Advanced:
+  Cmn29=||1\\	Paths are sometimes type-agnostic, meaning, for example, that||1
+  Cmn30=you can ask for the \\	value of a boolean/digital property on a||1
+  Cmn31=string output and you will get the\\	text "true" or "false".  Similarly,||1
+  Cmn32=asking for a numeric value will retrieve the\\	string conversion||1
+  Cmn33=of that number. \\	\\	The PathPrefix input allows for every path||1
+  Cmn34=defined on the arrays to have \\	a prefix appended to it.  If you||1
+  Cmn35=need to read a large JSON file and every output\\	might need to||1
+  Cmn36=have values from a certain array object, then you could set the\\
+  Cmn37=	prefix that object.  For example "Rooms[34]." would prefix every||1
+  Cmn38=path so that\\	the outputs would all reflect properites from Room||1
+  Cmn39=34.\\\\	The PathSuffix input allows for every path to have a suffix||1
+  Cmn40=appended.  \\	Take, for example, a language-switching scenario.||1
+  Cmn41=||1String objects can be defined\\	with properties like "EN" and "FR",||1
+  Cmn42=each of which would contain a language-specific\\	string to be shown||1
+  Cmn43=on a button or field.  Switching the PathSuffix input from ".EN"||1
+  Cmn44=\\	to ".FR" could change to french.  Module should be reinitialized||1
+  Cmn45=after changing\\	prefix or suffix. \\\\Usage note:\\	This has been||1
+  Cmn46=tested up to 400 child modules attached to a parent before \\	program||1
+  Cmn47=loading will fail. Other S+ modules in a program may affect this||1
+  Cmn48=count.\\                                               \\INPUTS:
+  Cmn49=	(changes to any input will cause reevaluation of data)\\		(all||1
+  Cmn50=string inputs typically driven by SIO, MSEND, etc.)\\-----------
+  Cmn51=--------------------------------------------------\\Initialize(D)	
+  Cmn52=	Will set all provided paths and evaluate them from the Master JSON\\
+  Cmn53=					data.  This should be triggered after all paths as well as||1
+  Cmn54=MasterUniqueId,\\					UniqueId, PathToArray, and PathSuffix have||1
+  Cmn55=been set. (Easy way to do this is \\					to add one more output||1
+  Cmn56=to the end of the MSEND that sets all of these, with a\\					value||1
+  Cmn57=that triggers a SAWPULSE to trigger initiailze.  See demo.) \\		
+  Cmn58=			This should also be triggered after Load has been triggered on||1
+  Cmn59=Master.\\					!!!IMPORTANT!!! Re-assert initialize after changing||1
+  Cmn60=the serial input PathToArray\\\\EvaluateOnLastPath(S)	Will trigger||1
+  Cmn61="Evaluate" the JSON file with the provided paths.  Should be fed\\
+  Cmn62=						by the last output of the MSEND used to set the paths to be||1
+  Cmn63=evaluated.\\\\MasterUniqueId(S)	The path of the file being read||1
+  Cmn64=in the corresponding master module.  \\					Use the same signal||1
+  Cmn65=as on the master module.  This creates the link between\\					Child||1
+  Cmn66=and Master.\\\\PathToArray(S)		Text to be prepended to EVERY path||1
+  Cmn67=input below, using the string input will over-ride the parameter||1
+  Cmn68=values (see notes above)\\					!!!IMPORTANT!!! Re-assert initialize||1
+  Cmn69=after changing the serial input PathToArray\\\\PathToArrayAppend(S)	
+  Cmn70=Text to be appended to the PathToArray (param or string input) when||1
+  Cmn71=using the FullPathToArray output.  This can\\						be used to access||1
+  Cmn72=arrays-within-arrays.\\																		\\					Example: 							
+  Cmn73=			\\					DSP JSON Child: \\					- FullPathToArray (serial output)||1
+  Cmn74== devices[8]\\					\\					DSP Fader JSON Child:\\					- PathToArrayAppend||1
+  Cmn75== properties.faders\\					- PathToArray serial input recieves change||1
+  Cmn76=event from DSP JSON Child the data will be concatenated in the following||1
+  Cmn77=format\\					\\					PathToArray.[PathToArrayAppend].LinePath{.PathSuffix}	
+  Cmn78=				\\\\PathSuffix(S)		Text to be appended to EVERY path input,||1
+  Cmn79=using the string input will over-ride the parameter values (see||1
+  Cmn80=notes)					\\\\SearchPropertyName(S)\\\\SearchPropertyValue(S)\\
+  Cmn81=\\*JsonPath(S)		The path to the property to be output on the corresponding||1
+  Cmn82=output. NOTE:\\					Path names must be unique.  The exact-same property||1
+  Cmn83=CANNOT be read and\\					saved on two modules.\\\\*In(D/A/S)			Values||1
+  Cmn84=from the program to be stored in file\\\\OUTPUTS:\\-------------
+  Cmn85=------------------------------------------------\\IsInitialized(D)	
+  Cmn86=Will pulse high/low when JSON has been read and values output.||2
+  Cmn87=May be useful\\					for triggering other dependent modules or for||1
+  Cmn88=triggering other JSON modules\\					in massive-traffic systems.\\
+  Cmn89=\\DidEvaluate(D)		Will latch high when JSON paths have been evaluated.
+  Cmn90=\\\\*Out(D/A/S)			The value of the JSON property corresponding to||1
+  Cmn91=the Path input.\\\\VERION NOTES:\\------------------------------
+  Cmn92=-------------------------------\\v2.5.0, 2023-05-22, jkd\\1.	Remove||1
+  Cmn93=digital "Evaluate" and string "EvaluateOnLastPath"\\	- When initialized||1
+  Cmn94=is pressed, it will initialize and evaluate, allowing re-evaluation||1
+  Cmn95=on every press.\\	- This was done to simplify use of modules.\\	
+  Cmn96=\\v2.4.1, 2019-05-28, jkd\\1.	Added FullPathToArray output.  This||1
+  Cmn97=provides the path to the array object of this instance. \\	it can||1
+  Cmn98=be linked to another child module to access arrays within arrays.
+  Cmn99=\\	- When used it will be tied to the PathToArray serial input of||1
+  Cmn100=another JSON child module.\\2. 	Added PathToArrayAppendParam, this||1
+  Cmn101=can be used to concatente the FullPathToArray output of another\\
+  Cmn102=	JSON child module to access the array within an array.\\	- When||1
+  Cmn103=used it will build the PathToArray.\\	\\v2.3.0, 2018-04-20, jkd\\
+  Cmn104=1.	Added paramter fields, reducing the need to use MSENDs and MSPs||1
+  Cmn105=to define the unique ID,\\	PathToArray and PathSuffx.\\2.	Changed||1
+  Cmn106=the Evaluate(D) input to a string input that can be triggered directly||1
+  Cmn107=from the \\	last output of the MSEND used to set the paths to be||1
+  Cmn108=evaluated
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,362,378,380,405,407,408,409,478,522,537,554,586,590,611,624,718,756,767,830,841,842,854,883,955,1032,1062,1079,1128,1129,1134,1140,1157,1158,1195,1199,1220,1221,1222,1223,1299,1348,1349,1439,1472,1473,1499,1746,1803,1975,2229,2354,2514,2523,2532,2706,2707,3235,3236,3427,3454,3567,3568,3601,3602,3708,3902,3903,3912,3918,3925,3926,4206,4207,
+  Exclusions_CDS=5
+  Inclusions_CDS=6,7
+  Name=PepperDash Core JSON to Simpl Child Array Lookup v2.5.0 d5-a5-s5
+  SmplCName=PepperDash Core JSON to Simpl Child Array Lookup v2.5.0 d5-a5-s5.usp
+  Code=1
+  SysRev5=4.006
+  SMWRev=3.00.00
+  InputCue1=[~UNUSED~]
+  InputSigType1=Digital
+  InputCue2=[~UNUSED~]
+  InputSigType2=Digital
+  InputCue3=[~UNUSED~]
+  InputSigType3=Digital
+  InputCue4=[~UNUSED~]
+  InputSigType4=Digital
+  InputCue5=[~UNUSED~]
+  InputSigType5=Digital
+  InputCue6=[~UNUSED~]
+  InputSigType6=Digital
+  InputCue7=Initialize
+  InputSigType7=Digital
+  InputCue8=[~UNUSED~]
+  InputSigType8=Digital
+  InputCue9=[~UNUSED~]
+  InputSigType9=Digital
+  InputCue10=DigitalIn[#]
+  InputSigType10=Digital
+  OutputCue1=[~UNUSED~]
+  OutputSigType1=Digital
+  OutputCue2=[~UNUSED~]
+  OutputSigType2=Digital
+  OutputCue3=[~UNUSED~]
+  OutputSigType3=Digital
+  OutputCue4=[~UNUSED~]
+  OutputSigType4=Digital
+  OutputCue5=[~UNUSED~]
+  OutputSigType5=Digital
+  OutputCue6=[~UNUSED~]
+  OutputSigType6=Digital
+  OutputCue7=DidEvaluate
+  OutputSigType7=Digital
+  OutputCue8=[~UNUSED~]
+  OutputSigType8=Digital
+  OutputCue9=[~UNUSED~]
+  OutputSigType9=Digital
+  OutputCue10=DigitalOut[#]
+  OutputSigType10=Digital
+  InputList2Cue1=[~UNUSED~]
+  InputList2SigType1=Serial
+  InputList2Cue2=[~UNUSED~]
+  InputList2SigType2=Serial
+  InputList2Cue3=MasterUniqueId
+  InputList2SigType3=Serial
+  InputList2Cue4=PathToArray
+  InputList2SigType4=Serial
+  InputList2Cue5=PathToArrayAppend
+  InputList2SigType5=Serial
+  InputList2Cue6=PathSuffix
+  InputList2SigType6=Serial
+  InputList2Cue7=SearchPropertyName
+  InputList2SigType7=Serial
+  InputList2Cue8=SearchPropertyValue
+  InputList2SigType8=Serial
+  InputList2Cue9=[~UNUSED~]
+  InputList2SigType9=Serial
+  InputList2Cue10=[~UNUSED~]
+  InputList2SigType10=Serial
+  InputList2Cue11=AnalogIn[1]
+  InputList2SigType11=Analog
+  InputList2Cue12=AnalogIn[2]
+  InputList2SigType12=Analog
+  InputList2Cue13=AnalogIn[3]
+  InputList2SigType13=Analog
+  InputList2Cue14=AnalogIn[4]
+  InputList2SigType14=Analog
+  InputList2Cue15=AnalogIn[5]
+  InputList2SigType15=Analog
+  InputList2Cue16=[~UNUSED~]
+  InputList2SigType16=Serial
+  InputList2Cue17=[~UNUSED~]
+  InputList2SigType17=Serial
+  InputList2Cue18=StringIn[#]
+  InputList2SigType18=Serial
+  OutputList2Cue1=[~UNUSED~]
+  OutputList2SigType1=Serial
+  OutputList2Cue2=[~UNUSED~]
+  OutputList2SigType2=Serial
+  OutputList2Cue3=[~UNUSED~]
+  OutputList2SigType3=Serial
+  OutputList2Cue4=FullPathToArray
+  OutputList2SigType4=Serial
+  OutputList2Cue5=[~UNUSED~]
+  OutputList2SigType5=Serial
+  OutputList2Cue6=[~UNUSED~]
+  OutputList2SigType6=Serial
+  OutputList2Cue7=[~UNUSED~]
+  OutputList2SigType7=Serial
+  OutputList2Cue8=[~UNUSED~]
+  OutputList2SigType8=Serial
+  OutputList2Cue9=[~UNUSED~]
+  OutputList2SigType9=Serial
+  OutputList2Cue10=[~UNUSED~]
+  OutputList2SigType10=Serial
+  OutputList2Cue11=AnalogOut[1]
+  OutputList2SigType11=Analog
+  OutputList2Cue12=AnalogOut[2]
+  OutputList2SigType12=Analog
+  OutputList2Cue13=AnalogOut[3]
+  OutputList2SigType13=Analog
+  OutputList2Cue14=AnalogOut[4]
+  OutputList2SigType14=Analog
+  OutputList2Cue15=AnalogOut[5]
+  OutputList2SigType15=Analog
+  OutputList2Cue16=[~UNUSED~]
+  OutputList2SigType16=Serial
+  OutputList2Cue17=[~UNUSED~]
+  OutputList2SigType17=Serial
+  OutputList2Cue18=StringOut[#]
+  OutputList2SigType18=Serial
+  ParamCue1=[Reference Name]
+  ParamCue2=UniqueIdParam
+  ParamSigType2=String
+  ParamCue3=PathToArrayParam
+  ParamSigType3=String
+  ParamCue4=PathToArrayAppendParam
+  ParamSigType4=String
+  ParamCue5=PathSuffixParam
+  ParamSigType5=String
+  ParamCue6=SearchPropertyNameParam
+  ParamSigType6=String
+  ParamCue7=SearchPropertyValueParam
+  ParamSigType7=String
+  ParamCue8=[~UNUSED~]
+  ParamSigType8=Constant
+  ParamCue9=[~UNUSED~]
+  ParamSigType9=Constant
+  ParamCue10=[~UNUSED~]
+  ParamSigType10=Constant
+  ParamCue11=DigitalJsonPathParam[1]
+  ParamSigType11=String
+  ParamCue12=DigitalJsonPathParam[2]
+  ParamSigType12=String
+  ParamCue13=DigitalJsonPathParam[3]
+  ParamSigType13=String
+  ParamCue14=DigitalJsonPathParam[4]
+  ParamSigType14=String
+  ParamCue15=DigitalJsonPathParam[5]
+  ParamSigType15=String
+  ParamCue16=[~UNUSED~]
+  ParamSigType16=Constant
+  ParamCue17=[~UNUSED~]
+  ParamSigType17=Constant
+  ParamCue18=[~UNUSED~]
+  ParamSigType18=Constant
+  ParamCue19=[~UNUSED~]
+  ParamSigType19=Constant
+  ParamCue20=[~UNUSED~]
+  ParamSigType20=Constant
+  ParamCue21=[~UNUSED~]
+  ParamSigType21=Constant
+  ParamCue22=[~UNUSED~]
+  ParamSigType22=Constant
+  ParamCue23=[~UNUSED~]
+  ParamSigType23=Constant
+  ParamCue24=[~UNUSED~]
+  ParamSigType24=Constant
+  ParamCue25=[~UNUSED~]
+  ParamSigType25=Constant
+  ParamCue26=AnalogJsonPathParam[1]
+  ParamSigType26=String
+  ParamCue27=AnalogJsonPathParam[2]
+  ParamSigType27=String
+  ParamCue28=AnalogJsonPathParam[3]
+  ParamSigType28=String
+  ParamCue29=AnalogJsonPathParam[4]
+  ParamSigType29=String
+  ParamCue30=AnalogJsonPathParam[5]
+  ParamSigType30=String
+  ParamCue31=[~UNUSED~]
+  ParamSigType31=Constant
+  ParamCue32=[~UNUSED~]
+  ParamSigType32=Constant
+  ParamCue33=StringJsonPathParam[1]
+  ParamSigType33=String
+  ParamCue34=StringJsonPathParam[2]
+  ParamSigType34=String
+  ParamCue35=StringJsonPathParam[3]
+  ParamSigType35=String
+  ParamCue36=StringJsonPathParam[4]
+  ParamSigType36=String
+  ParamCue37=StringJsonPathParam[5]
+  ParamSigType37=String
+  MinVariableInputs=14
+  MaxVariableInputs=14
+  MinVariableInputsList2=22
+  MaxVariableInputsList2=22
+  MinVariableOutputs=14
+  MaxVariableOutputs=14
+  MinVariableOutputsList2=22
+  MaxVariableOutputsList2=22
+  MinVariableParams=36
+  MaxVariableParams=36
+  Expand=expand_inputs_with_outputs
+  Expand2=expand_inputs_with_outputs
+  ProgramTree=Logic
+  SymbolTree=46
+  UserSymTreeName=PepperDash Technology
+  Hint=
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  Pp2=2
+  Pp3=3
+  Pp4=4
+  Pp5=5
+  Pp6=6
+  Pp7=7
+  Pp11=11
+  Pp12=12
+  Pp13=13
+  Pp14=14
+  Pp15=15
+  Pp26=26
+  Pp27=27
+  Pp28=28
+  Pp29=29
+  Pp30=30
+  Pp33=33
+  Pp34=34
+  Pp35=35
+  Pp36=36
+  Pp37=37
+  MPp=37
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2_PepperDash_Core_JSON_to_Simpl_Child_Array_Lookup_v2_5_0_d5_a5_s5
+  SymJam=NonExclusive
+  FileName=PepperDash Core JSON to Simpl Child Array Lookup v2.5.0 d5-a5-s5.ush
+  SIMPLPlusModuleEncoding=0
+  clz1=PepperDash_Core
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=2
+  Tp=1
+  SD=Unique ID for this module
+  HD=True
+  DV=ChildUniqueId
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=3
+  Tp=1
+  SD=Path prefix for JSON objects
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=4
+  Tp=1
+  SD=Append to PathToArray (Param or Input)
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=5
+  Tp=1
+  SD=Path suffix for JSON objects
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=6
+  Tp=1
+  SD=Search property name
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=7
+  Tp=1
+  SD=Search property value
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=11
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=12
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=13
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=14
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=15
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=26
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=27
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=28
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=29
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=30
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=33
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=34
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=35
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=36
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=37
+  Tp=1
+  HD=True
+  DV=
+  NoS=False
+  VVS=0
+[END]

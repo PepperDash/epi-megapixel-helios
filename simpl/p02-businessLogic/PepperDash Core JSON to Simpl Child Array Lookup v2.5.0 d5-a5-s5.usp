@@ -1,0 +1,510 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*******************************************************************************************
+Dealer Name:   PepperDash Technology Corp.
+Programmer:    Heath Volmer
+Copyright:     2016, All Rights Reserved
+********************************************************************************************,
+Notice of Ownership and Copyright
+
+The material in which this notice appears is the property of PepperDash Technology Corporation
+which claims copyright under the laws of the United States of America in the entire body of
+material and in all parts thereof, regardless of the use to which it is being put.  Any use,
+in whole or in part, of this material by another party without the express written permission
+of PepperDash Technology Corporation is prohibited.  
+
+PepperDash Technology Corporation reserves all rights under applicable laws.
+*******************************************************************************************/
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#CATEGORY "46" "PepperDash Technology"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DIGITAL_EXPAND InputsWithOutputs
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+
+#DEFINE_CONSTANT MAX_LEN_ID			50
+#DEFINE_CONSTANT MAX_LEN_STR		100
+#DEFINE_CONSTANT MAX_LEN_SEARCH		50
+
+#DEFINE_CONSTANT MAX_COUNT_DIGITAL	5
+#DEFINE_CONSTANT MAX_COUNT_ANALOG	5
+#DEFINE_CONSTANT MAX_COUNT_STRING	5
+
+#HELP_BEGIN
+Json To Simpl Child Array Lookup
+
+This module will allow the Simpl programmer to extract the values of arbitrary
+JSON properties from a JSON file loaded onto the processor.  The programmer 
+can set the "path" of the various Digital, Analog and String values they wish
+to receive from the JSON and the respective outputs will show those values. 
+                                                
+This module will look up an object in a JSON array, given a property
+name and value. It will output the desired properties of that object.  For
+example, it could look up a display from a Devices array:
+	PathPrefix = "Config.Devices" 
+	SearchPropertyName = "Key"
+	SearchPropertyValue = "Display4"
+
+This module is a "child" module designed to be linked to a one-file Master
+module, Json to Simpl File Master 2.x.x.usp.  Many of these or other child 
+modules can be linked to a single file module, which allows JSON data to be
+divided and distributed around in code and in modules.
+
+A path follows the JPath convention. Dotted syntax or array[] names to move
+into the JSON object tree.  For example RoomData.Name will read the Name property
+of the RoomData property.  RoomData.Devices[3].Name will read the Name of
+the 4th device in the Devices array. Array indexes are zero-based.
+
+All property names are case sensitive.
+
+In addition, there is a .Count property that has been added to read the number
+of child properties under a given object.  For example RoomData.Devices.Count
+could return 6 if there are 6 devices in an array.
+         
+Incorrect paths will output low, 0 or an empty string and should not throw any errors.
+
+To change the number of outputs, open up the S+ file and modify the constants 
+at the top of the file:
+	#DEFINE_CONSTANT MAX_COUNT_DIGITAL	5
+	#DEFINE_CONSTANT MAX_COUNT_ANALOG	10
+	#DEFINE_CONSTANT MAX_COUNT_STRING	10
+
+Advanced: 
+	Paths are sometimes type-agnostic, meaning, for example, that you can ask for the 
+	value of a boolean/digital property on a string output and you will get the
+	text "true" or "false".  Similarly, asking for a numeric value will retrieve the
+	string conversion of that number. 
+	
+	The PathPrefix input allows for every path defined on the arrays to have 
+	a prefix appended to it.  If you need to read a large JSON file and every output
+	might need to have values from a certain array object, then you could set the
+	prefix that object.  For example "Rooms[34]." would prefix every path so that
+	the outputs would all reflect properites from Room 34.
+
+	The PathSuffix input allows for every path to have a suffix appended.  
+	Take, for example, a language-switching scenario.  String objects can be defined
+	with properties like "EN" and "FR", each of which would contain a language-specific
+	string to be shown on a button or field.  Switching the PathSuffix input from ".EN" 
+	to ".FR" could change to french.  Module should be reinitialized after changing
+	prefix or suffix. 
+
+Usage note:
+	This has been tested up to 400 child modules attached to a parent before 
+	program loading will fail. Other S+ modules in a program may affect this count.
+                                               
+INPUTS:	(changes to any input will cause reevaluation of data)
+		(all string inputs typically driven by SIO, MSEND, etc.)
+-------------------------------------------------------------
+Initialize(D)		Will set all provided paths and evaluate them from the Master JSON
+					data.  This should be triggered after all paths as well as MasterUniqueId,
+					UniqueId, PathToArray, and PathSuffix have been set. (Easy way to do this is 
+					to add one more output to the end of the MSEND that sets all of these, with a
+					value that triggers a SAWPULSE to trigger initiailze.  See demo.) 
+					This should also be triggered after Load has been triggered on Master.
+					!!!IMPORTANT!!! Re-assert initialize after changing the serial input PathToArray
+
+EvaluateOnLastPath(S)	Will trigger "Evaluate" the JSON file with the provided paths.  Should be fed
+						by the last output of the MSEND used to set the paths to be evaluated.
+
+MasterUniqueId(S)	The path of the file being read in the corresponding master module.  
+					Use the same signal as on the master module.  This creates the link between
+					Child and Master.
+
+PathToArray(S)		Text to be prepended to EVERY path input below, using the string input will over-ride the parameter values (see notes above)
+					!!!IMPORTANT!!! Re-assert initialize after changing the serial input PathToArray
+
+PathToArrayAppend(S)	Text to be appended to the PathToArray (param or string input) when using the FullPathToArray output.  This can
+						be used to access arrays-within-arrays.
+																		
+					Example: 										
+					DSP JSON Child: 
+					- FullPathToArray (serial output) = devices[8]
+					
+					DSP Fader JSON Child:
+					- PathToArrayAppend = properties.faders
+					- PathToArray serial input recieves change event from DSP JSON Child the data will be concatenated in the following format
+					
+					PathToArray.[PathToArrayAppend].LinePath{.PathSuffix}					
+
+PathSuffix(S)		Text to be appended to EVERY path input, using the string input will over-ride the parameter values (see notes)					
+
+SearchPropertyName(S)
+
+SearchPropertyValue(S)
+
+*JsonPath(S)		The path to the property to be output on the corresponding output. NOTE:
+					Path names must be unique.  The exact-same property CANNOT be read and
+					saved on two modules.
+
+*In(D/A/S)			Values from the program to be stored in file
+
+OUTPUTS:
+-------------------------------------------------------------
+IsInitialized(D)	Will pulse high/low when JSON has been read and values output.  May be useful
+					for triggering other dependent modules or for triggering other JSON modules
+					in massive-traffic systems.
+
+DidEvaluate(D)		Will latch high when JSON paths have been evaluated.
+
+*Out(D/A/S)			The value of the JSON property corresponding to the Path input.
+
+VERION NOTES:
+-------------------------------------------------------------
+v2.5.0, 2023-05-22, jkd
+1.	Remove digital "Evaluate" and string "EvaluateOnLastPath"
+	- When initialized is pressed, it will initialize and evaluate, allowing re-evaluation on every press.
+	- This was done to simplify use of modules.
+	
+v2.4.1, 2019-05-28, jkd
+1.	Added FullPathToArray output.  This provides the path to the array object of this instance. 
+	it can be linked to another child module to access arrays within arrays.
+	- When used it will be tied to the PathToArray serial input of another JSON child module.
+2. 	Added PathToArrayAppendParam, this can be used to concatente the FullPathToArray output of another
+	JSON child module to access the array within an array.
+	- When used it will build the PathToArray.
+	
+v2.3.0, 2018-04-20, jkd
+1.	Added paramter fields, reducing the need to use MSENDs and MSPs to define the unique ID,
+	PathToArray and PathSuffx.
+2.	Changed the Evaluate(D) input to a string input that can be triggered directly from the 
+	last output of the MSEND used to set the paths to be evaluated
+#HELP_END
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+#USER_SIMPLSHARP_LIBRARY "PepperDash_Core"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT
+	_SKIP_,		// parameter: UniqueId
+	_SKIP_,		// parameter: PathToArray
+	_SKIP_,		// parameter: PathToArrayAppend
+	_SKIP_,		// parameter: PathSuffix	
+	_SKIP_,		// parameter: SearchPropertyName
+	_SKIP_,		// parameter: SearchPropertyValue
+	Initialize;
+	
+STRING_INPUT
+	_SKIP_,
+	_SKIP_,
+	MasterUniqueId[MAX_LEN_ID],
+	PathToArray[MAX_LEN_STR],
+	PathToArrayAppend[MAX_LEN_STR],
+	PathSuffix[MAX_LEN_STR],	
+	SearchPropertyName[MAX_LEN_SEARCH],
+	SearchPropertyValue[MAX_LEN_SEARCH];
+
+DIGITAL_INPUT
+	_SKIP_,
+	_SKIP_,
+	DigitalIn[MAX_COUNT_DIGITAL, MAX_COUNT_DIGITAL];
+
+ANALOG_INPUT
+	_SKIP_,
+	_SKIP_,
+	AnalogIn[MAX_COUNT_ANALOG, MAX_COUNT_ANALOG];
+
+STRING_INPUT
+	_SKIP_,
+	_SKIP_,
+	StringIn[MAX_COUNT_STRING, MAX_COUNT_STRING][MAX_LEN_STR];
+
+DIGITAL_OUTPUT
+	_SKIP_,		// parameter: UniqueId
+	_SKIP_,		// parameter: PathToArray
+	_SKIP_,		// parameter: PathToArrayAppend	
+	_SKIP_,		// parameter: PathSuffix
+	_SKIP_,		// parameter: SearchPropertyName
+	_SKIP_,		// parameter: SearchPropertyValue
+	DidEvaluate;
+
+STRING_OUTPUT
+	_SKIP_,
+	_SKIP_,
+	_SKIP_,				// string: MaterUniqueId
+	FullPathToArray,	// string: PathToArray
+	_SKIP_,				// string: PathtoArrayAppend
+	_SKIP_,				// string: PathSuffix
+	_SKIP_,				// string: SearchPropertyName
+	_SKIP_;				// string: SearchPropertyValue
+			
+DIGITAL_OUTPUT
+	_SKIP_,
+	_SKIP_,
+	DigitalOut[MAX_COUNT_DIGITAL, MAX_COUNT_DIGITAL];
+	
+ANALOG_OUTPUT
+	_SKIP_,
+	_SKIP_,
+	AnalogOut[MAX_COUNT_ANALOG, MAX_COUNT_ANALOG];
+	 
+STRING_OUTPUT 
+	_SKIP_,
+	_SKIP_,
+	StringOut[MAX_COUNT_STRING, MAX_COUNT_STRING];
+
+/*******************************************************************************************
+  SIMPL # Class to be instantiated
+*******************************************************************************************/
+JsonToSimplArrayLookupChild Child;
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+STRING_PARAMETER
+	UniqueIdParam[MAX_LEN_ID],
+	PathToArrayParam[MAX_LEN_STR],
+	PathToArrayAppendParam[MAX_LEN_STR],
+	PathSuffixParam[MAX_LEN_STR],	
+	SearchPropertyNameParam[MAX_LEN_SEARCH],
+	SearchPropertyValueParam[MAX_LEN_SEARCH],
+	_SKIP_,
+	_SKIP_,
+	_SKIP_,
+	DigitalJsonPathParam[MAX_COUNT_DIGITAL][MAX_LEN_STR],
+	_SKIP_,
+	_SKIP_,
+	_SKIP_,	// string: MasterUniqueId
+	_SKIP_, // string: PathToArray / FullPathToArray
+	_SKIP_, // string: PathToArrayAppend
+	_SKIP_, // string: PathSuffix
+	_SKIP_, // string: SearchPropertyName
+	_SKIP_,	// string: SearchPropertyValue
+	_SKIP_,
+	_SKIP_,
+	AnalogJsonPathParam[MAX_COUNT_ANALOG][MAX_LEN_STR],
+	_SKIP_,
+	_SKIP_,
+	StringJsonPathParam[MAX_COUNT_STRING, MAX_COUNT_STRING][MAX_LEN_STR];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+#BEGIN_PARAMETER_PROPERTIES UniqueIdParam
+	propValidUnits			= unitString;
+	propDefaultValue		= "ChildUniqueId";
+	propShortDescription	= "Unique ID for this module";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES PathToArrayParam
+	propValidUnits			= unitString;
+	propDefaultValue		= "";
+	propShortDescription	= "Path prefix for JSON objects";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES PathToArrayAppendParam
+	propValidUnits			= unitString;
+	propDefaultValue		= "";
+	propShortDescription	= "Append to PathToArray (Param or Input)";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES PathSuffixParam
+	propValidUnits			= unitString;
+	propDefaultValue		= "";
+	propShortDescription	= "Path suffix for JSON objects";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES SearchPropertyNameParam
+	propValidUnits			= unitString;
+	propDefaultValue		= "";
+	propShortDescription	= "Search property name";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES SearchPropertyValueParam
+	propValidUnits			= unitString;
+	propDefaultValue		= "";
+	propShortDescription	= "Search property value";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES DigitalJsonPathParam
+	propValidUnits			= unitString;
+	propDefaultValue		= "";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES AnalogJsonPathParam
+	propValidUnits			= unitString;
+	propDefaultValue		= "";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES StringJsonPathParam
+	propValidUnits			= unitString;
+	propDefaultValue		= "";
+#END_PARAMETER_PROPERTIES
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER
+	nIsInitialized;
+
+STRING
+	strMasterUniqueId[MAX_LEN_ID],
+	strPathToArray[MAX_LEN_STR],
+	strPathToArrayAppend[MAX_LEN_STR],
+	strPathSuffix[MAX_LEN_STR],	
+	strSearchPropertyName[MAX_LEN_SEARCH],
+	strSearchPropertyValue[MAX_LEN_SEARCH];
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+Function EvaluateChild()
+{
+	DidEvaluate = 0;
+	// this will cause SetAllPahts to be called
+	Child.ProcessAll();
+	DidEvaluate = 1;
+}
+
+EventHandler BoolChanged(JsonToSimplChildObjectBase sender, BoolChangeEventArgs args)
+{
+	If(args.Type = JsonToSimplConstants.BoolValueChange)
+	{
+		If(args.Index <= MAX_COUNT_DIGITAL)
+			DigitalOut[args.Index] = args.IntValue;
+	}
+}
+
+EventHandler UShortChanged(JsonToSimplChildObjectBase sender, UshrtChangeEventArgs args)
+{
+	If(args.Index <= MAX_COUNT_ANALOG)
+		AnalogOut[args.Index] = args.IntValue;
+}
+
+EventHandler StringChanged(JsonToSimplChildObjectBase sender, StringChangeEventArgs args)
+{
+	If(args.Type = JsonToSimplConstants.FullPathToArrayChange)
+		FullPathToArray = args.StringValue;	
+	Else If(args.Type = JsonToSimplConstants.StringValueChange)
+	{
+		If(args.Index <= MAX_COUNT_STRING)
+			StringOut[args.Index] = args.StringValue;
+	}
+}
+
+Callback Function GetAllValues()
+{
+	Integer nIndex;
+	
+	For(nIndex = 1 To MAX_COUNT_DIGITAL)
+		if(DigitalJsonPathParam[nIndex] != "")
+			Child.USetBoolValue(nIndex, DigitalIn[nIndex]);
+
+	For(nIndex = 1 To MAX_COUNT_ANALOG)
+		if(AnalogJsonPathParam[nIndex] != "")
+			Child.SetUShortValue(nIndex, AnalogIn[nIndex]);
+ 	
+	For(nIndex = 1 To MAX_COUNT_STRING)
+		if(StringJsonPathParam[nIndex] != "")
+			Child.SetStringValue(nIndex, StringIn[nIndex]);
+}
+
+Callback Function SetAllPaths()
+{
+  	Integer nIndex;
+  	
+  	For(nIndex = 1 To MAX_COUNT_DIGITAL)
+ 		Child.SetBoolPath(nIndex, DigitalJsonPathParam[nIndex]); 
+
+ 	For(nIndex = 1 To MAX_COUNT_ANALOG)
+		Child.SetUshortPath(nIndex, AnalogJsonPathParam[nIndex]); 
+
+ 	For(nIndex = 1 To MAX_COUNT_STRING)
+		Child.SetStringPath(nIndex, StringJsonPathParam[nIndex]); 
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+Push Initialize
+{
+	Child.InitializeWithAppend(strMasterUniqueId, UniqueIdParam, strPathToArray, strPathToArrayAppend, strPathSuffix, strSearchPropertyName, strSearchPropertyValue);
+    
+    If(nIsInitialized = 0)
+    {
+		RegisterEvent(Child, BoolChange, BoolChanged); 	
+		RegisterEvent(Child, UShortChange, UShortChanged); 	
+		RegisterEvent(Child, StringChange, StringChanged);
+	
+		RegisterDelegate(Child, GetAllValuesDelegate, GetAllValues);
+		RegisterDelegate(Child, SetAllPathsDelegate, SetAllPaths);
+	}
+	
+	EvaluateChild();
+}
+
+ThreadSafe change MasterUniqueId
+{
+	If(Len(MasterUniqueId) = 0)
+		Return;
+
+	strMasterUniqueId = MasterUniqueId;
+}
+
+ThreadSafe Change PathToArray
+{
+	// no check necessary as the path can be blank
+	strPathToArray = PathToArray;
+}
+
+ThreadSafe Change PathToArrayAppend
+{
+	// no check necessary as the path can be blank	
+ 	strPathToArrayAppend = PathToArrayAppend;
+}
+
+ThreadSafe Change PathSuffix
+{
+	// no check necessary as the path can be blank
+	strPathSuffix = PathSuffix;
+}
+
+ThreadSafe Change SearchPropertyName
+{
+	// no check necessary as the property can be blank
+	strSearchPropertyName = SearchPropertyName;
+}
+
+ThreadSafe Change SearchPropertyValue
+{
+ 	// no check necessary as the property can be blank
+ 	strSearchPropertyValue = SearchPropertyValue;
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+	nIsInitialized 			= 0;
+	strMasterUniqueId		= "";
+	strPathToArray			= PathToArrayParam;
+	strPathToArrayAppend	= PathToArrayAppendParam;
+	strPathSuffix			= PathSuffixParam;	
+	strSearchPropertyName	= SearchPropertyNameParam;
+	strSearchPropertyValue	= SearchPropertyValueParam;
+	
+   	WaitForInitializationComplete();
+}

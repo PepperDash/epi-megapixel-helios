@@ -1,0 +1,57 @@
+{	
+	"template": {
+		"info": {
+			"comment": "",
+			"requiredControlSofwareVersion": "",
+			"systemType": "huddle",
+			"lastModifiedDate": "2024-07-19T20:13:47.873Z",
+			"processorType": "rmc4"
+		},
+		"devices": [
+			{
+				"key": "processor",
+				"name": "rmc4",
+				"type": "rmc4",
+				"group": "processor",
+				"supportsCompliance": true,
+				"properties": {}
+			},
+			{
+				"key": "display1",
+				"name": "Display 1",
+				"type": "megapixelhelios",
+				"group": "plugin",
+				"properties": {
+					"control": {
+						"method": "http",
+						"tcpSshProperties": {
+							"address": "10.0.0.194",
+							"port": 80,
+							"username": "",
+							"password": ""
+						}
+					}
+				}
+			},
+			{
+				"key": "display-bridge",
+				"uid": 11,
+				"name": "Display Bridge",
+				"group": "api",
+				"type": "eiscApiAdvanced",
+				"properties": {
+					"control": { "ipid": "a6", "method": "ipidTcp", "tcpSshProperties": { "address": "127.0.0.2", "port": 0 } },
+					"devices": [
+						{ "deviceKey": "display1", "joinStart": 1   }
+					]
+				}
+			}
+		],
+		"rooms": [],
+		"sourceLists": {},
+		"tieLines": []
+	},
+	"system": {},
+	"template_url": "",
+	"system_url": ""	
+}
