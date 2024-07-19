@@ -1,0 +1,1041 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Processor",
+		"_postman_id": "8f110a55-66d8-569b-290e-2b3af3a3d527",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Change Processor Display Properties",
+			"description": "Need MAC address",
+			"item": [
+				{
+					"name": "Set Brightness and Gamma",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.display",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.display",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"dev\":{ \"display\":{ \"brightness\":100, \"gamma\": 3.1}}}\r"
+						},
+						"description": "Brightness & Gamma (edit code in the body)"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Processor Name",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?sys.description",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "sys.description",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"sys\":{\"description\":\"Beach Body  (_^(1)\"}}"
+						},
+						"description": "Change Processor name"
+					},
+					"response": []
+				},
+				{
+					"name": "Blackout Display",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.display.blackout",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.display.blackout",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dev\": {\n        \"display\": {\n            \"blackout\": false\n        }\n    }\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Freeze Display",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.display.freeze",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.display.freeze",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dev\": {\n        \"display\": {\n            \"freeze\": true\n        }\n    }\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Adjust Input Width & Height",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.display.width&dev.display.height",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.display.width",
+									"value": "",
+									"equals": false,
+									"description": ""
+								},
+								{
+									"key": "dev.display.height",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dev\": {\n        \"display\": {\n            \"height\": 1160,\n            \"width\": 1840\n        }\n    }\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Adjust Input X & Y Positions",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.display.x&dev.display.y",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.display.x",
+									"value": "",
+									"equals": false,
+									"description": ""
+								},
+								{
+									"key": "dev.display.y",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dev\": {\n        \"display\": {\n            \"x\": 500,\n            \"y\": 600\n        }\n    }\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Display Info",
+			"description": "",
+			"item": [
+				{
+					"name": "Tiles Count",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.display.tilesCount",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.display.tilesCount",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Tiles Description",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.display.tilesInfo",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.display.tilesInfo",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Alerts Info",
+			"description": "",
+			"item": [
+				{
+					"name": "Overall Health (Severity)",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?sys.alertsSeverity",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "sys.alertsSeverity",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Overall Health (Count)",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?sys.alertsCount",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "sys.alertsCount",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Ingest level Alerts ('dev.ingest')",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.ingest",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.ingest",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"dev\":{ \"display\":{ \"brightness\":10, \"gamma\": 2.9}}}\r"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Ingest List of Alerts",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.ingest.alerts",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.ingest.alerts",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Ingest Severity Alerts",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.ingest.alertsSeverity",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.ingest.alertsSeverity",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Ingest Alerts Count",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.ingest.alertsCount",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.ingest.alertsCount",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Distro Level Alerts ('dev.distros')",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.distros",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.distros",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": "Need mac address.\n...dev.distros.<mac address>.alerts"
+					},
+					"response": []
+				},
+				{
+					"name": "Receivers Level Alerts ('dev.receivers')",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.receivers",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.receivers",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": "Need mac address.\n...dev.receivers.<mac address>.alerts"
+					},
+					"response": []
+				},
+				{
+					"name": "System Level Alerts ('sys.alerts')",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?sys.alerts",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "sys.alerts",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": "Look at the alerts properties."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Request Specifying a MAC Address",
+			"description": "Distro Or Receiver (tiles)",
+			"item": [
+				{
+					"name": "Targeting Properties of a Specific Distro",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.distros.58:98:6f:00:22:7d",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.distros.58:98:6f:00:22:7d",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Targeting Properties of a Specific Receiver",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.receivers.58:98:6f:00:0b:c5",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.receivers.58:98:6f:00:0b:c5",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Request to Display Data Models",
+			"description": "",
+			"item": [
+				{
+					"name": "Getting a list of 'dev'",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": "Alternatively....\n192.168.1.108/api/v1/public?dev.ingest&dev.distros&dev.receivers&dev.display"
+					},
+					"response": []
+				},
+				{
+					"name": "Getting a list of ALL properties",
+					"request": {
+						"url": "192.168.1.108/api/v1/public",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": "Getting all properties to display"
+					},
+					"response": []
+				},
+				{
+					"name": "Getting a list of 'sys'",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?sys",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "sys",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ingest (SRX) Info",
+			"description": "Read only",
+			"item": [
+				{
+					"name": "SRX Info",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.ingest.info",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.ingest.info",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Input",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?dev.ingest.input",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "dev.ingest.input",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "System Info",
+			"description": "",
+			"item": [
+				{
+					"name": "Processor Subnet",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?sys.ipSubnet",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "sys.ipSubnet",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Processor Gateway",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?sys.ipGateway",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "sys.ipGateway",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Processor IP Address",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?sys.ipAddress",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "sys.ipAddress",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Processor Info",
+					"request": {
+						"url": {
+							"raw": "192.168.1.108/api/v1/public?sys.info",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"108"
+							],
+							"path": [
+								"api",
+								"v1",
+								"public"
+							],
+							"query": [
+								{
+									"key": "sys.info",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Preview",
+			"request": {
+				"url": "192.168.1.108/api/v1/preview/preview",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
