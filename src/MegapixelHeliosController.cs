@@ -115,8 +115,6 @@ namespace MegapixelHelios
 
 		public StringFeedback CurrentPresetNameFeedback { get; set; }
 
-		private Dictionary<string, MegaPixelHeliosPresetConfig> _presetsConfig; 
-
 		/// <summary>
 		/// Reports online feedback through the bridge
 		/// </summary>
@@ -294,7 +292,7 @@ namespace MegapixelHelios
 					"OnResponseReceived: Code = {0} | ContentString = {1}",
 					args.Code, args.ContentString);
 
-				ResponseCode = args.Code;
+				ResponseCode = args.Code;				
 
 				if (string.IsNullOrEmpty(args.ContentString))
 				{
@@ -302,15 +300,16 @@ namespace MegapixelHelios
 					return;
 				}
 
+				ResponseContent = args.ContentString;
+
 				var jToken = IsValidJson(args.ContentString);
 				if (jToken == null)
 				{
-					Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: IsValidJson failed, passing ContentString as string");
-					ResponseContent = args.ContentString;
+					Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: IsValidJson failed, passing ContentString as string");					
 					return;
 				}
 
-				ProcessDataToken(jToken);
+				ProcessJToken(jToken);
 			}
 			catch (Exception ex)
 			{
@@ -320,59 +319,56 @@ namespace MegapixelHelios
 			}
 		}
 
-		// process data token
-		private void ProcessDataToken(JToken jToken)
+		// process JToken
+		private void ProcessJToken(JToken jToken)
 		{
-			var dataToken = jToken.SelectToken("data");
-			if (dataToken == null)
+			var token = jToken.SelectToken("dev");
+			if (token == null)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessDataToken: selectToken 'data' failed");
+				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: selectToken 'dev' failed");				
+			}
+
+			token = jToken.SelectToken("presetName");
+			if (token == null)
+			{
+				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: selectToken 'presetName' failed");
 				return;
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessDataToken: dataToken.Type is '{0}'", dataToken.Type.ToString());
+			Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: token.Type is '{0}'", token.Type.ToString());
 
 			try
 			{
-				switch (dataToken.Type)
+				switch (token.Type)
 				{
-					case JTokenType.Array:
-						{
-							//var dataList = dataToken.ToObject<List<PadmData>>();
-							//ProcessDataArray(dataList);
-
-							break;
-						}
 					case JTokenType.Object:
 						{
-							//var dataObj = dataToken.ToObject<PadmRequest>();
-							//ProcessDataObject(dataObj);
-
-							//CrestronInvoke.BeginInvoke(o =>
-							//{
-							//    var timer = new CTimer(g => GetLoadGroups(), 5000);
-							//});
-
+							// [ ] TODO - update to process JSON objects
 							break;
 						}
+					case JTokenType.Array:
+						{
+							// [ ] TODO - update to process JSON arrays
+							break;
+						}					
 					default:
 						{
-							Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessDataToken: unhandled JTokenType '{0}'", dataToken.Type.ToString());
+							Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: unhandled JTokenType '{0}'", token.Type.ToString());
 							break;
 						}
 				}
 			}
 			catch (JsonSerializationException jex)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessDataToken Exception Message: {0}", jex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessDataToken Stack Trace: {0}", jex.StackTrace);
-				if (jex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessDataToken Inner Exception {0}", jex.InnerException);
+				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken Exception Message: {0}", jex.Message);
+				Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken Stack Trace: {0}", jex.StackTrace);
+				if (jex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken Inner Exception {0}", jex.InnerException);
 			}
 			catch (Exception ex)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessDataToken Exception Message: {0}", ex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessDataToken Stack Trace: {0}", ex.StackTrace);
-				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessDataToken Inner Exception {0}", ex.InnerException);
+				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken Exception Message: {0}", ex.Message);
+				Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken Stack Trace: {0}", ex.StackTrace);
+				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken Inner Exception {0}", ex.InnerException);
 			}
 		}
 
@@ -392,90 +388,119 @@ namespace MegapixelHelios
 		/// <summary>
 		/// Power On (blackout: false)
 		/// </summary>
+		/// <remarks>
+		/// requestType: PATCH
+		/// path: "/api/v1/public
+		/// content: { "dev": { "display": { "blackout": false } } }
+		/// </remarks>
 		public void PowerOn()
 		{
-			// PATCH /api/v1/public
-			// CONTENT: { "dev": { "display": { "blackout": false } } }
-			var content = JsonConvert.SerializeObject(new MegapixelHeliosRestRequests.SetBlackoutState(false));
+			var jsonObject = new RootDevObject
+			{
+				Dev = new DevObject
+				{
+					Display = new DisplayObject
+					{
+						Blackout = false
+					}					
+				}
+			};
+
+			var content = JsonConvert.SerializeObject(jsonObject);
 			if (string.IsNullOrEmpty(content))
 			{
 				Debug.Console(MegapixelHeliosDebug.Notice, "PowerOn: failed to serialzie request content");
 				return;
 			}
 
+			Debug.Console(MegapixelHeliosDebug.Trace, this, "PowerOn: content-'{0}'", content);
 			_client.SendRequest("PATCH", "/api/v1/public", content);
 		}
 
 		/// <summary>
 		/// Power Off (blackout: true)
 		/// </summary>
+		/// <remarks>
+		/// requestType: PATCH
+		/// path: "/api/v1/public"
+		/// content: { "dev": { "display": { "blackout": true } } }
+		/// </remarks>
 		public void PowerOff()
 		{
-			// PATCH /api/v1/public
-			// CONTENT: { "dev": { "display": { "blackout": true } } }
-			var content = JsonConvert.SerializeObject(new MegapixelHeliosRestRequests.SetBlackoutState(true));
+			var jsonObject = new RootDevObject
+			{
+				Dev = new DevObject
+				{
+					Display = new DisplayObject
+					{
+						Blackout = true
+					}
+				}
+			};
+
+			var content = JsonConvert.SerializeObject(jsonObject);
 			if (string.IsNullOrEmpty(content))
 			{
 				Debug.Console(MegapixelHeliosDebug.Notice, "PowerOff: failed to serialzie request content");
 				return;
 			}
 
+			Debug.Console(MegapixelHeliosDebug.Trace, this, "PowerOff: content-'{0}'", content);
 			_client.SendRequest("PATCH", "/api/v1/public", content);
 		}
-
-		/// <summary>
-		/// Prints the configured presets to console
-		/// </summary>
-		public void PrintPresetsConfig()
-		{
-			if (_presetsConfig == null)
-			{
-				Debug.Console(MegapixelHeliosDebug.Trace, this, "Presets configuration is null");
-				return;
-			}
-
-			foreach(var p in _presetsConfig)
-				Debug.Console(MegapixelHeliosDebug.Trace, this, 
-					"Preset: key-'{0}', label-'{1}', presetId-'{2}', presetName-'{3}'",
-					p.Key, p.Value.Label, p.Value.PreseId, p.Value.PresetName);
-		}
-
+		
 		/// <summary>
 		/// Queries device for preset list 
 		/// </summary>
+		/// <remarks>
+		/// requestType: GET
+		/// path: "/api/v1/presets/list"
+		/// </remarks>
 		public void GetPresetsList()
 		{
-			// GET /api/v1/presets/list
 			_client.SendRequest("GET", "/api/v1/presets/list", string.Empty);
 		}
 
 		/// <summary>
 		/// Recalls preset using device configured presetId
 		/// </summary>
+		/// <remarks>
+		/// requestType: POST
+		/// path: "/api/v1/presets/{id}/apply"
+		/// content: ""
+		/// </remarks>
 		/// <param name="id"></param>
 		public void RecallPresetById(uint id)
 		{
 			if (id == 0) return;
 
-			// POST /api/v1/presets/{id}/apply
 			_client.SendRequest("POST", string.Format("/api/v1/presets/{0}/apply", id), string.Empty);
 		}
 
 		/// <summary>
 		/// Recalls preset using device configured presetName
 		/// </summary>
+		/// <remarks>
+		/// requestType: POST
+		/// path: "/api/v1/presets/apply"
+		/// content: "{ "presetName": "{name}" }
+		/// </remarks>
 		/// <param name="name"></param>
 		public void RecallPresetByName(string name)
 		{
-			// POST /api/v1/presets/apply
-			// CONTENT: { "presetName": "{name}" }
-			var content = JsonConvert.SerializeObject(new MegapixelHeliosRestRequests.RecallPresetByName(name));
+			var jsonObject = new PresetNameObject()
+			{
+				PresetName = name
+			};
+
+			var content = JsonConvert.SerializeObject(jsonObject);
 			if (string.IsNullOrEmpty(content))
 			{
 				Debug.Console(MegapixelHeliosDebug.Notice, "RecallPresetByName: failed to serialzie request content");
 				return;
 			}
 
+			Debug.Console(MegapixelHeliosDebug.Trace, this, "RecallPresetByName: content-'{0}'", content);
 			_client.SendRequest("POST", "/api/v1/presets/apply", content);
 		}
 	}

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using PepperDash.Essentials.Core;
 
 namespace MegapixelHelios
@@ -17,23 +16,10 @@ namespace MegapixelHelios
 		public EssentialsControlPropertiesConfig Control { get; set; }
 
 		/// <summary>
-		/// Serializes the poll time value
-		/// </summary>
-		[JsonProperty("pollTimeMs")]
-		public long PollTimeMs { get; set; }
-
-		/// <summary>
-		/// Presets dictionary
-		/// </summary>
-		[JsonProperty("presets", NullValueHandling = NullValueHandling.Ignore)]
-		public Dictionary<string, MegaPixelHeliosPresetConfig> Presets { get; set; } 
-
-		/// <summary>
 		/// Constuctor
 		/// </summary>
 		public MegapixelHeliosPropertiesConfig()
 		{
-			Presets = new Dictionary<string, MegaPixelHeliosPresetConfig>();
 		}
 	}
 

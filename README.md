@@ -11,25 +11,30 @@ Provided under MIT license
 
 ### Device
 
+MinimumEssentialsFrameworkVersion = `1.16.0`
+
+Type: `megapixelhelios`
+
 ```json
 {
-    "key": "videoWall-1",
-    "name": "Video Wall",
-    "type": "",
+    "key": "display-1",
+    "name": "Megapixel Helios",
+    "type": "megapixelhelios",
     "properties": {
         "control": {
-            "method": "{http, port 80 || https, port 443}",
+            "method": "{http || https}",
             "tcpSshProperties": {
                 "address": "192.168.101",
                 "port": 80,
                 "username": "{as defined in HELIOS web application}",
                 "password": "{as defined in HELIOS web application}"
             }
-        },
-        "pollTimeMs": 60000
+        }
     }
 }
 ```
+
+If `port` is only needed when overriding the default HTTP `80` or HTTPS `443`.
 
 ### Bridge
 
@@ -49,7 +54,7 @@ Provided under MIT license
 			"method": "ipidTcp"
 		},
 		"devices": [
-			{ "deviceKey": "videoWall-1"     , "joinStart": 1 }			
+			{ "deviceKey": "display-1"     , "joinStart": 1 }			
 		]
 	}
 }
@@ -75,4 +80,15 @@ Provided under MIT license
 | 1           | 1         | Device Name                   | Serial | ToSIMPL      |
 | 21          | 1         | Preset select by `presetName` | Serial | ToSimpl      |
 
+## DEVJSON Commands
+
+Public Methods that can be used with `devjson` to test controls.  
+
+```json
+devjson:1 {"deviceKey":"display-1","methodName":"PowerOn","params":[]}
+devjson:1 {"deviceKey":"display-1","methodName":"PowerOff","params":[]}
+devjson:1 {"deviceKey":"display-1","methodName":"GetPresetsList","params":[]}
+devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetById","params":[1]} // example: preesetId '1'
+devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetByName","params":["full"]} // example: preesetName 'full'
+```
 

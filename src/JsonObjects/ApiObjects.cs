@@ -1,9 +1,33 @@
-﻿using System;
-
+﻿
+using System;
 using Newtonsoft.Json;
 
 namespace MegapixelHelios.JsonObjects
 {
+	public class RootDevObject
+	{
+		[JsonProperty("dev")]
+		public DevObject Dev { get; set; }		
+	}
+
+	public class DevObject
+	{
+		[JsonProperty("display")]
+		public DisplayObject Display { get; set; }
+	}
+
+	public class DisplayObject
+	{
+		[JsonProperty("blackout")]
+		public bool Blackout { get; set; }
+	}
+
+	public class PresetNameObject
+	{
+		[JsonProperty("presetName")]
+		public string PresetName { get; set; }
+	}
+
 	public static class MegapixelHeliosJsonRpcRequests
 	{
 		public abstract class BaseRequestPropeties

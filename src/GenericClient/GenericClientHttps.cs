@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 using Crestron.SimplSharp;
 using Crestron.SimplSharp.Net.Http;
@@ -25,6 +26,7 @@ namespace MegapixelHelios.GenericClient
 		public int Port { get; private set; }
 		public string Username { get; private set; }
 		public string Password { get; private set; }
+		public string AuthorizationBase64 { get; set; }
 
 		/// <summary>
 		/// Constructor
@@ -53,6 +55,7 @@ namespace MegapixelHelios.GenericClient
 				: 443;
 			Username = controlConfig.TcpSshProperties.Username ?? "";
 			Password = controlConfig.TcpSshProperties.Password ?? "";
+			AuthorizationBase64 = EncodeBase64(Username, Password);
 
 			Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
 {0}
@@ -111,6 +114,12 @@ Password = {5}
 			};
 
 			request.Header.SetHeaderValue("Content-Type", "application/json");
+			request.Header.SetHeaderValue("Content-Length", content.Length.ToString(CultureInfo.InvariantCulture));
+
+			if (!string.IsNullOrEmpty(AuthorizationBase64))
+			{
+				request.Header.SetHeaderValue("Authorization", AuthorizationBase64);
+			}
 
 			Debug.Console(MegapixelHeliosDebug.Notice, this, @"
 {0}
