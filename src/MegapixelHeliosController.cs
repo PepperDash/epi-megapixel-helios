@@ -23,7 +23,7 @@ namespace MegapixelHelios
 		#region IRestfulComms
 
 		private readonly IRestfulComms _client;
-		
+
 		private int _responseCode;
 		public int ResponseCode
 		{
@@ -160,7 +160,7 @@ namespace MegapixelHelios
 			//StatusFeedback = new IntFeedback(() => (int)_commsMonitor.Status);
 
 			PowerIsOnFeedback = new BoolFeedback(() => PowerIsOn);
-			CurrentPresetIdFeedback = new IntFeedback(()=> CurrentPresetId);
+			CurrentPresetIdFeedback = new IntFeedback(() => CurrentPresetId);
 			CurrentPresetNameFeedback = new StringFeedback(() => CurrentPresetName);
 
 			ResponseCodeFeedback = new IntFeedback(() => ResponseCode);
@@ -284,6 +284,30 @@ namespace MegapixelHelios
 			}
 		}
 
+		public void TestOnResponseReceived()
+		{
+			var jsonObject = new RootDevObject
+			{
+				Dev = new DevObject
+				{
+					Display = new DisplayObject
+					{
+						Blackout = true
+					}
+				}
+			};
+			var contentString = JsonConvert.SerializeObject(jsonObject, Formatting.Indented);
+
+			var sender = new object();
+			var args = new GenericClientResponseEventArgs
+			{
+				Code = 200,
+				ContentString = contentString
+			};
+
+			OnResponseReceived(sender, args);
+		}
+
 		private void OnResponseReceived(object sender, GenericClientResponseEventArgs args)
 		{
 			try
@@ -292,7 +316,7 @@ namespace MegapixelHelios
 					"OnResponseReceived: Code = {0} | ContentString = {1}",
 					args.Code, args.ContentString);
 
-				ResponseCode = args.Code;				
+				ResponseCode = args.Code;
 
 				if (string.IsNullOrEmpty(args.ContentString))
 				{
@@ -305,11 +329,12 @@ namespace MegapixelHelios
 				var jToken = IsValidJson(args.ContentString);
 				if (jToken == null)
 				{
-					Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: IsValidJson failed, passing ContentString as string");					
+					Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: IsValidJson failed, passing ContentString as string");
 					return;
 				}
 
-				ProcessJToken(jToken);
+				ProcessJToken(jToken, "dev.display.blackout");
+				//ProcessJToken(jToken, "presetName");
 			}
 			catch (Exception ex)
 			{
@@ -320,22 +345,16 @@ namespace MegapixelHelios
 		}
 
 		// process JToken
-		private void ProcessJToken(JToken jToken)
+		private void ProcessJToken(JToken jToken, string path)
 		{
-			var token = jToken.SelectToken("dev");
+			var token = jToken.SelectToken(path);
 			if (token == null)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: selectToken 'dev' failed");				
-			}
-
-			token = jToken.SelectToken("presetName");
-			if (token == null)
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: selectToken 'presetName' failed");
+				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: selectToken '{0}' failed", path);
 				return;
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: token.Type is '{0}'", token.Type.ToString());
+			Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: '{0}' token.Type is '{1}'", path, token.Type.ToString());
 
 			try
 			{
@@ -350,7 +369,18 @@ namespace MegapixelHelios
 						{
 							// [ ] TODO - update to process JSON arrays
 							break;
-						}					
+						}
+					case JTokenType.Boolean:
+						{
+							// [ ] TODO - update to process JSON objects
+							if (path == "dev.display.blackout")
+							{
+								Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken: '{0}' = {1}", path, token.Value<bool>());
+								PowerIsOn = token.Value<bool>();
+							}
+
+							break;
+						}
 					default:
 						{
 							Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: unhandled JTokenType '{0}'", token.Type.ToString());
@@ -402,7 +432,7 @@ namespace MegapixelHelios
 					Display = new DisplayObject
 					{
 						Blackout = false
-					}					
+					}
 				}
 			};
 
@@ -448,7 +478,7 @@ namespace MegapixelHelios
 			Debug.Console(MegapixelHeliosDebug.Trace, this, "PowerOff: content-'{0}'", content);
 			_client.SendRequest("PATCH", "/api/v1/public", content);
 		}
-		
+
 		/// <summary>
 		/// Queries device for preset list 
 		/// </summary>
