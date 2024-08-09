@@ -100,16 +100,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JsonObjects\ApiObjects.cs" />
-    <Compile Include="JsonObjects\Blackout\ApiObjects.cs" />
-    <Compile Include="JsonObjects\Brightness\ApiObjects.cs" />
-    <Compile Include="JsonObjects\TestPattern\ApiObjects.cs" />
     <Compile Include="MegapixelHeliosDebug.cs" />
     <Compile Include="GenericClient\GenericClientEventArgs.cs" />
     <Compile Include="GenericClient\GenericClientHttp.cs" />
     <Compile Include="GenericClient\GenericClientHttps.cs" />
     <Compile Include="GenericClient\IRestfulComms.cs" />
     <Compile Include="MegapixelHelioBridgeJoinMap.cs" />
-    <Compile Include="Parameters\Parameters.cs" />
     <Compile Include="MegapixelHeliosPropertiesConfig.cs" />
     <Compile Include="MegapixelHeliosFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
