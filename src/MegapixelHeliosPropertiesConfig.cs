@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using PepperDash.Essentials.Core;
-using System.Collections.Generic;
 
 namespace MegapixelHelios
 {
@@ -21,14 +20,7 @@ namespace MegapixelHelios
 		/// </summary>
 		public MegapixelHeliosPropertiesConfig()
 		{
-            Presets = new List<MegaPixelHeliosPresetConfig>();
 		}
-
-        [JsonProperty("brightness")]
-        public BrightnessConfigObject Brightness { get; set; }
-
-        [JsonProperty("presets")]
-        public List<MegaPixelHeliosPresetConfig> Presets { get; set; }
 	}
 
 	/// <summary>
@@ -50,15 +42,4 @@ namespace MegapixelHelios
 			return JsonConvert.SerializeObject(this);
 		}
 	}
-
-    public class BrightnessConfigObject
-    {
-        [JsonProperty("high")]
-        public ushort High { get; set; }
-        [JsonProperty("medium")]
-        public ushort Medium { get; set; }
-        [JsonProperty("low")]
-        public ushort Low { get; set; }
-
-    }
 }
