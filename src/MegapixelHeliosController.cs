@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
+using Crestron.SimplSharp;
 
 
 namespace MegapixelHelios
@@ -129,6 +130,9 @@ namespace MegapixelHelios
 
         public BoolFeedback RedundancyOnMainFeedback { get; set; }
 
+        private CTimer _pollTimer;
+
+
 		/// <summary>
 		/// Reports online feedback through the bridge
 		/// </summary>
@@ -152,6 +156,7 @@ namespace MegapixelHelios
 			Debug.Console(0, this, "Constructing new {0} instance", name);
 
 			MegapixelHeliosDebug.ResetDebugLevels();
+
 
 			if (propertiesConfig == null || propertiesConfig.Control == null)
 			{
@@ -180,6 +185,8 @@ namespace MegapixelHelios
 			ResponseCodeFeedback = new IntFeedback(() => ResponseCode);
 			ResponseContentFeedback = new StringFeedback(() => ResponseContent);
 			ResponseErrorFeedback = new StringFeedback(() => ResponseError);
+
+            RedundancyOnMainFeedback = new BoolFeedback(() => RedundancyOnMain);
 		}
 
 		/// <summary>
@@ -188,7 +195,14 @@ namespace MegapixelHelios
 		public override void Initialize()
 		{
 			base.Initialize();
+
+            StartPollTimer();
 		}
+
+        private void StartPollTimer()
+        {
+            _pollTimer = new CTimer((o) => Poll(), null, 30000, 30000);
+        }
 
 		private void UpdateFeedbacks()
 		{
@@ -202,6 +216,8 @@ namespace MegapixelHelios
 			ResponseCodeFeedback.FireUpdate();
 			ResponseContentFeedback.FireUpdate();
 			ResponseErrorFeedback.FireUpdate();
+
+            RedundancyOnMainFeedback.FireUpdate();
 		}
 
 		#region Overrides of EssentialsBridgeableDevice
@@ -445,7 +461,9 @@ namespace MegapixelHelios
 		{
 			// TODO [ ] Update Poll method as needed for the plugin being developed
 			// Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
-			throw new System.NotImplementedException();
+            GetRedunancyState();
+
+            
 		}
 
 
