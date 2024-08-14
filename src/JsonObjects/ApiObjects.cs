@@ -1,6 +1,7 @@
 ﻿
 using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace MegapixelHelios.JsonObjects
 {
@@ -18,9 +19,26 @@ namespace MegapixelHelios.JsonObjects
 
 	public class DisplayObject
 	{
-		[JsonProperty("blackout")]
-		public bool Blackout { get; set; }
-	}
+		[JsonProperty("blackout", NullValueHandling = NullValueHandling.Ignore)]
+		public bool? Blackout { get; set; }
+
+        [JsonProperty("redundancy")]
+        public Redundancy Redundancy { get; set; }
+    }
+
+    public class Redundancy
+    {
+        [JsonProperty("state")]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public eRedundancyState State { get; set; }
+    }
+
+    public enum eRedundancyState
+    {
+        main,
+        backup,
+        active,
+    }
 
 	public class PresetNameObject
 	{

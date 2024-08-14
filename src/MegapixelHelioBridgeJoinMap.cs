@@ -37,6 +37,36 @@ namespace MegapixelHelios
 				JoinType = eJoinType.Digital
 			});
 
+
+        [JoinName("SetRedundancyToMain")]
+        public JoinDataComplete SetRedundancyToMain = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 3,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set redundancy to main. FB true if currently on main.",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("SetRedundancyToBackup")]
+        public JoinDataComplete SetRedundancyToBackup = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 4,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set redundancy to backup. FB true if currently on backup.",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+
 		[JoinName("IsOnline")]
 		public JoinDataComplete IsOnline = new JoinDataComplete(
 			new JoinData

@@ -115,6 +115,20 @@ namespace MegapixelHelios
 
 		public StringFeedback CurrentPresetNameFeedback { get; set; }
 
+        private bool _redundancyOnMain;
+        public bool RedundancyOnMain
+        {
+            get { return _redundancyOnMain; }
+            set
+            {
+                if (_redundancyOnMain == value) return;
+                _redundancyOnMain = value;
+                RedundancyOnMainFeedback.FireUpdate();
+            }
+        }
+
+        public BoolFeedback RedundancyOnMainFeedback { get; set; }
+
 		/// <summary>
 		/// Reports online feedback through the bridge
 		/// </summary>
@@ -228,6 +242,12 @@ namespace MegapixelHelios
 			trilist.SetSigTrueAction(joinMap.PowerOn.JoinNumber, PowerOn);
 			trilist.SetSigTrueAction(joinMap.PowerOff.JoinNumber, PowerOff);
 
+            trilist.SetSigTrueAction(joinMap.SetRedundancyToMain.JoinNumber, SetRedundancyToBackup);
+            trilist.SetSigTrueAction(joinMap.SetRedundancyToBackup.JoinNumber, SetRedundancyToBackup);
+
+            RedundancyOnMainFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyToMain.JoinNumber]);
+            RedundancyOnMainFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.SetRedundancyToBackup.JoinNumber]);
+
 			trilist.SetUShortSigAction(joinMap.RecallPresetById.JoinNumber, a => RecallPresetById(a));
 			trilist.SetStringSigAction(joinMap.RecallPresetByName.JoinNumber, RecallPresetByName);
 
@@ -333,7 +353,20 @@ namespace MegapixelHelios
 					return;
 				}
 
-				ProcessJToken(jToken, "dev.display.blackout");
+
+                var feedback = JsonConvert.DeserializeObject<RootDevObject>(ResponseContent);
+
+                if (feedback.Dev.Display.Blackout != null)
+                {
+                    PowerIsOn = (bool)feedback.Dev.Display.Blackout;
+                }
+
+                if (feedback.Dev.Display.Redundancy != null)
+                {
+                    RedundancyOnMain = feedback.Dev.Display.Redundancy.State == eRedundancyState.main;
+                }
+
+                //ProcessJToken(jToken, "dev.display.blackout");
 				//ProcessJToken(jToken, "presetName");
 			}
 			catch (Exception ex)
@@ -414,6 +447,50 @@ namespace MegapixelHelios
 			// Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
 			throw new System.NotImplementedException();
 		}
+
+
+        public void GetRedunancyState()
+        {
+            _client.SendRequest("GET", "/api/v1/public?dev.display.redundancy.state", string.Empty);
+        }
+
+        public void SetRedundancyToMain()
+        {
+            var content = new RootDevObject() 
+            {
+                Dev = 
+                {
+                    Display =
+                    {
+                        Redundancy =
+                        {
+                            State = eRedundancyState.main
+                        }
+                    }
+                }
+            };
+
+            _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+        }
+
+        public void SetRedundancyToBackup()
+        {
+            var content = new RootDevObject()
+            {
+                Dev =
+                {
+                    Display =
+                    {
+                        Redundancy =
+                        {
+                            State = eRedundancyState.backup
+                        }
+                    }
+                }
+            };
+
+            _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+        }
 
 		/// <summary>
 		/// Power On (blackout: false)
