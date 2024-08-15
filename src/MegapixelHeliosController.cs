@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using Crestron.SimplSharpPro.DeviceSupport;
 using MegapixelHelios.GenericClient;
 using MegapixelHelios.JsonObjects;
+using MegapixelHelios.Parameters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
+using Crestron.SimplSharp;
+using Crestron.SimplSharpPro.CrestronThread;
 
 
 namespace MegapixelHelios
@@ -85,6 +88,35 @@ namespace MegapixelHelios
 
 		public BoolFeedback PowerIsOnFeedback { get; set; }
 
+        private bool _testPatternIsOn;
+        public bool TestPatternIsOn
+        {
+            get { return _testPatternIsOn; }
+            set
+            {
+                if (_testPatternIsOn == value) return;
+                _testPatternIsOn = value;
+                TestPatternIsOnFeedback.FireUpdate();
+            }
+        }
+
+        public BoolFeedback TestPatternIsOnFeedback { get; set; }
+
+
+        private int _brightness;
+        public int Brightness
+        {
+            get { return _brightness; }
+            set
+            {
+                if (_brightness == value) return;
+                _brightness = value;
+                BrightnessFeedback.FireUpdate();
+            }
+        }
+
+        public IntFeedback BrightnessFeedback { get; set; }
+
 
 		private int _currentPresetId;
 		public int CurrentPresetId
@@ -115,6 +147,39 @@ namespace MegapixelHelios
 
 		public StringFeedback CurrentPresetNameFeedback { get; set; }
 
+        private bool _redundancyOnMain;
+        public bool RedundancyOnMain
+        {
+            get { return _redundancyOnMain; }
+            set
+            {
+                if (_redundancyOnMain == value) return;
+                _redundancyOnMain = value;
+                RedundancyOnMainFeedback.FireUpdate();
+            }
+        }
+
+        public BoolFeedback RedundancyOnMainFeedback { get; set; }
+
+        private List<MegaPixelHeliosPresetConfig> _presets;
+
+
+        private CTimer _pollTimer;
+
+        private bool _isOnline;
+        public bool IsOnline
+        {
+            get { return _isOnline; }
+            set
+            {
+                _isOnline = value;
+                IsOnlineFeedback.FireUpdate();
+            }
+        }
+
+        public BoolFeedback IsOnlineFeedback;
+
+
 		/// <summary>
 		/// Reports online feedback through the bridge
 		/// </summary>
@@ -139,6 +204,7 @@ namespace MegapixelHelios
 
 			MegapixelHeliosDebug.ResetDebugLevels();
 
+
 			if (propertiesConfig == null || propertiesConfig.Control == null)
 			{
 				Debug.Console(MegapixelHeliosDebug.Trace, this, "Configuration or control object is null, unable to construct new {0} instance.  Check configuration.", name);
@@ -159,13 +225,26 @@ namespace MegapixelHelios
 			//OnlineFeedback = new BoolFeedback(() => _commsMonitor.IsOnline);
 			//StatusFeedback = new IntFeedback(() => (int)_commsMonitor.Status);
 
+            BrightnessLevel.High = propertiesConfig.Brightness.High;
+            BrightnessLevel.Medium = propertiesConfig.Brightness.Medium;
+            BrightnessLevel.Low = propertiesConfig.Brightness.Low;
+
 			PowerIsOnFeedback = new BoolFeedback(() => PowerIsOn);
 			CurrentPresetIdFeedback = new IntFeedback(() => CurrentPresetId);
 			CurrentPresetNameFeedback = new StringFeedback(() => CurrentPresetName);
 
+            TestPatternIsOnFeedback = new BoolFeedback(() => TestPatternIsOn);
+            BrightnessFeedback = new IntFeedback(() => Brightness);
+            IsOnlineFeedback = new BoolFeedback(() => IsOnline);
+
+
 			ResponseCodeFeedback = new IntFeedback(() => ResponseCode);
 			ResponseContentFeedback = new StringFeedback(() => ResponseContent);
 			ResponseErrorFeedback = new StringFeedback(() => ResponseError);
+
+            RedundancyOnMainFeedback = new BoolFeedback(() => RedundancyOnMain);
+
+            _presets = propertiesConfig.Presets;
 		}
 
 		/// <summary>
@@ -174,7 +253,14 @@ namespace MegapixelHelios
 		public override void Initialize()
 		{
 			base.Initialize();
+
+            StartPollTimer();
 		}
+
+        private void StartPollTimer()
+        {
+            _pollTimer = new CTimer((o) => Poll(), null, 15000, 15000);
+        }
 
 		private void UpdateFeedbacks()
 		{
@@ -185,9 +271,15 @@ namespace MegapixelHelios
 			CurrentPresetIdFeedback.FireUpdate();
 			CurrentPresetNameFeedback.FireUpdate();
 
+            BrightnessFeedback.FireUpdate();
+            TestPatternIsOnFeedback.FireUpdate();
+            IsOnlineFeedback.FireUpdate();
+
 			ResponseCodeFeedback.FireUpdate();
 			ResponseContentFeedback.FireUpdate();
 			ResponseErrorFeedback.FireUpdate();
+
+            RedundancyOnMainFeedback.FireUpdate();
 		}
 
 		#region Overrides of EssentialsBridgeableDevice
@@ -228,11 +320,34 @@ namespace MegapixelHelios
 			trilist.SetSigTrueAction(joinMap.PowerOn.JoinNumber, PowerOn);
 			trilist.SetSigTrueAction(joinMap.PowerOff.JoinNumber, PowerOff);
 
+            trilist.SetSigTrueAction(joinMap.TestPatternOn.JoinNumber, TestPatternOn);
+            trilist.SetSigTrueAction(joinMap.TestPatternOff.JoinNumber, TestPatternOff);
+
+            trilist.SetSigTrueAction(joinMap.BrightnessHigh.JoinNumber, () => SetBrightness(BrightnessLevel.High));
+            trilist.SetSigTrueAction(joinMap.BrightnessMedium.JoinNumber, () => SetBrightness(BrightnessLevel.Medium));
+            trilist.SetSigTrueAction(joinMap.BrightnessLow.JoinNumber, () => SetBrightness(BrightnessLevel.Low));
+
+            trilist.SetUShortSigAction(joinMap.Brightness.JoinNumber, a => SetBrightness(a));
+
+            trilist.SetSigTrueAction(joinMap.SetRedundancyToMain.JoinNumber, SetRedundancyToMain);
+            trilist.SetSigTrueAction(joinMap.SetRedundancyToBackup.JoinNumber, SetRedundancyToBackup);
+
+            RedundancyOnMainFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyToMain.JoinNumber]);
+            RedundancyOnMainFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.SetRedundancyToBackup.JoinNumber]);
+
 			trilist.SetUShortSigAction(joinMap.RecallPresetById.JoinNumber, a => RecallPresetById(a));
 			trilist.SetStringSigAction(joinMap.RecallPresetByName.JoinNumber, RecallPresetByName);
 
 			PowerIsOnFeedback.LinkInputSig(trilist.BooleanInput[joinMap.PowerOn.JoinNumber]);
 			PowerIsOnFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.PowerOff.JoinNumber]);
+
+            IsOnlineFeedback.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
+
+            TestPatternIsOnFeedback.LinkInputSig(trilist.BooleanInput[joinMap.TestPatternOn.JoinNumber]);
+            TestPatternIsOnFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.TestPatternOff.JoinNumber]);
+
+            BrightnessFeedback.LinkInputSig(trilist.UShortInput[joinMap.Brightness.JoinNumber]);
+
 
 			ResponseCodeFeedback.LinkInputSig(trilist.UShortInput[joinMap.ResponseCode.JoinNumber]);
 			ResponseContentFeedback.LinkInputSig(trilist.StringInput[joinMap.ResponseContent.JoinNumber]);
@@ -333,7 +448,40 @@ namespace MegapixelHelios
 					return;
 				}
 
-				ProcessJToken(jToken, "dev.display.blackout");
+
+                var feedback = JsonConvert.DeserializeObject<RootDevObject>(ResponseContent);
+
+                if (feedback.Dev.Display != null)
+                {
+
+                    if (feedback.Dev.Display.Blackout != null)
+                    {
+                        PowerIsOn = (bool)feedback.Dev.Display.Blackout;
+                    }
+
+                    if (feedback.Dev.Display.Brightness != null)
+                    {
+                        Brightness = (int)feedback.Dev.Display.Brightness;
+                    }
+
+                    if (feedback.Dev.Display.Redundancy != null)
+                    {
+                        RedundancyOnMain = feedback.Dev.Display.Redundancy.State == eRedundancyState.active;
+                    }
+
+                }
+
+                if (feedback.Dev.Ingest != null)
+                {
+                    if (feedback.Dev.Ingest.TestPattern != null)
+                    {
+                        TestPatternIsOn = feedback.Dev.Ingest.TestPattern.Enabled;
+                    }
+                }
+
+
+
+                //ProcessJToken(jToken, "dev.display.blackout");
 				//ProcessJToken(jToken, "presetName");
 			}
 			catch (Exception ex)
@@ -412,8 +560,67 @@ namespace MegapixelHelios
 		{
 			// TODO [ ] Update Poll method as needed for the plugin being developed
 			// Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
-			throw new System.NotImplementedException();
+            GetRedundancyState(); 
 		}
+
+
+        public void GetRedundancyState()
+        {
+            _client.SendRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
+
+        }
+
+        public void SetRedundancyToMain()
+        {
+            var content = new RootDevObject 
+            {
+                Dev = new DevObject 
+                {
+                    Display = new DisplayObject
+                    {
+                        Redundancy = new Redundancy
+                        {
+                            State = eRedundancyState.main
+                        }
+                    }
+                }
+            };
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+
+                Thread.Sleep(3000);
+
+                GetRedundancyState();
+            });
+        }
+
+        public void SetRedundancyToBackup()
+        {
+            var content = new RootDevObject
+            {
+                Dev = new DevObject
+                {
+                    Display = new DisplayObject
+                    {
+                        Redundancy = new Redundancy
+                        {
+                            State = eRedundancyState.backup
+                        }
+                    }
+                }
+            };
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+
+                Thread.Sleep(3000);
+
+                GetRedundancyState();
+            });
+        }
 
 		/// <summary>
 		/// Power On (blackout: false)
@@ -478,6 +685,115 @@ namespace MegapixelHelios
 			Debug.Console(MegapixelHeliosDebug.Trace, this, "PowerOff: content-'{0}'", content);
 			_client.SendRequest("PATCH", "/api/v1/public", content);
 		}
+
+        /// <summary>
+        /// Brightiness (Brightness: 50)
+        /// </summary>
+        /// <remarks>
+        /// requestType: PATCH
+        /// path: "/api/v1/public"
+        /// content: { "dev": { "display": { "brightness": 50 } } }
+        /// </remarks>
+        public void SetBrightness(ushort brightness)
+        {
+            if (brightness <= 0 || brightness >= 100)
+            {
+                Debug.Console(MegapixelHeliosDebug.Notice, "SetBrightness: Value sent {0} out of range", brightness);
+                return;
+            }
+
+            var jsonObject = new RootDevObject
+            {
+                Dev = new DevObject
+                {
+                    Display = new DisplayObject
+                    {
+                        Brightness = (int)brightness
+                    }
+                }
+            };
+
+            var content = JsonConvert.SerializeObject(jsonObject);
+            if (string.IsNullOrEmpty(content))
+            {
+                Debug.Console(MegapixelHeliosDebug.Notice, "SetBrightness: failed to serialzie request content");
+                return;
+            }
+
+            Debug.Console(MegapixelHeliosDebug.Trace, this, "SetBrightness: content-'{0}'", content);
+            _client.SendRequest("PATCH", "/api/v1/public", content);
+        }
+
+        /// <summary>
+        /// Test Pattern On (enable: true) - do not invoke pattern type
+        /// </summary>
+        /// <remarks>
+        /// requestType: PATCH
+        /// path: "/api/v1/public"
+        /// content: { "dev": { "ingest": { "testPattern": { "enabled": true } } } }
+        /// </remarks>
+        public void TestPatternOn()
+        {
+            var jsonObject = new RootDevObject
+            {
+                Dev = new DevObject
+                {
+                    Ingest = new IngestObject
+                    {
+                        TestPattern = new TestPatternObject
+                        {
+                            Enabled = true
+                        }
+                    }
+                }
+            };
+
+            var content = JsonConvert.SerializeObject(jsonObject);
+            if (string.IsNullOrEmpty(content))
+            {
+                Debug.Console(MegapixelHeliosDebug.Notice, "TestPatternEnable: failed to serialzie request content");
+                return;
+            }
+
+            Debug.Console(MegapixelHeliosDebug.Trace, this, "TestPatternEnable: content-'{0}'", content);
+            _client.SendRequest("PATCH", "/api/v1/public", content);
+        }
+
+
+        /// <summary>
+        /// Test Pattern Off (enable: false)
+        /// </summary>
+        /// <remarks>
+        /// requestType: PATCH
+        /// path: "/api/v1/public"
+        /// content: { "dev": { "ingest": { "testPattern": { "enabled": false } } } }
+        /// </remarks>
+        public void TestPatternOff()
+        {
+            var jsonObject = new RootDevObject
+            {
+                Dev = new DevObject
+                {
+                    Ingest = new IngestObject
+                    {
+                        TestPattern = new TestPatternObject
+                        {
+                            Enabled = false
+                        }
+                    }
+                }
+            };
+
+            var content = JsonConvert.SerializeObject(jsonObject);
+            if (string.IsNullOrEmpty(content))
+            {
+                Debug.Console(MegapixelHeliosDebug.Notice, "TestPatternEnable: failed to serialzie request content");
+                return;
+            }
+
+            Debug.Console(MegapixelHeliosDebug.Trace, this, "TestPatternEnable: content-'{0}'", content);
+            _client.SendRequest("PATCH", "/api/v1/public", content);
+        }
 
 		/// <summary>
 		/// Queries device for preset list 
