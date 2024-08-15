@@ -11,6 +11,7 @@ using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
 using Crestron.SimplSharp;
+using Crestron.SimplSharpPro.CrestronThread;
 
 
 namespace MegapixelHelios
@@ -258,7 +259,7 @@ namespace MegapixelHelios
 
         private void StartPollTimer()
         {
-            _pollTimer = new CTimer((o) => Poll(), null, 30000, 30000);
+            _pollTimer = new CTimer((o) => Poll(), null, 15000, 15000);
         }
 
 		private void UpdateFeedbacks()
@@ -328,7 +329,7 @@ namespace MegapixelHelios
 
             trilist.SetUShortSigAction(joinMap.Brightness.JoinNumber, a => SetBrightness(a));
 
-            trilist.SetSigTrueAction(joinMap.SetRedundancyToMain.JoinNumber, SetRedundancyToBackup);
+            trilist.SetSigTrueAction(joinMap.SetRedundancyToMain.JoinNumber, SetRedundancyToMain);
             trilist.SetSigTrueAction(joinMap.SetRedundancyToBackup.JoinNumber, SetRedundancyToBackup);
 
             RedundancyOnMainFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyToMain.JoinNumber]);
@@ -465,7 +466,7 @@ namespace MegapixelHelios
 
                     if (feedback.Dev.Display.Redundancy != null)
                     {
-                        RedundancyOnMain = feedback.Dev.Display.Redundancy.State == eRedundancyState.main;
+                        RedundancyOnMain = feedback.Dev.Display.Redundancy.State == eRedundancyState.active;
                     }
 
                 }
@@ -559,24 +560,25 @@ namespace MegapixelHelios
 		{
 			// TODO [ ] Update Poll method as needed for the plugin being developed
 			// Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
-            GetRedunancyState(); 
+            GetRedundancyState(); 
 		}
 
 
-        public void GetRedunancyState()
+        public void GetRedundancyState()
         {
-            _client.SendRequest("GET", "/api/v1/public?dev.display.redundancy.state", string.Empty);
+            _client.SendRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
+
         }
 
         public void SetRedundancyToMain()
         {
             var content = new RootDevObject 
             {
-                Dev = 
+                Dev = new DevObject 
                 {
-                    Display =
+                    Display = new DisplayObject
                     {
-                        Redundancy =
+                        Redundancy = new Redundancy
                         {
                             State = eRedundancyState.main
                         }
@@ -584,18 +586,25 @@ namespace MegapixelHelios
                 }
             };
 
-            _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+
+                Thread.Sleep(3000);
+
+                GetRedundancyState();
+            });
         }
 
         public void SetRedundancyToBackup()
         {
             var content = new RootDevObject
             {
-                Dev =
+                Dev = new DevObject
                 {
-                    Display =
+                    Display = new DisplayObject
                     {
-                        Redundancy =
+                        Redundancy = new Redundancy
                         {
                             State = eRedundancyState.backup
                         }
@@ -603,7 +612,14 @@ namespace MegapixelHelios
                 }
             };
 
-            _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+
+                Thread.Sleep(3000);
+
+                GetRedundancyState();
+            });
         }
 
 		/// <summary>

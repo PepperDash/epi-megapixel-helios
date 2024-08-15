@@ -13,9 +13,9 @@ namespace MegapixelHelios.JsonObjects
 
 	public class DevObject
 	{
-		[JsonProperty("display")]
+        [JsonProperty("display", NullValueHandling = NullValueHandling.Ignore)]
 		public DisplayObject Display { get; set; }
-        [JsonProperty("ingest")]
+        [JsonProperty("ingest", NullValueHandling = NullValueHandling.Ignore)]
         public IngestObject Ingest { get; set; }
 	}
 
@@ -33,7 +33,7 @@ namespace MegapixelHelios.JsonObjects
 
     public class IngestObject
     {
-        [JsonProperty("testPattern")]
+        [JsonProperty("testPattern", NullValueHandling = NullValueHandling.Ignore)]
         public TestPatternObject TestPattern { get; set; }
     }
 
@@ -49,9 +49,13 @@ namespace MegapixelHelios.JsonObjects
     public class Redundancy
     {
 
-        [JsonProperty("state")]
+        [JsonProperty("state", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(StringEnumConverter))]
         public eRedundancyState State { get; set; }
+
+        [JsonProperty("role", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public eRedundancyRole Role { get; set; }
     }
 
     public enum eRedundancyState
@@ -61,6 +65,13 @@ namespace MegapixelHelios.JsonObjects
         standby,
         main,
         backup
+    }
+
+    public enum eRedundancyRole
+    {
+        main,
+        backup,
+        offline
     }
 
 	public class PresetNameObject
