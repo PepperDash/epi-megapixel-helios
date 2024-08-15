@@ -48,6 +48,7 @@ namespace MegapixelHelios.JsonObjects
 
     public class Redundancy
     {
+
         [JsonProperty("state")]
         [JsonConverter(typeof(StringEnumConverter))]
         public eRedundancyState State { get; set; }
@@ -55,9 +56,11 @@ namespace MegapixelHelios.JsonObjects
 
     public enum eRedundancyState
     {
-        main,
-        backup,
         active,
+        mixed,
+        standby,
+        main,
+        backup
     }
 
 	public class PresetNameObject
