@@ -108,6 +108,7 @@
     <Compile Include="MegapixelHelioBridgeJoinMap.cs" />
     <Compile Include="MegapixelHeliosPropertiesConfig.cs" />
     <Compile Include="MegapixelHeliosFactory.cs" />
+    <Compile Include="Parameters\Parameters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MegapixelHeliosController.cs" />
     <None Include="Properties\ControlSystem.cfg" />

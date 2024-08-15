@@ -66,6 +66,78 @@ namespace MegapixelHelios
                 JoinType = eJoinType.Digital
             });
 
+        [JoinName("TestPatternOn")]
+        public JoinDataComplete TestPatternOn = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 31,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Test Pattern On set & get",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("TestPatternOff")]
+        public JoinDataComplete TestPatternOff = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 32,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Test Pattern Off set & get",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+
+
+        [JoinName("BrightnessHigh")]
+        public JoinDataComplete BrightnessHigh = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 33,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set Brightness High",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("BrightnessMedium")]
+        public JoinDataComplete BrightnessMedium = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 34,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set Brightness Medium",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("BrightnessLow")]
+        public JoinDataComplete BrightnessLow = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 35,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set Brightness Low",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
 
 		[JoinName("IsOnline")]
 		public JoinDataComplete IsOnline = new JoinDataComplete(
@@ -113,6 +185,20 @@ namespace MegapixelHelios
 				JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
 				JoinType = eJoinType.Analog
 			});
+
+        [JoinName("Brightness")]
+        public JoinDataComplete Brightness = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 33,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set Brightness",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Analog
+            });
 
 		#endregion
 
