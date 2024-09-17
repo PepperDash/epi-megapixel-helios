@@ -144,25 +144,94 @@ namespace MegapixelHelios
 				CurrentPresetNameFeedback.FireUpdate();
 			}
 		}
-
 		public StringFeedback CurrentPresetNameFeedback { get; set; }
 
-        private bool _redundancyOnMain;
-        public bool RedundancyOnMain
+
+        private bool _redundancyRoleIsMain;
+        public bool RedundancyRoleIsMain
         {
-            get { return _redundancyOnMain; }
+            get { return _redundancyRoleIsMain; }
             set
             {
-                if (_redundancyOnMain == value) return;
-                _redundancyOnMain = value;
-                RedundancyOnMainFeedback.FireUpdate();
+                if (_redundancyRoleIsMain == value) return;
+                _redundancyRoleIsMain = value;
+                RedundancyRoleIsMainFeedback.FireUpdate();
             }
         }
+        public BoolFeedback RedundancyRoleIsMainFeedback { get; set; }
 
-        public BoolFeedback RedundancyOnMainFeedback { get; set; }
+
+        private bool _redundancyRoleIsBackup;
+        public bool RedundancyRoleIsBackup
+        {
+            get { return _redundancyRoleIsBackup; }
+            set
+            {
+                if (_redundancyRoleIsBackup == value) return;
+                _redundancyRoleIsBackup = value;
+                RedundancyRoleIsBackupFeedback.FireUpdate();
+            }
+        }
+        public BoolFeedback RedundancyRoleIsBackupFeedback { get; set; }
+
+
+        private bool _redundancyRoleIsOffline;
+        public bool RedundancyRoleIsOffline
+        {
+            get { return _redundancyRoleIsOffline; }
+            set
+            {
+                if (_redundancyRoleIsOffline == value) return;
+                _redundancyRoleIsOffline = value;
+                RedundancyRoleIsOfflineFeedback.FireUpdate();
+            }
+        }
+        public BoolFeedback RedundancyRoleIsOfflineFeedback { get; set; }
+
+
+        private bool _redundancyStateIsActive;
+        public bool RedundancyStateIsActive
+        {
+            get { return _redundancyStateIsActive; }
+            set
+            {
+                if (_redundancyStateIsActive == value) return;
+                _redundancyStateIsActive = value;
+                RedundancyStateIsActiveFeedback.FireUpdate();
+            }
+        }
+        public BoolFeedback RedundancyStateIsActiveFeedback { get; set; }
+
+
+        private bool _redundancyStateIsMixed;
+        public bool RedundancyStateIsMixed
+        {
+            get { return _redundancyStateIsMixed; }
+            set
+            {
+                if (_redundancyStateIsMixed == value) return;
+                _redundancyStateIsMixed = value;
+                RedundancyStateIsMixedFeedback.FireUpdate();
+            }
+        }
+        public BoolFeedback RedundancyStateIsMixedFeedback { get; set; }
+
+
+        private bool _redundancyStateIsStandby;
+        public bool RedundancyStateIsStandby
+        {
+            get { return _redundancyStateIsStandby; }
+            set
+            {
+                if (_redundancyStateIsStandby == value) return;
+                _redundancyStateIsStandby = value;
+                RedundancyStateIsStandbyFeedback.FireUpdate();
+            }
+        }
+        public BoolFeedback RedundancyStateIsStandbyFeedback { get; set; }
+
 
         private List<MegaPixelHeliosPresetConfig> _presets;
-
 
         private CTimer _pollTimer;
 
@@ -242,7 +311,7 @@ namespace MegapixelHelios
 			ResponseContentFeedback = new StringFeedback(() => ResponseContent);
 			ResponseErrorFeedback = new StringFeedback(() => ResponseError);
 
-            RedundancyOnMainFeedback = new BoolFeedback(() => RedundancyOnMain);
+            RedundancyStateIsActiveFeedback = new BoolFeedback(() => RedundancyStateIsActive);
 
             _presets = propertiesConfig.Presets;
 		}
@@ -279,7 +348,7 @@ namespace MegapixelHelios
 			ResponseContentFeedback.FireUpdate();
 			ResponseErrorFeedback.FireUpdate();
 
-            RedundancyOnMainFeedback.FireUpdate();
+            RedundancyStateIsActiveFeedback.FireUpdate();
 		}
 
 		#region Overrides of EssentialsBridgeableDevice
@@ -329,11 +398,20 @@ namespace MegapixelHelios
 
             trilist.SetUShortSigAction(joinMap.Brightness.JoinNumber, a => SetBrightness(a));
 
-            trilist.SetSigTrueAction(joinMap.SetRedundancyToMain.JoinNumber, SetRedundancyToMain);
-            trilist.SetSigTrueAction(joinMap.SetRedundancyToBackup.JoinNumber, SetRedundancyToBackup);
+            trilist.SetSigTrueAction(joinMap.SetRedundancyRoleToMain.JoinNumber, SetRedundancyRoleToMain);
+            trilist.SetSigTrueAction(joinMap.SetRedundancyRoleToBackup.JoinNumber, SetRedundancyRoleToBackup);
+            trilist.SetSigTrueAction(joinMap.SetRedundancyRoleToOffline.JoinNumber, SetRedundancyRoleToOffline);
 
-            RedundancyOnMainFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyToMain.JoinNumber]);
-            RedundancyOnMainFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.SetRedundancyToBackup.JoinNumber]);
+            RedundancyRoleIsMainFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToMain.JoinNumber]);
+            RedundancyRoleIsBackupFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToBackup.JoinNumber]);
+            RedundancyRoleIsOfflineFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToOffline.JoinNumber]);
+
+            trilist.SetSigTrueAction(joinMap.SetRedundancyStateToActive.JoinNumber, SetRedundancyStateToActive);
+            trilist.SetSigTrueAction(joinMap.SetRedundancyStateToStandby.JoinNumber, SetRedundancyStateToStandby);
+
+            RedundancyStateIsActiveFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToActive.JoinNumber]);
+            RedundancyStateIsActiveFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToStandby.JoinNumber]);
+            RedundancyStateIsMixedFeedback.LinkInputSig(trilist.BooleanInput[joinMap.RedundancyStateIsMixed.JoinNumber]);
 
 			trilist.SetUShortSigAction(joinMap.RecallPresetById.JoinNumber, a => RecallPresetById(a));
 			trilist.SetStringSigAction(joinMap.RecallPresetByName.JoinNumber, RecallPresetByName);
@@ -347,7 +425,6 @@ namespace MegapixelHelios
             TestPatternIsOnFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.TestPatternOff.JoinNumber]);
 
             BrightnessFeedback.LinkInputSig(trilist.UShortInput[joinMap.Brightness.JoinNumber]);
-
 
 			ResponseCodeFeedback.LinkInputSig(trilist.UShortInput[joinMap.ResponseCode.JoinNumber]);
 			ResponseContentFeedback.LinkInputSig(trilist.StringInput[joinMap.ResponseContent.JoinNumber]);
@@ -466,7 +543,12 @@ namespace MegapixelHelios
 
                     if (feedback.Dev.Display.Redundancy != null)
                     {
-                        RedundancyOnMain = feedback.Dev.Display.Redundancy.State == eRedundancyState.active;
+                        RedundancyRoleIsMain = feedback.Dev.Display.Redundancy.Role == eRedundancyRole.main;
+                        RedundancyRoleIsBackup = feedback.Dev.Display.Redundancy.Role == eRedundancyRole.backup;
+                        RedundancyRoleIsOffline = feedback.Dev.Display.Redundancy.Role == eRedundancyRole.offline;
+                        RedundancyStateIsActive = feedback.Dev.Display.Redundancy.State == eRedundancyState.active;
+                        RedundancyStateIsMixed = feedback.Dev.Display.Redundancy.State == eRedundancyState.mixed;
+                        RedundancyStateIsStandby = feedback.Dev.Display.Redundancy.State == eRedundancyState.standby;                        
                     }
 
                 }
@@ -554,7 +636,7 @@ namespace MegapixelHelios
 		/// Polls the device
 		/// </summary>
 		/// <remarks>
-		/// Poll method is used by the communication monitor.  Update the poll method as needed for the plugin being developed
+		/// Poll method is used by the communication monitor.  Update the poll method as needed for the plugin being developed.
 		/// </remarks>
 		public void Poll()
 		{
@@ -563,14 +645,106 @@ namespace MegapixelHelios
             GetRedundancyState(); 
 		}
 
-
+        /// <summary>
+        /// Poll for redundancy state.
+        /// </summary>
         public void GetRedundancyState()
         {
             _client.SendRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
 
         }
 
-        public void SetRedundancyToMain()
+        /// <summary>
+        /// Sets the redundancy role to main and polls for current redundancy role.
+        /// </summary>
+        public void SetRedundancyRoleToMain()
+        {
+            var content = new RootDevObject
+            {
+                Dev = new DevObject
+                {
+                    Display = new DisplayObject
+                    {
+                        Redundancy = new Redundancy
+                        {
+                            Role = eRedundancyRole.main
+                        }
+                    }
+                }
+            };
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+
+                Thread.Sleep(3000);
+
+                GetRedundancyState();
+            });
+        }
+
+        /// <summary>
+        /// Sets the redundancy role to backup and polls for current redundancy role.
+        /// </summary>
+        public void SetRedundancyRoleToBackup()
+        {
+            var content = new RootDevObject
+            {
+                Dev = new DevObject
+                {
+                    Display = new DisplayObject
+                    {
+                        Redundancy = new Redundancy
+                        {
+                            Role = eRedundancyRole.backup
+                        }
+                    }
+                }
+            };
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+
+                Thread.Sleep(3000);
+
+                GetRedundancyState();
+            });
+        }
+
+        /// <summary>
+        /// Sets the redundancy role to main and polls for current redundancy role.
+        /// </summary>
+        public void SetRedundancyRoleToOffline()
+        {
+            var content = new RootDevObject
+            {
+                Dev = new DevObject
+                {
+                    Display = new DisplayObject
+                    {
+                        Redundancy = new Redundancy
+                        {
+                            Role = eRedundancyRole.offline
+                        }
+                    }
+                }
+            };
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+
+                Thread.Sleep(3000);
+
+                GetRedundancyState();
+            });
+        }
+
+        /// <summary>
+        /// Sets the redundancy state to active and polls for current redundancy state.
+        /// </summary>
+        public void SetRedundancyStateToActive()
         {
             var content = new RootDevObject 
             {
@@ -596,7 +770,10 @@ namespace MegapixelHelios
             });
         }
 
-        public void SetRedundancyToBackup()
+        /// <summary>
+        /// Sets the redundancy state to standby and polls for current redundancy state.
+        /// </summary>
+        public void SetRedundancyStateToStandby()
         {
             var content = new RootDevObject
             {
