@@ -560,75 +560,12 @@ namespace MegapixelHelios
                         TestPatternIsOn = feedback.Dev.Ingest.TestPattern.Enabled;
                     }
                 }
-
-
-
-                //ProcessJToken(jToken, "dev.display.blackout");
-				//ProcessJToken(jToken, "presetName");
 			}
 			catch (Exception ex)
 			{
 				Debug.Console(MegapixelHeliosDebug.Notice, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Exception Message: {0}", ex.Message);
 				Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Stack Trace: {0}", ex.StackTrace);
 				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Inner Exception {0}", ex.InnerException);
-			}
-		}
-
-		// process JToken
-		private void ProcessJToken(JToken jToken, string path)
-		{
-			var token = jToken.SelectToken(path);
-			if (token == null)
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: selectToken '{0}' failed", path);
-				return;
-			}
-
-			Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: '{0}' token.Type is '{1}'", path, token.Type.ToString());
-
-			try
-			{
-				switch (token.Type)
-				{
-					case JTokenType.Object:
-						{
-							// [ ] TODO - update to process JSON objects
-							break;
-						}
-					case JTokenType.Array:
-						{
-							// [ ] TODO - update to process JSON arrays
-							break;
-						}
-					case JTokenType.Boolean:
-						{
-							// [ ] TODO - update to process JSON objects
-							if (path == "dev.display.blackout")
-							{
-								Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken: '{0}' = {1}", path, token.Value<bool>());
-								PowerIsOn = token.Value<bool>();
-							}
-
-							break;
-						}
-					default:
-						{
-							Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken: unhandled JTokenType '{0}'", token.Type.ToString());
-							break;
-						}
-				}
-			}
-			catch (JsonSerializationException jex)
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken Exception Message: {0}", jex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken Stack Trace: {0}", jex.StackTrace);
-				if (jex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken Inner Exception {0}", jex.InnerException);
-			}
-			catch (Exception ex)
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessJToken Exception Message: {0}", ex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken Stack Trace: {0}", ex.StackTrace);
-				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "ProcessJToken Inner Exception {0}", ex.InnerException);
 			}
 		}
 
