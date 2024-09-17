@@ -41,7 +41,7 @@ namespace MegapixelHelios
         public JoinDataComplete SetRedundancyRoleToMain = new JoinDataComplete(
             new JoinData
             {
-                JoinNumber = 11,
+                JoinNumber = 4,
                 JoinSpan = 1
             },
             new JoinMetadata
@@ -55,7 +55,7 @@ namespace MegapixelHelios
         public JoinDataComplete SetRedundancyRoleToBackup = new JoinDataComplete(
             new JoinData
             {
-                JoinNumber = 12,
+                JoinNumber = 5,
                 JoinSpan = 1
             },
             new JoinMetadata
@@ -69,7 +69,7 @@ namespace MegapixelHelios
         public JoinDataComplete SetRedundancyRoleToOffline = new JoinDataComplete(
             new JoinData
             {
-                JoinNumber = 13,
+                JoinNumber = 6,
                 JoinSpan = 1
             },
             new JoinMetadata
@@ -83,7 +83,7 @@ namespace MegapixelHelios
         public JoinDataComplete SetRedundancyStateToActive = new JoinDataComplete(
             new JoinData
             {
-                JoinNumber = 21,
+                JoinNumber = 7,
                 JoinSpan = 1
             },
             new JoinMetadata
@@ -97,7 +97,7 @@ namespace MegapixelHelios
         public JoinDataComplete SetRedundancyStateToStandby = new JoinDataComplete(
             new JoinData
             {
-                JoinNumber = 22,
+                JoinNumber = 8,
                 JoinSpan = 1
             },
             new JoinMetadata
@@ -111,7 +111,7 @@ namespace MegapixelHelios
         public JoinDataComplete RedundancyStateIsMixed = new JoinDataComplete(
             new JoinData
             {
-                JoinNumber = 23,
+                JoinNumber = 9,
                 JoinSpan = 1
             },
             new JoinMetadata
