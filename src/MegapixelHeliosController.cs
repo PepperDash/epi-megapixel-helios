@@ -27,7 +27,7 @@ namespace MegapixelHelios
 
 		private readonly IRestfulComms _client;
 
-		private int _responseCode;
+        private int _responseCode;
 		public int ResponseCode
 		{
 			get { return _responseCode; }
@@ -306,12 +306,17 @@ namespace MegapixelHelios
             BrightnessFeedback = new IntFeedback(() => Brightness);
             IsOnlineFeedback = new BoolFeedback(() => IsOnline);
 
-
 			ResponseCodeFeedback = new IntFeedback(() => ResponseCode);
 			ResponseContentFeedback = new StringFeedback(() => ResponseContent);
 			ResponseErrorFeedback = new StringFeedback(() => ResponseError);
 
+            RedundancyRoleIsMainFeedback = new BoolFeedback(() => RedundancyRoleIsMain);
+            RedundancyRoleIsBackupFeedback = new BoolFeedback(() => RedundancyRoleIsBackup);
+            RedundancyRoleIsOfflineFeedback = new BoolFeedback(() => RedundancyRoleIsOffline);
+
             RedundancyStateIsActiveFeedback = new BoolFeedback(() => RedundancyStateIsActive);
+            RedundancyStateIsStandbyFeedback = new BoolFeedback(() => RedundancyStateIsStandby);
+            RedundancyStateIsMixedFeedback = new BoolFeedback(() => RedundancyStateIsMixed);
 
             _presets = propertiesConfig.Presets;
 		}
@@ -348,7 +353,13 @@ namespace MegapixelHelios
 			ResponseContentFeedback.FireUpdate();
 			ResponseErrorFeedback.FireUpdate();
 
+            RedundancyRoleIsMainFeedback.FireUpdate();
+            RedundancyRoleIsBackupFeedback.FireUpdate();
+            RedundancyRoleIsOfflineFeedback.FireUpdate();
+
             RedundancyStateIsActiveFeedback.FireUpdate();
+            RedundancyStateIsStandbyFeedback.FireUpdate();
+            RedundancyStateIsMixedFeedback.FireUpdate();
 		}
 
 		#region Overrides of EssentialsBridgeableDevice
