@@ -115,11 +115,13 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 ## POINT OF CLARIFICATION ##
 
 1. The API document (see `docs` folder) tracks both `role` and `state` objects.
-2. The `role` API call refers to the long-term role of the video processor assigned to the device (main vs backup). This is not typically changed.
-3. The `state` API call refers to both the requested and the actual reported state of the video processor.
-4. The device is capable of detecting loss of video from the primary or `main` controller and automatically switches `states` as needed.
-5. The device will report it's current state as either `active`, `standby`, or `mixed`. The `states` reported cannot be requested.
-6. The only valid `state` the device accepts is `main` or `backup`.
+2. The `role` API call refers to the long-term role assigned to the device (main vs backup), not typically changed.
+3. The `state` API call refers to both the requested and reported state of the device.
+4. The device is capable of detecting loss of video from the primary or `main` controller and automatically switches `state` as needed.
+5. The device will report current state as either `active`, `standby`, or `mixed`. 
+6. The various `state` definitions reported above cannot be requested.
+7. The only valid `state` the device accepts is `main` or `backup`.
+8. The `state` request of `main` vs `backup` should be sent to override the automatic switch reported.
 
 ## DEVJSON Commands
 
