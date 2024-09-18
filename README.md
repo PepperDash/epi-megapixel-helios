@@ -87,7 +87,7 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | 5           | 1         | Redundancy Role Backup   | Digital | ToFromSIMPL  |
 | 6           | 1         | Redundancy Role Offline  | Digital | ToFromSIMPL  |
 | 7           | 1         | Redundancy State Main    | Digital | FromSIMPL    |
-| 7           | 1         | Redundancy State Backup  | Digital | FromSIMPL    |
+| 8           | 1         | Redundancy State Backup  | Digital | FromSIMPL    |
 | 7           | 1         | Redundancy State Active  | Digital | ToSIMPL      |
 | 8           | 1         | Redundancy State Standby | Digital | ToSIMPL      |
 | 9           | 1         | Redundancy State Mixed   | Digital | ToSIMPL      |
