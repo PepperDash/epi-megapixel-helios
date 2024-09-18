@@ -153,6 +153,12 @@ namespace MegapixelHelios
             get { return _redundancyRoleIsMain; }
             set
             {
+                if (value == true)
+                {
+                    RedundancyRoleIsBackup = false;
+                    RedundancyRoleIsOffline = false;
+                }
+
                 if (_redundancyRoleIsMain == value) return;
                 _redundancyRoleIsMain = value;
                 RedundancyRoleIsMainFeedback.FireUpdate();
@@ -167,6 +173,12 @@ namespace MegapixelHelios
             get { return _redundancyRoleIsBackup; }
             set
             {
+                if (value == true)
+                {
+                    RedundancyRoleIsMain = false;
+                    RedundancyRoleIsOffline = false;
+                }
+
                 if (_redundancyRoleIsBackup == value) return;
                 _redundancyRoleIsBackup = value;
                 RedundancyRoleIsBackupFeedback.FireUpdate();
@@ -181,6 +193,12 @@ namespace MegapixelHelios
             get { return _redundancyRoleIsOffline; }
             set
             {
+                if (value == true)
+                {
+                    RedundancyRoleIsMain = false;
+                    RedundancyRoleIsBackup = false;
+                }
+
                 if (_redundancyRoleIsOffline == value) return;
                 _redundancyRoleIsOffline = value;
                 RedundancyRoleIsOfflineFeedback.FireUpdate();
@@ -195,6 +213,12 @@ namespace MegapixelHelios
             get { return _redundancyStateIsActive; }
             set
             {
+                if (value == true)
+                {
+                    RedundancyStateIsMixed = false;
+                    RedundancyStateIsStandby = false;
+                }
+
                 if (_redundancyStateIsActive == value) return;
                 _redundancyStateIsActive = value;
                 RedundancyStateIsActiveFeedback.FireUpdate();
@@ -209,6 +233,12 @@ namespace MegapixelHelios
             get { return _redundancyStateIsMixed; }
             set
             {
+                if (value == true)
+                {
+                    RedundancyStateIsActive = false;
+                    RedundancyStateIsStandby = false;
+                }
+
                 if (_redundancyStateIsMixed == value) return;
                 _redundancyStateIsMixed = value;
                 RedundancyStateIsMixedFeedback.FireUpdate();
@@ -223,6 +253,12 @@ namespace MegapixelHelios
             get { return _redundancyStateIsStandby; }
             set
             {
+                if (value == true)
+                {
+                    RedundancyStateIsActive = false;
+                    RedundancyStateIsMixed = false;
+                }
+
                 if (_redundancyStateIsStandby == value) return;
                 _redundancyStateIsStandby = value;
                 RedundancyStateIsStandbyFeedback.FireUpdate();
@@ -421,7 +457,7 @@ namespace MegapixelHelios
             trilist.SetSigTrueAction(joinMap.SetRedundancyStateToStandby.JoinNumber, SetRedundancyStateToStandby);
 
             RedundancyStateIsActiveFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToActive.JoinNumber]);
-            RedundancyStateIsActiveFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToStandby.JoinNumber]);
+            RedundancyStateIsStandbyFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToStandby.JoinNumber]);
             RedundancyStateIsMixedFeedback.LinkInputSig(trilist.BooleanInput[joinMap.RedundancyStateIsMixed.JoinNumber]);
 
 			trilist.SetUShortSigAction(joinMap.RecallPresetById.JoinNumber, a => RecallPresetById(a));
