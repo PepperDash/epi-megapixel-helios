@@ -425,7 +425,7 @@ namespace MegapixelHelios
 			}
 
 			Debug.Console(MegapixelHeliosDebug.Notice, "Linking to Trilist '{0}'", trilist.ID.ToString("X"));
-			Debug.Console(MegapixelHeliosDebug.Trace, "Linking to Bridge Type {0}", GetType().Name);
+			Debug.Console(MegapixelHeliosDebug.Notice, "Linking to Bridge Type {0}", GetType().Name);
 
 			// links to bridge
 			trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
@@ -811,7 +811,7 @@ namespace MegapixelHelios
 				return;
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Trace, this, "PowerOn: content-'{0}'", content);
+            Debug.Console(MegapixelHeliosDebug.Notice, this, "PowerOn: content-'{0}'", content);
 			_client.SendRequest("PATCH", "/api/v1/public", content);
 		}
 
@@ -843,7 +843,7 @@ namespace MegapixelHelios
 				return;
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Trace, this, "PowerOff: content-'{0}'", content);
+			Debug.Console(MegapixelHeliosDebug.Notice, this, "PowerOff: content-'{0}'", content);
 			_client.SendRequest("PATCH", "/api/v1/public", content);
 		}
 
@@ -881,7 +881,7 @@ namespace MegapixelHelios
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Trace, this, "SetBrightness: content-'{0}'", content);
+            Debug.Console(MegapixelHeliosDebug.Notice, this, "SetBrightness: content-'{0}'", content);
             _client.SendRequest("PATCH", "/api/v1/public", content);
         }
 
@@ -916,7 +916,7 @@ namespace MegapixelHelios
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Trace, this, "TestPatternEnable: content-'{0}'", content);
+            Debug.Console(MegapixelHeliosDebug.Notice, this, "TestPatternEnable: content-'{0}'", content);
             _client.SendRequest("PATCH", "/api/v1/public", content);
         }
 
@@ -952,7 +952,7 @@ namespace MegapixelHelios
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Trace, this, "TestPatternEnable: content-'{0}'", content);
+            Debug.Console(MegapixelHeliosDebug.Notice, this, "TestPatternEnable: content-'{0}'", content);
             _client.SendRequest("PATCH", "/api/v1/public", content);
         }
 
@@ -1007,7 +1007,7 @@ namespace MegapixelHelios
 				return;
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Trace, this, "RecallPresetByName: content-'{0}'", content);
+			Debug.Console(MegapixelHeliosDebug.Notice, this, "RecallPresetByName: content-'{0}'", content);
 			_client.SendRequest("POST", "/api/v1/presets/apply", content);
 		}
 	}
