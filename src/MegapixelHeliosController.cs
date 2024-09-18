@@ -453,11 +453,11 @@ namespace MegapixelHelios
             RedundancyRoleIsBackupFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToBackup.JoinNumber]);
             RedundancyRoleIsOfflineFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToOffline.JoinNumber]);
 
-            trilist.SetSigTrueAction(joinMap.SetRedundancyStateToActive.JoinNumber, SetRedundancyStateToActive);
-            trilist.SetSigTrueAction(joinMap.SetRedundancyStateToStandby.JoinNumber, SetRedundancyStateToStandby);
+            trilist.SetSigTrueAction(joinMap.SetRedundancyStateToMain.JoinNumber, SetRedundancyStateToMain);
+            trilist.SetSigTrueAction(joinMap.SetRedundancyStateToBackup.JoinNumber, SetRedundancyStateToBackup);
 
-            RedundancyStateIsActiveFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToActive.JoinNumber]);
-            RedundancyStateIsStandbyFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToStandby.JoinNumber]);
+            RedundancyStateIsActiveFeedback.LinkInputSig(trilist.BooleanInput[joinMap.RedundancyStateIsActive.JoinNumber]);
+            RedundancyStateIsStandbyFeedback.LinkInputSig(trilist.BooleanInput[joinMap.RedundancyStateIsStandby.JoinNumber]);
             RedundancyStateIsMixedFeedback.LinkInputSig(trilist.BooleanInput[joinMap.RedundancyStateIsMixed.JoinNumber]);
 
 			trilist.SetUShortSigAction(joinMap.RecallPresetById.JoinNumber, a => RecallPresetById(a));
@@ -728,7 +728,7 @@ namespace MegapixelHelios
         /// <summary>
         /// Sets the redundancy state to active and polls for current redundancy state.
         /// </summary>
-        public void SetRedundancyStateToActive()
+        public void SetRedundancyStateToMain()
         {
             var content = new RootDevObject 
             {
@@ -757,7 +757,7 @@ namespace MegapixelHelios
         /// <summary>
         /// Sets the redundancy state to standby and polls for current redundancy state.
         /// </summary>
-        public void SetRedundancyStateToStandby()
+        public void SetRedundancyStateToBackup()
         {
             var content = new RootDevObject
             {

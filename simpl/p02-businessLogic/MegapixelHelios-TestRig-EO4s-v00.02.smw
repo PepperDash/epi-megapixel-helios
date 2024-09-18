@@ -1659,12 +1659,12 @@ Nm=SYS.Devices.Display01.Redundancy.Role.Offline.Fb
 [
 ObjTp=Sg
 H=14
-Nm=SYS.Devices.Display01.Redundancy.State.Active.Select
+Nm=SYS.Devices.Display01.Redundancy.State.Main.Select
 ]
 [
 ObjTp=Sg
 H=15
-Nm=SYS.Devices.Display01.Redundancy.State.Standby.Select
+Nm=SYS.Devices.Display01.Redundancy.State.Backup.Select
 ]
 [
 ObjTp=Sg

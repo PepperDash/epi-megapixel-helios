@@ -79,8 +79,8 @@ namespace MegapixelHelios
                 JoinType = eJoinType.Digital
             });
 
-        [JoinName("SetRedundancyStateToActive")]
-        public JoinDataComplete SetRedundancyStateToActive = new JoinDataComplete(
+        [JoinName("SetRedundancyStateToMain")]
+        public JoinDataComplete SetRedundancyStateToMain = new JoinDataComplete(
             new JoinData
             {
                 JoinNumber = 7,
@@ -88,13 +88,27 @@ namespace MegapixelHelios
             },
             new JoinMetadata
             {
-                Description = "Set redundancy state to active. Feedback is true if state is currently set to active.",
-                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                Description = "Set redundancy state to main.",
+                JoinCapabilities = eJoinCapabilities.FromSIMPL,
                 JoinType = eJoinType.Digital
             });
 
-        [JoinName("SetRedundancyStateToStandby")]
-        public JoinDataComplete SetRedundancyStateToStandby = new JoinDataComplete(
+        [JoinName("RedundancyStateIsActive")]
+        public JoinDataComplete RedundancyStateIsActive = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 7,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Feedback is true if state is currently set to active.",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("SetRedundancyStateToBackup")]
+        public JoinDataComplete SetRedundancyStateToBackup = new JoinDataComplete(
             new JoinData
             {
                 JoinNumber = 8,
@@ -102,8 +116,22 @@ namespace MegapixelHelios
             },
             new JoinMetadata
             {
-                Description = "Set redundancy state to standby. Feedback is true if state is currently set to standby.",
-                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                Description = "Set redundancy state to backup.",
+                JoinCapabilities = eJoinCapabilities.FromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("RedundancyStateIsStandby")]
+        public JoinDataComplete RedundancyStateIsStandby = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 8,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Feedback is true if state is currently set to standby.",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
                 JoinType = eJoinType.Digital
             });
 

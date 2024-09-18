@@ -86,8 +86,10 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | 4           | 1         | Redundancy Role Main     | Digital | ToFromSIMPL  |
 | 5           | 1         | Redundancy Role Backup   | Digital | ToFromSIMPL  |
 | 6           | 1         | Redundancy Role Offline  | Digital | ToFromSIMPL  |
-| 7           | 1         | Redundancy State Active  | Digital | ToFromSIMPL  |
-| 8           | 1         | Redundancy State Standby | Digital | ToFromSIMPL  |
+| 7           | 1         | Redundancy State Main    | Digital | FromSIMPL    |
+| 7           | 1         | Redundancy State Backup  | Digital | FromSIMPL    |
+| 7           | 1         | Redundancy State Active  | Digital | ToSIMPL      |
+| 8           | 1         | Redundancy State Standby | Digital | ToSIMPL      |
 | 9           | 1         | Redundancy State Mixed   | Digital | ToSIMPL      |
 | 31          | 1         | Test Pattern On          | Digital | ToFromSIMPL  |
 | 32          | 1         | Test Pattern Off         | Digital | ToFromSIMPL  |
@@ -110,24 +112,33 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | 3           | 1         | Response Content              | Serial | ToSIMPL      |
 | 21          | 1         | Preset select by `presetName` | Serial | ToFromSimpl  |
 
+## POINT OF CLARIFICATION ##
+
+1. The API document (see `docs` folder) tracks both `role` and `state` objects.
+2. The `role` API call refers to the long-term role of the video processor assigned to the device (main vs backup). This is not typically changed.
+3. The `state` API call refers to both the requested and the actual reported state of the video processor.
+4. The device is capable of detecting loss of video from the primary or `main` controller and automatically switches `states` as needed.
+5. The device will report it's current state as either `active`, `standby`, or `mixed`. The `states` reported cannot be requested.
+6. The only valid `state` the device accepts is `main` or `backup`.
+
 ## DEVJSON Commands
 
 Public Methods that can be used with `devjson` to test controls.  
 
 ```json
-devjson:1 {"deviceKey":"display-1","methodName":"PowerOn"                     ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"PowerOff"                    ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"GetRedundancyState"          ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToMain"     ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToBackup"   ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToOffline"  ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToActive"  ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToStandby" ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetBrightness"               ,"params":["50"  ]} // example: brightness '50'
-devjson:1 {"deviceKey":"display-1","methodName":"GetPresetsList"              ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetById"            ,"params":[1     ]} // example: preesetId '1'
-devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetByName"          ,"params":["full"]} // example: preesetName 'full'
-devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOn"               ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOff"              ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"PowerOn"                    ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"PowerOff"                   ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"GetRedundancyState"         ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToMain"    ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToBackup"  ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToOffline" ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToMain"   ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToBackup" ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetBrightness"              ,"params":["50"  ]} // example: brightness '50'
+devjson:1 {"deviceKey":"display-1","methodName":"GetPresetsList"             ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetById"           ,"params":[1     ]} // example: preesetId '1'
+devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetByName"         ,"params":["full"]} // example: preesetName 'full'
+devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOn"              ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOff"             ,"params":[      ]}
 ```
 
