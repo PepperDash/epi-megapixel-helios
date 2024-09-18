@@ -414,14 +414,14 @@ namespace MegapixelHelios
             trilist.SetSigTrueAction(joinMap.SetRedundancyRoleToOffline.JoinNumber, SetRedundancyRoleToOffline);
 
             RedundancyRoleIsMainFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToMain.JoinNumber]);
-            RedundancyRoleIsBackupFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToBackup.JoinNumber]);
-            RedundancyRoleIsOfflineFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToOffline.JoinNumber]);
+            RedundancyRoleIsBackupFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToBackup.JoinNumber]);
+            RedundancyRoleIsOfflineFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyRoleToOffline.JoinNumber]);
 
             trilist.SetSigTrueAction(joinMap.SetRedundancyStateToActive.JoinNumber, SetRedundancyStateToActive);
             trilist.SetSigTrueAction(joinMap.SetRedundancyStateToStandby.JoinNumber, SetRedundancyStateToStandby);
 
             RedundancyStateIsActiveFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToActive.JoinNumber]);
-            RedundancyStateIsActiveFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToStandby.JoinNumber]);
+            RedundancyStateIsActiveFeedback.LinkInputSig(trilist.BooleanInput[joinMap.SetRedundancyStateToStandby.JoinNumber]);
             RedundancyStateIsMixedFeedback.LinkInputSig(trilist.BooleanInput[joinMap.RedundancyStateIsMixed.JoinNumber]);
 
 			trilist.SetUShortSigAction(joinMap.RecallPresetById.JoinNumber, a => RecallPresetById(a));
