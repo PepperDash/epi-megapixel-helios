@@ -144,3 +144,4 @@ devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOn"              ,"p
 devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOff"             ,"params":[      ]}
 ```
 
+
