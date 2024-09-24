@@ -18,21 +18,35 @@
 			},
 			{
 				"key": "display1",
+				"uid": 1,
 				"name": "Display 1",
-				"type": "megapixelhelios",
-				"group": "plugin",
+				"group": "display",
+				"type": "megapixelHelios",
 				"properties": {
-					"control": {
-						"method": "http",
-						"tcpSshProperties": {
-							"address": "10.0.0.194",
-							"port": 80,
-							"username": "",
-							"password": ""
-						}
+				  "control": {
+					"method": "http",
+					"tcpSshProperties": {
+					  "address": "192.168.1.90",
+					  "port": 80,
+					  "username": "user",
+					  "password": "user",
+					  "autoReconnect": true,
+					  "autoReconnectIntervalMs": 10000
 					}
+				  },
+				  "brightness":{
+					"high": 60,
+					"medium": 40,
+					"low": 20
+				  },
+				  "presets":[
+					{ "name": "HDMI1", "presetName": "HDMI1" },
+					{ "name": "HDMI2", "presetName": "HDMI2" },
+					{ "name": "SDI1" , "presetName": "SDI1"  },
+					{ "name": "SDI2" , "presetName": "SDI2"  }
+				  ]
 				}
-			},
+			  },
 			{
 				"key": "display-bridge",
 				"uid": 11,

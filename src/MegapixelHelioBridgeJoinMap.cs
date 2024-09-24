@@ -9,6 +9,20 @@ namespace MegapixelHelios
 	{
 		#region Digital
 
+        [JoinName("PowerOff")]
+        public JoinDataComplete PowerOff = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 1,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Power Off (blackout) set & get",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
 		[JoinName("PowerOn")]
 		public JoinDataComplete PowerOn = new JoinDataComplete(
 			new JoinData
@@ -23,37 +37,8 @@ namespace MegapixelHelios
 				JoinType = eJoinType.Digital
 			});
 
-		[JoinName("PowerOff")]
-		public JoinDataComplete PowerOff = new JoinDataComplete(
-			new JoinData
-			{
-				JoinNumber = 1,
-				JoinSpan = 1
-			},
-			new JoinMetadata
-			{
-				Description = "Power Off (blackout) set & get",
-				JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
-				JoinType = eJoinType.Digital
-			});
-
-
-        [JoinName("SetRedundancyToMain")]
-        public JoinDataComplete SetRedundancyToMain = new JoinDataComplete(
-            new JoinData
-            {
-                JoinNumber = 3,
-                JoinSpan = 1
-            },
-            new JoinMetadata
-            {
-                Description = "Set redundancy to main. FB true if currently on main.",
-                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
-                JoinType = eJoinType.Digital
-            });
-
-        [JoinName("SetRedundancyToBackup")]
-        public JoinDataComplete SetRedundancyToBackup = new JoinDataComplete(
+        [JoinName("SetRedundancyRoleToMain")]
+        public JoinDataComplete SetRedundancyRoleToMain = new JoinDataComplete(
             new JoinData
             {
                 JoinNumber = 4,
@@ -61,8 +46,106 @@ namespace MegapixelHelios
             },
             new JoinMetadata
             {
-                Description = "Set redundancy to backup. FB true if currently on backup.",
+                Description = "Set redundancy role to main. Feedback is true if role is currently set to main.",
                 JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("SetRedundancyRoleToBackup")]
+        public JoinDataComplete SetRedundancyRoleToBackup = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 5,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set redundancy role to backup. Feedback is true if role is currently set to backup.",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("SetRedundancyRoleToOffline")]
+        public JoinDataComplete SetRedundancyRoleToOffline = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 6,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set redundancy role to offline. Feedback is true if role is currently set to offline.",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("SetRedundancyStateToMain")]
+        public JoinDataComplete SetRedundancyStateToMain = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 7,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set redundancy state to main.",
+                JoinCapabilities = eJoinCapabilities.FromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("RedundancyStateIsActive")]
+        public JoinDataComplete RedundancyStateIsActive = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 7,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Feedback is true if state is currently set to active.",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("SetRedundancyStateToBackup")]
+        public JoinDataComplete SetRedundancyStateToBackup = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 8,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Set redundancy state to backup.",
+                JoinCapabilities = eJoinCapabilities.FromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("RedundancyStateIsStandby")]
+        public JoinDataComplete RedundancyStateIsStandby = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 8,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Feedback is true if state is currently set to standby.",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("RedundancyStateIsMixed")]
+        public JoinDataComplete RedundancyStateIsMixed = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 9,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Feedback is true if state is currently set to mixed.",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
                 JoinType = eJoinType.Digital
             });
 
