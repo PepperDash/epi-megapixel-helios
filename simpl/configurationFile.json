@@ -24,10 +24,10 @@
 				"type": "megapixelHelios",
 				"properties": {
 				  "control": {
-					"method": "http",
+					"method": "https",
 					"tcpSshProperties": {
 					  "address": "192.168.1.90",
-					  "port": 80,
+					  "port": 443,
 					  "username": "user",
 					  "password": "user",
 					  "autoReconnect": true,

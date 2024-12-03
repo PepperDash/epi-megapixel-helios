@@ -626,7 +626,7 @@ namespace MegapixelHelios
 		{
 			// TODO [ ] Update Poll method as needed for the plugin being developed
 			// Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
-            GetRedundancyState(); 
+            _client.SendRequest("PATCH", "/api/v1/public", string.Empty);
 		}
 
         /// <summary>

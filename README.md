@@ -25,10 +25,10 @@ Type: `megapixelhelios`
 	"type": "megapixelHelios",
 	"properties": {
 		"control": {
-		"method": "http",
+		"method": "https",
 		"tcpSshProperties": {
 			"address": "192.168.1.100",
-			"port": 80,
+			"port": 443,
 			"username": "{as defined in HELIOS web application}",
 			"password": "{as defined in HELIOS web application}",
 			"autoReconnect": true,
