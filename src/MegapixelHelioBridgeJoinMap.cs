@@ -229,7 +229,7 @@ namespace MegapixelHelios
             new JoinMetadata
             {
                 Description = "Force hotplug of input 1.",
-                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinCapabilities = eJoinCapabilities.FromSIMPL,
                 JoinType = eJoinType.Digital
             });
 
@@ -243,7 +243,7 @@ namespace MegapixelHelios
             new JoinMetadata
             {
                 Description = "Force hotplug of input 2.",
-                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinCapabilities = eJoinCapabilities.FromSIMPL,
                 JoinType = eJoinType.Digital
             });
 
