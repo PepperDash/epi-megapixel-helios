@@ -144,8 +144,8 @@ devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetById"           ,"p
 devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetByName"         ,"params":["full"]} // example: preesetName 'full'
 devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOn"              ,"params":[      ]}
 devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOff"             ,"params":[      ]}
-devjson:2 {"deviceKey":"display-1","methodName":"HotplugInput01"             ,"params":[      ]}
-devjson:2 {"deviceKey":"display-1","methodName":"HotplugInput02"             ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"HotplugInput01"             ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"HotplugInput02"             ,"params":[      ]}
 ```
 
 
