@@ -73,7 +73,6 @@ namespace MegapixelHelios
 
 		#endregion
 
-
 		private bool _powerIsOn;
 		public bool PowerIsOn
 		{
@@ -102,7 +101,6 @@ namespace MegapixelHelios
 
         public BoolFeedback TestPatternIsOnFeedback { get; set; }
 
-
         private int _brightness;
         public int Brightness
         {
@@ -116,7 +114,6 @@ namespace MegapixelHelios
         }
 
         public IntFeedback BrightnessFeedback { get; set; }
-
 
 		private int _currentPresetId;
 		public int CurrentPresetId
@@ -439,6 +436,9 @@ namespace MegapixelHelios
             trilist.SetSigTrueAction(joinMap.TestPatternOn.JoinNumber, TestPatternOn);
             trilist.SetSigTrueAction(joinMap.TestPatternOff.JoinNumber, TestPatternOff);
 
+            trilist.SetSigTrueAction(joinMap.HotplugInput01.JoinNumber, HotplugInput01);
+            trilist.SetSigTrueAction(joinMap.HotplugInput02.JoinNumber, HotplugInput02);
+
             trilist.SetSigTrueAction(joinMap.BrightnessHigh.JoinNumber, () => SetBrightness(BrightnessLevel.High));
             trilist.SetSigTrueAction(joinMap.BrightnessMedium.JoinNumber, () => SetBrightness(BrightnessLevel.Medium));
             trilist.SetSigTrueAction(joinMap.BrightnessLow.JoinNumber, () => SetBrightness(BrightnessLevel.Low));
@@ -572,32 +572,34 @@ namespace MegapixelHelios
 					return;
 				}
 
-
                 var feedback = JsonConvert.DeserializeObject<RootDevObject>(ResponseContent);
-
+                //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Begin parsing deserialized JSON objects");
                 if (feedback.Dev.Display != null)
                 {
-
                     if (feedback.Dev.Display.Blackout != null)
                     {
-                        PowerIsOn = (bool)feedback.Dev.Display.Blackout;
+                        Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Blackout");
+                        //PowerIsOn = (bool)feedback.Dev.Display.Blackout;
+                        //PowerIsOn = feedback.Dev.Display.Blackout.HasValue ? feedback.Dev.Display.Blackout.Value : false;
+                        PowerIsOn = !(bool)feedback.Dev.Display.Blackout;
                     }
-
+                    
                     if (feedback.Dev.Display.Brightness != null)
                     {
+                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Brightness");
                         Brightness = (int)feedback.Dev.Display.Brightness;
                     }
 
                     if (feedback.Dev.Display.Redundancy != null)
                     {
-                        RedundancyRoleIsMain = feedback.Dev.Display.Redundancy.Role == eRedundancyRole.main;
-                        RedundancyRoleIsBackup = feedback.Dev.Display.Redundancy.Role == eRedundancyRole.backup;
-                        RedundancyRoleIsOffline = feedback.Dev.Display.Redundancy.Role == eRedundancyRole.offline;
-                        RedundancyStateIsActive = feedback.Dev.Display.Redundancy.State == eRedundancyState.active;
-                        RedundancyStateIsMixed = feedback.Dev.Display.Redundancy.State == eRedundancyState.mixed;
-                        RedundancyStateIsStandby = feedback.Dev.Display.Redundancy.State == eRedundancyState.standby;                        
+                        RedundancyRoleIsMain = (bool)(feedback.Dev.Display.Redundancy.Role == eRedundancyRole.main);
+                        RedundancyRoleIsBackup = (bool)(feedback.Dev.Display.Redundancy.Role == eRedundancyRole.backup);
+                        RedundancyRoleIsOffline = (bool)(feedback.Dev.Display.Redundancy.Role == eRedundancyRole.offline);
+                        RedundancyStateIsActive = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.active);
+                        RedundancyStateIsMixed = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.mixed);
+                        RedundancyStateIsStandby = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.standby);
+                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Redundancy");
                     }
-
                 }
 
                 if (feedback.Dev.Ingest != null)
@@ -605,6 +607,7 @@ namespace MegapixelHelios
                     if (feedback.Dev.Ingest.TestPattern != null)
                     {
                         TestPatternIsOn = feedback.Dev.Ingest.TestPattern.Enabled;
+                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.TestPattern");
                     }
                 }
 			}
@@ -626,8 +629,68 @@ namespace MegapixelHelios
 		{
 			// TODO [ ] Update Poll method as needed for the plugin being developed
 			// Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
-            GetRedundancyState(); 
+            _client.SendRequest("GET", "/api/v1/public", string.Empty);
+            //GetRedundancyState();
+
 		}
+
+        /// <summary>
+        /// Force hotplug on input 1
+        /// </summary>
+        public void HotplugInput01()
+        {
+            // PATCH "api/v1/data?dev.ingest.inputs.hdmi1.debug.reset=true"
+            var payload = new
+            {
+                dev = new
+                {
+                    ingest = new
+                    {
+                        inputs = new
+                        {
+                            hdmi1 = new
+                            {
+                                debug = new
+                                {
+                                    reset = true
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            _client.SendRequest("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload));
+        }
+
+        /// <summary>
+        /// Force hotplug on input 2
+        /// </summary>
+        public void HotplugInput02()
+        {
+            // PATCH "api/v1/data?dev.ingest.inputs.hdmi1.debug.reset=true"
+            var payload = new
+            {
+                dev = new
+                {
+                    ingest = new
+                    {
+                        inputs = new
+                        {
+                            hdmi2 = new
+                            {
+                                debug = new
+                                {
+                                    reset = true
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            _client.SendRequest("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload));
+        }
 
         /// <summary>
         /// Poll for redundancy state.
@@ -919,7 +982,6 @@ namespace MegapixelHelios
             Debug.Console(MegapixelHeliosDebug.Notice, this, "TestPatternEnable: content-'{0}'", content);
             _client.SendRequest("PATCH", "/api/v1/public", content);
         }
-
 
         /// <summary>
         /// Test Pattern Off (enable: false)

@@ -25,10 +25,10 @@ Type: `megapixelhelios`
 	"type": "megapixelHelios",
 	"properties": {
 		"control": {
-		"method": "http",
+		"method": "https",
 		"tcpSshProperties": {
 			"address": "192.168.1.100",
-			"port": 80,
+			"port": 443,
 			"username": "{as defined in HELIOS web application}",
 			"password": "{as defined in HELIOS web application}",
 			"autoReconnect": true,
@@ -96,6 +96,8 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | 33          | 1         | Brightness High          | Digital | ToFromSIMPL  |
 | 34          | 1         | Brightness Medium        | Digital | ToFromSIMPL  |
 | 35          | 1         | Brightness Low           | Digital | ToFromSIMPL  |
+| 41          | 1         | Hotplug Input 1          | Digital | FromSIMPL    |
+| 42          | 1         | Hotplug Input 2          | Digital | FromSIMPL    |
 | 50          | 1         | Is Online                | Digital | ToSIMPL      |
 
 ### Analogs
@@ -142,6 +144,8 @@ devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetById"           ,"p
 devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetByName"         ,"params":["full"]} // example: preesetName 'full'
 devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOn"              ,"params":[      ]}
 devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOff"             ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"HotplugInput01"             ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"HotplugInput02"             ,"params":[      ]}
 ```
 
 

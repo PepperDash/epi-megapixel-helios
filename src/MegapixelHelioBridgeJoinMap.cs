@@ -177,8 +177,6 @@ namespace MegapixelHelios
                 JoinType = eJoinType.Digital
             });
 
-
-
         [JoinName("BrightnessHigh")]
         public JoinDataComplete BrightnessHigh = new JoinDataComplete(
             new JoinData
@@ -218,6 +216,34 @@ namespace MegapixelHelios
             {
                 Description = "Set Brightness Low",
                 JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("HotplugInput01")]
+        public JoinDataComplete HotplugInput01 = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 41,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Force hotplug of input 1.",
+                JoinCapabilities = eJoinCapabilities.FromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("HotplugInput02")]
+        public JoinDataComplete HotplugInput02 = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 42,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Force hotplug of input 2.",
+                JoinCapabilities = eJoinCapabilities.FromSIMPL,
                 JoinType = eJoinType.Digital
             });
 
