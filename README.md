@@ -142,13 +142,13 @@ devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToBackup"  ,"p
 devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToOffline" ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToMain"   ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToBackup" ,"params":[       ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetBrightness"              ,"params":["50"   ]} // example: brightness '50'
+devjson:1 {"deviceKey":"display-1","methodName":"SetBrightness"              ,"params":["50"   ]}
 devjson:1 {"deviceKey":"display-1","methodName":"GetPresetsList"             ,"params":[       ]}
-devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetById"           ,"params":[1      ]} // example: preesetId '1'
-devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetByName"         ,"params":["full" ]} // example: preesetName 'full'
+devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetById"           ,"params":[1      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetByName"         ,"params":["full" ]}
 devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOn"              ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOff"             ,"params":[       ]}
-devjson:1 {"deviceKey":"display-1","methodName":"RecallInputByName"          ,"params":["hdmi1"]}// example: inputName 'hdmi1'
+devjson:1 {"deviceKey":"display-1","methodName":"RecallInputByName"          ,"params":["hdmi1"]}
 devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi1"               ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi2"               ,"params":[       ]}
 ```
