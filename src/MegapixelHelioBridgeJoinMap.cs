@@ -37,6 +37,20 @@ namespace MegapixelHelios
 				JoinType = eJoinType.Digital
 			});
 
+        [JoinName("Poll")]
+        public JoinDataComplete Poll = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 3,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Poll device public API",
+                JoinCapabilities = eJoinCapabilities.FromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
         [JoinName("SetRedundancyRoleToMain")]
         public JoinDataComplete SetRedundancyRoleToMain = new JoinDataComplete(
             new JoinData

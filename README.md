@@ -4,6 +4,8 @@
 
 # Megapixel Helios (c) 2024
 
+Minimum Helios firmware version = `24.11.0.23030`
+
 ## License
 
 Provided under MIT license
@@ -83,6 +85,7 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | ----------- | --------- | --------------------     | ------- | ------------ |
 | 1           | 1         | Power Off (blackout)     | Digital | ToFromSIMPL  |
 | 2           | 1         | Power On (blackout)      | Digital | ToFromSIMPL  |
+| 3           | 1         | Poll (public API)        | Digital | FromSIMPL    |
 | 4           | 1         | Redundancy Role Main     | Digital | ToFromSIMPL  |
 | 5           | 1         | Redundancy Role Backup   | Digital | ToFromSIMPL  |
 | 6           | 1         | Redundancy Role Offline  | Digital | ToFromSIMPL  |
@@ -136,6 +139,7 @@ Public Methods that can be used with `devjson` to test controls.
 ```json
 devjson:1 {"deviceKey":"display-1","methodName":"PowerOn"                    ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"PowerOff"                   ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"Poll"                       ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"GetRedundancyState"         ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToMain"    ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToBackup"  ,"params":[       ]}

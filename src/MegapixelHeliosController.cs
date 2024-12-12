@@ -505,6 +505,8 @@ namespace MegapixelHelios
 			trilist.SetSigTrueAction(joinMap.PowerOn.JoinNumber, PowerOn);
 			trilist.SetSigTrueAction(joinMap.PowerOff.JoinNumber, PowerOff);
 
+            trilist.SetSigTrueAction(joinMap.Poll.JoinNumber, () => Poll());
+
             trilist.SetSigTrueAction(joinMap.TestPatternOn.JoinNumber, TestPatternOn);
             trilist.SetSigTrueAction(joinMap.TestPatternOff.JoinNumber, TestPatternOff);
 
@@ -1051,7 +1053,13 @@ namespace MegapixelHelios
 			}
 
             Debug.Console(MegapixelHeliosDebug.Notice, this, "PowerOn: content-'{0}'", content);
-			_client.SendRequest("PATCH", "/api/v1/public", content);
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(2000);
+                Poll();
+            });
 		}
 
 		/// <summary>
@@ -1083,7 +1091,13 @@ namespace MegapixelHelios
 			}
 
 			Debug.Console(MegapixelHeliosDebug.Notice, this, "PowerOff: content-'{0}'", content);
-			_client.SendRequest("PATCH", "/api/v1/public", content);
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(2000);
+                Poll();
+            });
 		}
 
         /// <summary>
@@ -1156,7 +1170,13 @@ namespace MegapixelHelios
             }
 
             Debug.Console(MegapixelHeliosDebug.Notice, this, "TestPatternEnable: content-'{0}'", content);
-            _client.SendRequest("PATCH", "/api/v1/public", content);
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(2000);
+                Poll();
+            });
         }
 
         /// <summary>
@@ -1191,7 +1211,13 @@ namespace MegapixelHelios
             }
 
             Debug.Console(MegapixelHeliosDebug.Notice, this, "TestPatternEnable: content-'{0}'", content);
-            _client.SendRequest("PATCH", "/api/v1/public", content);
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(2000);
+                Poll();
+            });
         }
 
 		/// <summary>
@@ -1279,7 +1305,13 @@ namespace MegapixelHelios
             }
 
             Debug.Console(MegapixelHeliosDebug.Notice, this, "RecallInputByName: content-'{0}'", content);
-            _client.SendRequest("PATCH", "/api/v1/public", content);
+            
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(3000);
+                Poll();
+            });
         }
 	}
 }
