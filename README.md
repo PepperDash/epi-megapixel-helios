@@ -4,6 +4,8 @@
 
 # Megapixel Helios (c) 2024
 
+Minimum Helios firmware version = `24.11.0.23030`
+
 ## License
 
 Provided under MIT license
@@ -83,6 +85,7 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | ----------- | --------- | --------------------     | ------- | ------------ |
 | 1           | 1         | Power Off (blackout)     | Digital | ToFromSIMPL  |
 | 2           | 1         | Power On (blackout)      | Digital | ToFromSIMPL  |
+| 3           | 1         | Poll (public API)        | Digital | FromSIMPL    |
 | 4           | 1         | Redundancy Role Main     | Digital | ToFromSIMPL  |
 | 5           | 1         | Redundancy Role Backup   | Digital | ToFromSIMPL  |
 | 6           | 1         | Redundancy Role Offline  | Digital | ToFromSIMPL  |
@@ -96,8 +99,10 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | 33          | 1         | Brightness High          | Digital | ToFromSIMPL  |
 | 34          | 1         | Brightness Medium        | Digital | ToFromSIMPL  |
 | 35          | 1         | Brightness Low           | Digital | ToFromSIMPL  |
-| 41          | 1         | Hotplug Input 1          | Digital | FromSIMPL    |
-| 42          | 1         | Hotplug Input 2          | Digital | FromSIMPL    |
+| 41          | 1         | Hdmi1 Hotplug            | Digital | FromSIMPL    |
+| 42          | 1         | Hdmi2 Hotplug            | Digital | FromSIMPL    |
+| 41          | 1         | Hdmi1 Invalid            | Digital | ToSIMPL      |
+| 42          | 1         | Hdmi2 Invalid            | Digital | ToSIMPL      |
 | 50          | 1         | Is Online                | Digital | ToSIMPL      |
 
 ### Analogs
@@ -112,6 +117,7 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | ----------- | --------- | ----------------------------- | ------ | ------------ |
 | 1           | 1         | Device Name                   | Serial | ToSIMPL      |
 | 3           | 1         | Response Content              | Serial | ToSIMPL      |
+| 10          | 1         | Input select by `inputName`   | Serial | ToFromSIMPL  |
 | 21          | 1         | Preset select by `presetName` | Serial | ToFromSimpl  |
 
 ## POINT OF CLARIFICATION ##
@@ -124,28 +130,31 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 6. The various `state` definitions reported above cannot be requested.
 7. The only valid `state` the device accepts is `main` or `backup`.
 8. The `state` request of `main` vs `backup` should be sent to override the automatic switch reported.
+9. Hotplug requests utilize manufacturer private API which may change with firmware.
 
 ## DEVJSON Commands
 
 Public Methods that can be used with `devjson` to test controls.  
 
 ```json
-devjson:1 {"deviceKey":"display-1","methodName":"PowerOn"                    ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"PowerOff"                   ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"GetRedundancyState"         ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToMain"    ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToBackup"  ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToOffline" ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToMain"   ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToBackup" ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"SetBrightness"              ,"params":["50"  ]} // example: brightness '50'
-devjson:1 {"deviceKey":"display-1","methodName":"GetPresetsList"             ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetById"           ,"params":[1     ]} // example: preesetId '1'
-devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetByName"         ,"params":["full"]} // example: preesetName 'full'
-devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOn"              ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOff"             ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"HotplugInput01"             ,"params":[      ]}
-devjson:1 {"deviceKey":"display-1","methodName":"HotplugInput02"             ,"params":[      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"PowerOn"                    ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"PowerOff"                   ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"Poll"                       ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"GetRedundancyState"         ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToMain"    ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToBackup"  ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToOffline" ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToMain"   ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyStateToBackup" ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"SetBrightness"              ,"params":["50"   ]}
+devjson:1 {"deviceKey":"display-1","methodName":"GetPresetsList"             ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetById"           ,"params":[1      ]}
+devjson:1 {"deviceKey":"display-1","methodName":"RecallPresetByName"         ,"params":["full" ]}
+devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOn"              ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOff"             ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"RecallInputByName"          ,"params":["hdmi1"]}
+devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi1"               ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi2"               ,"params":[       ]}
 ```
 
 

@@ -99,6 +99,61 @@ namespace MegapixelHelios
             }
         }
 
+        public BoolFeedback Hdmi1InvalidFeedback { get; set; }
+
+        private bool _hdmi1Invalid;
+        public bool Hdmi1Invalid
+        {
+            get { return _hdmi1Invalid; }
+            set
+            {
+                if (_hdmi1Invalid == value) return;
+                _hdmi1Invalid = value;
+                Hdmi1InvalidFeedback.FireUpdate();
+            }
+        }
+
+        public BoolFeedback Hdmi2InvalidFeedback { get; set; }
+
+        private bool _hdmi2Invalid;
+        public bool Hdmi2Invalid
+        {
+            get { return _hdmi2Invalid; }
+            set
+            {
+                if (_hdmi2Invalid == value) return;
+                _hdmi2Invalid = value;
+                Hdmi2InvalidFeedback.FireUpdate();
+            }
+        }
+
+        public BoolFeedback Sdi1IsValidFeedback { get; set; }
+
+        private bool _sdi1IsValid;
+        public bool Sdi1Invalid
+        {
+            get { return _sdi1IsValid; }
+            set
+            {
+                if (_sdi1IsValid == value) return;
+                _sdi1IsValid = value;
+                Sdi1IsValidFeedback.FireUpdate();
+            }
+        }
+
+        public BoolFeedback Sdi2IsValidFeedback { get; set; }
+
+        private bool _sdi2IsValid;
+        public bool Sdi2Invalid
+        {
+            get { return _sdi2IsValid; }
+            set
+            {
+                if (_sdi2IsValid == value) return;
+                _sdi2IsValid = value;
+                Sdi2IsValidFeedback.FireUpdate();
+            }
+        }
         public BoolFeedback TestPatternIsOnFeedback { get; set; }
 
         private int _brightness;
@@ -130,7 +185,6 @@ namespace MegapixelHelios
 		public IntFeedback CurrentPresetIdFeedback { get; set; }
 
 		private string _currentPresetName;
-
 		public string CurrentPresetName
 		{
 			get { return _currentPresetName; }
@@ -141,8 +195,21 @@ namespace MegapixelHelios
 				CurrentPresetNameFeedback.FireUpdate();
 			}
 		}
-		public StringFeedback CurrentPresetNameFeedback { get; set; }
 
+		public StringFeedback CurrentInputNameFeedback { get; set; }
+
+        private string _currentInputName;
+        public string CurrentInputName
+        {
+            get { return _currentInputName; }
+            set
+            {
+                if (_currentInputName == value) return;
+                _currentInputName = value;
+                CurrentInputNameFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback CurrentPresetNameFeedback { get; set; }
 
         private bool _redundancyRoleIsMain;
         public bool RedundancyRoleIsMain
@@ -163,7 +230,6 @@ namespace MegapixelHelios
         }
         public BoolFeedback RedundancyRoleIsMainFeedback { get; set; }
 
-
         private bool _redundancyRoleIsBackup;
         public bool RedundancyRoleIsBackup
         {
@@ -182,7 +248,6 @@ namespace MegapixelHelios
             }
         }
         public BoolFeedback RedundancyRoleIsBackupFeedback { get; set; }
-
 
         private bool _redundancyRoleIsOffline;
         public bool RedundancyRoleIsOffline
@@ -203,7 +268,6 @@ namespace MegapixelHelios
         }
         public BoolFeedback RedundancyRoleIsOfflineFeedback { get; set; }
 
-
         private bool _redundancyStateIsActive;
         public bool RedundancyStateIsActive
         {
@@ -222,7 +286,6 @@ namespace MegapixelHelios
             }
         }
         public BoolFeedback RedundancyStateIsActiveFeedback { get; set; }
-
 
         private bool _redundancyStateIsMixed;
         public bool RedundancyStateIsMixed
@@ -243,7 +306,6 @@ namespace MegapixelHelios
         }
         public BoolFeedback RedundancyStateIsMixedFeedback { get; set; }
 
-
         private bool _redundancyStateIsStandby;
         public bool RedundancyStateIsStandby
         {
@@ -263,7 +325,6 @@ namespace MegapixelHelios
         }
         public BoolFeedback RedundancyStateIsStandbyFeedback { get; set; }
 
-
         private List<MegaPixelHeliosPresetConfig> _presets;
 
         private CTimer _pollTimer;
@@ -278,7 +339,6 @@ namespace MegapixelHelios
                 IsOnlineFeedback.FireUpdate();
             }
         }
-
         public BoolFeedback IsOnlineFeedback;
 
 
@@ -339,6 +399,12 @@ namespace MegapixelHelios
             BrightnessFeedback = new IntFeedback(() => Brightness);
             IsOnlineFeedback = new BoolFeedback(() => IsOnline);
 
+            Hdmi1InvalidFeedback = new BoolFeedback(() => Hdmi1Invalid);
+            Hdmi2InvalidFeedback = new BoolFeedback(() => Hdmi2Invalid);
+            Sdi1IsValidFeedback = new BoolFeedback(() => Sdi1Invalid);
+            Sdi2IsValidFeedback = new BoolFeedback(() => Sdi2Invalid);
+            CurrentInputNameFeedback = new StringFeedback(() => CurrentInputName);
+
 			ResponseCodeFeedback = new IntFeedback(() => ResponseCode);
 			ResponseContentFeedback = new StringFeedback(() => ResponseContent);
 			ResponseErrorFeedback = new StringFeedback(() => ResponseError);
@@ -377,6 +443,12 @@ namespace MegapixelHelios
 			PowerIsOnFeedback.FireUpdate();
 			CurrentPresetIdFeedback.FireUpdate();
 			CurrentPresetNameFeedback.FireUpdate();
+
+            Hdmi1InvalidFeedback.FireUpdate();
+            Hdmi2InvalidFeedback.FireUpdate();
+            Sdi1IsValidFeedback.FireUpdate();
+            Sdi2IsValidFeedback.FireUpdate();
+            CurrentInputNameFeedback.FireUpdate();
 
             BrightnessFeedback.FireUpdate();
             TestPatternIsOnFeedback.FireUpdate();
@@ -433,11 +505,19 @@ namespace MegapixelHelios
 			trilist.SetSigTrueAction(joinMap.PowerOn.JoinNumber, PowerOn);
 			trilist.SetSigTrueAction(joinMap.PowerOff.JoinNumber, PowerOff);
 
+            trilist.SetSigTrueAction(joinMap.Poll.JoinNumber, () => Poll());
+
             trilist.SetSigTrueAction(joinMap.TestPatternOn.JoinNumber, TestPatternOn);
             trilist.SetSigTrueAction(joinMap.TestPatternOff.JoinNumber, TestPatternOff);
 
-            trilist.SetSigTrueAction(joinMap.HotplugInput01.JoinNumber, HotplugInput01);
-            trilist.SetSigTrueAction(joinMap.HotplugInput02.JoinNumber, HotplugInput02);
+            trilist.SetStringSigAction(joinMap.RecallInputByName.JoinNumber, RecallInputByName);
+            CurrentInputNameFeedback.LinkInputSig(trilist.StringInput[joinMap.RecallInputByName.JoinNumber]);
+
+            Hdmi1InvalidFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Hdmi1Invalid.JoinNumber]);
+            Hdmi2InvalidFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Hdmi2Invalid.JoinNumber]);
+
+            trilist.SetSigTrueAction(joinMap.HotplugHdmi1.JoinNumber, HotplugHdmi1);
+            trilist.SetSigTrueAction(joinMap.HotplugHdmi2.JoinNumber, HotplugHdmi2);
 
             trilist.SetSigTrueAction(joinMap.BrightnessHigh.JoinNumber, () => SetBrightness(BrightnessLevel.High));
             trilist.SetSigTrueAction(joinMap.BrightnessMedium.JoinNumber, () => SetBrightness(BrightnessLevel.Medium));
@@ -578,9 +658,7 @@ namespace MegapixelHelios
                 {
                     if (feedback.Dev.Display.Blackout != null)
                     {
-                        Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Blackout");
-                        //PowerIsOn = (bool)feedback.Dev.Display.Blackout;
-                        //PowerIsOn = feedback.Dev.Display.Blackout.HasValue ? feedback.Dev.Display.Blackout.Value : false;
+                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Blackout");
                         PowerIsOn = !(bool)feedback.Dev.Display.Blackout;
                     }
                     
@@ -606,8 +684,36 @@ namespace MegapixelHelios
                 {
                     if (feedback.Dev.Ingest.TestPattern != null)
                     {
-                        TestPatternIsOn = feedback.Dev.Ingest.TestPattern.Enabled;
+                        TestPatternIsOn = (bool)feedback.Dev.Ingest.TestPattern.Enabled;
                         //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.TestPattern");
+                    }
+                    if (feedback.Dev.Ingest.Input != null)
+                    {
+                        CurrentInputName = (string)feedback.Dev.Ingest.Input;
+                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Input");
+                    }
+                    if (feedback.Dev.Ingest.Inputs != null)
+                    {
+                        if (feedback.Dev.Ingest.Inputs.Hdmi1 != null)
+                        {
+                            Hdmi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi1.Valid;
+                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi1.Valid");
+                        }
+                        if (feedback.Dev.Ingest.Inputs.Hdmi2 != null)
+                        {
+                            Hdmi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi2.Valid;
+                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi2.Valid");
+                        }
+                        if (feedback.Dev.Ingest.Inputs.Sdi1 != null)
+                        {
+                            Sdi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi1.Valid;
+                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi1.Valid");
+                        }
+                        if (feedback.Dev.Ingest.Inputs.Sdi2 != null)
+                        {
+                            Sdi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi2.Valid;
+                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi2.Valid");
+                        }
                     }
                 }
 			}
@@ -620,8 +726,13 @@ namespace MegapixelHelios
 		}
 
 		/// <summary>
-		/// Polls the device
+		/// Polls the device public API
 		/// </summary>
+        /// <example>
+        /// requestType: GET
+        /// path: "/api/v1/public"
+        /// content: ""
+        /// </example>
 		/// <remarks>
 		/// Poll method is used by the communication monitor.  Update the poll method as needed for the plugin being developed.
 		/// </remarks>
@@ -630,14 +741,42 @@ namespace MegapixelHelios
 			// TODO [ ] Update Poll method as needed for the plugin being developed
 			// Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
             _client.SendRequest("GET", "/api/v1/public", string.Empty);
-            //GetRedundancyState();
-
 		}
 
         /// <summary>
-        /// Force hotplug on input 1
+        /// Polls the device private API
         /// </summary>
-        public void HotplugInput01()
+        /// <example>
+        /// requestType: GET
+        /// path: "/api/v1/data"
+        /// content: ""
+        /// </example>
+        /// <remarks>
+        /// Manufacturer public API paths will not change. Private API paths will change with firmware releases.
+        /// </remarks>
+        public void PollPrivateApi()
+        {
+            // TODO [ ] Update Poll method as needed for the plugin being developed
+            // Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
+            _client.SendRequest("GET", "/api/v1/data", string.Empty);
+            //GetRedundancyState();
+
+        }
+
+        /// <summary>
+        /// Force hotplug on Hdmi1
+        /// </summary>
+        /// <example>
+        /// requestType: PATCH
+        /// path: "api/v1/data"
+        /// content: { "dev": { "ingest": { "inputs": { "hdmi1": { "debug": { "reset": true } } } } } }
+        /// combined: "api/v1/data?dev.ingest.inputs.hdmi1.debug.reset=true"
+        /// </example>
+        /// <remarks>
+        /// Call uses private API 'data' path as opposed to 'public'.
+        /// Manufacturer public API paths will not change. Private API paths will change with firmware releases.
+        /// </remarks>
+        public void HotplugHdmi1()
         {
             // PATCH "api/v1/data?dev.ingest.inputs.hdmi1.debug.reset=true"
             var payload = new
@@ -664,11 +803,20 @@ namespace MegapixelHelios
         }
 
         /// <summary>
-        /// Force hotplug on input 2
+        /// Force hotplug on Hdmi2
         /// </summary>
-        public void HotplugInput02()
-        {
-            // PATCH "api/v1/data?dev.ingest.inputs.hdmi1.debug.reset=true"
+        /// <example>
+        /// requestType: PATCH
+        /// path: "api/v1/data"
+        /// content: { "dev": { "ingest": { "inputs": { "hdmi2": { "debug": { "reset": true } } } } } }
+        /// combined: "api/v1/data?dev.ingest.inputs.hdmi2.debug.reset=true"
+        /// </example>
+        /// <remarks>
+        /// Call uses private API 'data' path as opposed to 'public'.
+        /// Manufacturer public API paths will not change. Private API paths will change with firmware releases.
+        /// </remarks>
+        public void HotplugHdmi2()
+        {            
             var payload = new
             {
                 dev = new
@@ -693,8 +841,13 @@ namespace MegapixelHelios
         }
 
         /// <summary>
-        /// Poll for redundancy state.
+        /// Poll for redundancy role and state.
         /// </summary>
+        /// <remarks>
+        /// requestType: GET
+        /// path: "/api/v1/public"
+        /// content: { "dev": { "display": { "redundancy": "" } } }
+        /// </remarks>
         public void GetRedundancyState()
         {
             _client.SendRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
@@ -704,6 +857,11 @@ namespace MegapixelHelios
         /// <summary>
         /// Sets the redundancy role to main and polls for current redundancy role.
         /// </summary>
+        /// <remarks>
+        /// requestType: PATCH
+        /// path: "/api/v1/public"
+        /// content: { "dev": { "display": { "redundancy": { "role": main } } } }
+        /// </remarks>
         public void SetRedundancyRoleToMain()
         {
             var content = new RootDevObject
@@ -712,7 +870,7 @@ namespace MegapixelHelios
                 {
                     Display = new DisplayObject
                     {
-                        Redundancy = new Redundancy
+                        Redundancy = new RedundancyObject
                         {
                             Role = eRedundancyRole.main
                         }
@@ -733,6 +891,11 @@ namespace MegapixelHelios
         /// <summary>
         /// Sets the redundancy role to backup and polls for current redundancy role.
         /// </summary>
+        /// <remarks>
+        /// requestType: PATCH
+        /// path: "/api/v1/public"
+        /// content: { "dev": { "display": { "redundancy": { "role": backup } } } }
+        /// </remarks>
         public void SetRedundancyRoleToBackup()
         {
             var content = new RootDevObject
@@ -741,7 +904,7 @@ namespace MegapixelHelios
                 {
                     Display = new DisplayObject
                     {
-                        Redundancy = new Redundancy
+                        Redundancy = new RedundancyObject
                         {
                             Role = eRedundancyRole.backup
                         }
@@ -760,8 +923,13 @@ namespace MegapixelHelios
         }
 
         /// <summary>
-        /// Sets the redundancy role to main and polls for current redundancy role.
+        /// Sets the redundancy role to offline and polls for current redundancy role.
         /// </summary>
+        /// <remarks>
+        /// requestType: PATCH
+        /// path: "/api/v1/public"
+        /// content: { "dev": { "display": { "redundancy": { "role": offline } } } }
+        /// </remarks>
         public void SetRedundancyRoleToOffline()
         {
             var content = new RootDevObject
@@ -770,7 +938,7 @@ namespace MegapixelHelios
                 {
                     Display = new DisplayObject
                     {
-                        Redundancy = new Redundancy
+                        Redundancy = new RedundancyObject
                         {
                             Role = eRedundancyRole.offline
                         }
@@ -789,8 +957,13 @@ namespace MegapixelHelios
         }
 
         /// <summary>
-        /// Sets the redundancy state to active and polls for current redundancy state.
+        /// Sets the redundancy state to main and polls for current redundancy state.
         /// </summary>
+        /// <remarks>
+        /// requestType: PATCH
+        /// path: "/api/v1/public"
+        /// content: { "dev": { "display": { "redundancy": { "state": main } } } }
+        /// </remarks>
         public void SetRedundancyStateToMain()
         {
             var content = new RootDevObject 
@@ -799,7 +972,7 @@ namespace MegapixelHelios
                 {
                     Display = new DisplayObject
                     {
-                        Redundancy = new Redundancy
+                        Redundancy = new RedundancyObject
                         {
                             State = eRedundancyState.main
                         }
@@ -818,8 +991,13 @@ namespace MegapixelHelios
         }
 
         /// <summary>
-        /// Sets the redundancy state to standby and polls for current redundancy state.
+        /// Sets the redundancy state to backup and polls for current redundancy state.
         /// </summary>
+        /// <remarks>
+        /// requestType: PATCH
+        /// path: "/api/v1/public"
+        /// content: { "dev": { "display": { "redundancy": { "state": backup } } } }
+        /// </remarks>
         public void SetRedundancyStateToBackup()
         {
             var content = new RootDevObject
@@ -828,7 +1006,7 @@ namespace MegapixelHelios
                 {
                     Display = new DisplayObject
                     {
-                        Redundancy = new Redundancy
+                        Redundancy = new RedundancyObject
                         {
                             State = eRedundancyState.backup
                         }
@@ -851,7 +1029,7 @@ namespace MegapixelHelios
 		/// </summary>
 		/// <remarks>
 		/// requestType: PATCH
-		/// path: "/api/v1/public
+		/// path: "/api/v1/public"
 		/// content: { "dev": { "display": { "blackout": false } } }
 		/// </remarks>
 		public void PowerOn()
@@ -875,7 +1053,13 @@ namespace MegapixelHelios
 			}
 
             Debug.Console(MegapixelHeliosDebug.Notice, this, "PowerOn: content-'{0}'", content);
-			_client.SendRequest("PATCH", "/api/v1/public", content);
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(2000);
+                Poll();
+            });
 		}
 
 		/// <summary>
@@ -907,7 +1091,13 @@ namespace MegapixelHelios
 			}
 
 			Debug.Console(MegapixelHeliosDebug.Notice, this, "PowerOff: content-'{0}'", content);
-			_client.SendRequest("PATCH", "/api/v1/public", content);
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(2000);
+                Poll();
+            });
 		}
 
         /// <summary>
@@ -980,7 +1170,13 @@ namespace MegapixelHelios
             }
 
             Debug.Console(MegapixelHeliosDebug.Notice, this, "TestPatternEnable: content-'{0}'", content);
-            _client.SendRequest("PATCH", "/api/v1/public", content);
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(2000);
+                Poll();
+            });
         }
 
         /// <summary>
@@ -1015,7 +1211,13 @@ namespace MegapixelHelios
             }
 
             Debug.Console(MegapixelHeliosDebug.Notice, this, "TestPatternEnable: content-'{0}'", content);
-            _client.SendRequest("PATCH", "/api/v1/public", content);
+
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(2000);
+                Poll();
+            });
         }
 
 		/// <summary>
@@ -1072,6 +1274,45 @@ namespace MegapixelHelios
 			Debug.Console(MegapixelHeliosDebug.Notice, this, "RecallPresetByName: content-'{0}'", content);
 			_client.SendRequest("POST", "/api/v1/presets/apply", content);
 		}
+
+        /// <summary>
+        /// Recalls input using device configured input name
+        /// </summary>
+        /// <remarks>
+        /// requestType: PATCH
+        /// path: "/api/v1/public"
+        /// content: "{ "dev": { "ingest": { "input": "{name}" } } }
+        /// </remarks>
+        /// <param name="name"></param>
+        public void RecallInputByName(string name)
+        {  
+            var jsonObject = new RootDevObject
+            {
+                Dev = new DevObject
+                {
+                    Ingest = new IngestObject
+                    {
+                        Input = name
+                    }
+                }
+            };
+
+            var content = JsonConvert.SerializeObject(jsonObject);
+            if (string.IsNullOrEmpty(content))
+            {
+                Debug.Console(MegapixelHeliosDebug.Notice, "RecallInputByName: failed to serialzie request content");
+                return;
+            }
+
+            Debug.Console(MegapixelHeliosDebug.Notice, this, "RecallInputByName: content-'{0}'", content);
+            
+            CrestronInvoke.BeginInvoke((o) =>
+            {
+                _client.SendRequest("PATCH", "/api/v1/public", content);
+                Thread.Sleep(3000);
+                Poll();
+            });
+        }
 	}
 }
 
