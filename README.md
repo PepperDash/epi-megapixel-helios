@@ -114,7 +114,7 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | ----------- | --------- | ----------------------------- | ------ | ------------ |
 | 1           | 1         | Device Name                   | Serial | ToSIMPL      |
 | 3           | 1         | Response Content              | Serial | ToSIMPL      |
-| 10          | 1         | Input select by `inputName`   | Serial | ToSIMPL      |
+| 10          | 1         | Input select by `inputName`   | Serial | ToFromSIMPL  |
 | 21          | 1         | Preset select by `presetName` | Serial | ToFromSimpl  |
 
 ## POINT OF CLARIFICATION ##
