@@ -230,7 +230,6 @@ namespace MegapixelHelios
         }
         public BoolFeedback RedundancyRoleIsMainFeedback { get; set; }
 
-
         private bool _redundancyRoleIsBackup;
         public bool RedundancyRoleIsBackup
         {
@@ -249,7 +248,6 @@ namespace MegapixelHelios
             }
         }
         public BoolFeedback RedundancyRoleIsBackupFeedback { get; set; }
-
 
         private bool _redundancyRoleIsOffline;
         public bool RedundancyRoleIsOffline
@@ -270,7 +268,6 @@ namespace MegapixelHelios
         }
         public BoolFeedback RedundancyRoleIsOfflineFeedback { get; set; }
 
-
         private bool _redundancyStateIsActive;
         public bool RedundancyStateIsActive
         {
@@ -289,7 +286,6 @@ namespace MegapixelHelios
             }
         }
         public BoolFeedback RedundancyStateIsActiveFeedback { get; set; }
-
 
         private bool _redundancyStateIsMixed;
         public bool RedundancyStateIsMixed
@@ -310,7 +306,6 @@ namespace MegapixelHelios
         }
         public BoolFeedback RedundancyStateIsMixedFeedback { get; set; }
 
-
         private bool _redundancyStateIsStandby;
         public bool RedundancyStateIsStandby
         {
@@ -330,7 +325,6 @@ namespace MegapixelHelios
         }
         public BoolFeedback RedundancyStateIsStandbyFeedback { get; set; }
 
-
         private List<MegaPixelHeliosPresetConfig> _presets;
 
         private CTimer _pollTimer;
@@ -345,7 +339,6 @@ namespace MegapixelHelios
                 IsOnlineFeedback.FireUpdate();
             }
         }
-
         public BoolFeedback IsOnlineFeedback;
 
 
@@ -746,8 +739,6 @@ namespace MegapixelHelios
 			// TODO [ ] Update Poll method as needed for the plugin being developed
 			// Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
             _client.SendRequest("GET", "/api/v1/public", string.Empty);
-            //GetRedundancyState();
-
 		}
 
         /// <summary>
