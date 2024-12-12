@@ -28,15 +28,18 @@ namespace MegapixelHelios.JsonObjects
         public int? Brightness { get; set; }
 
         [JsonProperty("redundancy", NullValueHandling = NullValueHandling.Ignore)]
-        public Redundancy Redundancy { get; set; }
+        public RedundancyObject Redundancy { get; set; }
     }
 
     public class IngestObject
-    {
+    {        
+        [JsonProperty("input")]
+        public string Input { get; set; }
+        [JsonProperty("inputs", NullValueHandling = NullValueHandling.Ignore)]
+        public InputsObject Inputs { get; set; }
         [JsonProperty("testPattern", NullValueHandling = NullValueHandling.Ignore)]
-        public TestPatternObject TestPattern { get; set; }
+        public TestPatternObject TestPattern { get; set; }        
     }
-
 
     public class TestPatternObject
     {
@@ -46,9 +49,50 @@ namespace MegapixelHelios.JsonObjects
         public string Type { get; set; }
     }
 
-    public class Redundancy
+    public class InputsObject
     {
+        [JsonProperty("hdmi1", NullValueHandling = NullValueHandling.Ignore)]
+        public Hdmi1Object Hdmi1 { get; set; }
+        [JsonProperty("hdmi2", NullValueHandling = NullValueHandling.Ignore)]
+        public Hdmi2Object Hdmi2 { get; set; }
+        [JsonProperty("sdi1", NullValueHandling = NullValueHandling.Ignore)]
+        public Sdi1Object Sdi1 { get; set; }
+        [JsonProperty("sdi2", NullValueHandling = NullValueHandling.Ignore)]
+        public Sdi2Object Sdi2 { get; set; }
+    }
 
+    public class InputObject
+    {
+        [JsonProperty("input")]
+        public string Input { get; set; }
+    }
+
+    public class Hdmi1Object
+    {
+        [JsonProperty("valid")]
+        public bool Valid { get; set; }
+    }
+
+    public class Hdmi2Object
+    {
+        [JsonProperty("valid")]
+        public bool Valid { get; set; }
+    }
+
+    public class Sdi1Object
+    {
+        [JsonProperty("valid")]
+        public bool Valid { get; set; }
+    }
+
+    public class Sdi2Object
+    {
+        [JsonProperty("valid")]
+        public bool Valid { get; set; }
+    }
+
+    public class RedundancyObject
+    {
         [JsonProperty("state", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(StringEnumConverter))]
         public eRedundancyState State { get; set; }

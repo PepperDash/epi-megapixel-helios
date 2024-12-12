@@ -219,8 +219,8 @@ namespace MegapixelHelios
                 JoinType = eJoinType.Digital
             });
 
-        [JoinName("HotplugInput01")]
-        public JoinDataComplete HotplugInput01 = new JoinDataComplete(
+        [JoinName("HotplugHdmi1")]
+        public JoinDataComplete HotplugHdmi1 = new JoinDataComplete(
             new JoinData
             {
                 JoinNumber = 41,
@@ -228,13 +228,13 @@ namespace MegapixelHelios
             },
             new JoinMetadata
             {
-                Description = "Force hotplug of input 1.",
+                Description = "Force hotplug of Hdmi1.",
                 JoinCapabilities = eJoinCapabilities.FromSIMPL,
                 JoinType = eJoinType.Digital
             });
 
-        [JoinName("HotplugInput02")]
-        public JoinDataComplete HotplugInput02 = new JoinDataComplete(
+        [JoinName("HotplugHdmi2")]
+        public JoinDataComplete HotplugHdmi2 = new JoinDataComplete(
             new JoinData
             {
                 JoinNumber = 42,
@@ -242,8 +242,36 @@ namespace MegapixelHelios
             },
             new JoinMetadata
             {
-                Description = "Force hotplug of input 2.",
+                Description = "Force hotplug of Hdmi2.",
                 JoinCapabilities = eJoinCapabilities.FromSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("Hdmi1Invalid")]
+        public JoinDataComplete Hdmi1Invalid = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 41,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Hdmi1 input content is invalid.",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Digital
+            });
+
+        [JoinName("Hdmi2Invalid")]
+        public JoinDataComplete Hdmi2Invalid = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 42,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Hdmi2 input content is invalid.",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
                 JoinType = eJoinType.Digital
             });
 
@@ -343,6 +371,20 @@ namespace MegapixelHelios
 				JoinType = eJoinType.Serial
 			});
 
+        [JoinName("RecallInputByName")]
+        public JoinDataComplete RecallInputByName = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 10,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Input set & get by name",
+                JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+                JoinType = eJoinType.Serial
+            });
+
 		[JoinName("RecallPresetByName")]
 		public JoinDataComplete RecallPresetByName = new JoinDataComplete(
 			new JoinData
@@ -353,7 +395,7 @@ namespace MegapixelHelios
 			new JoinMetadata
 			{
 				Description = "Preset set & get by name",
-				JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
+				JoinCapabilities = eJoinCapabilities.FromSIMPL,
 				JoinType = eJoinType.Serial
 			});
 
