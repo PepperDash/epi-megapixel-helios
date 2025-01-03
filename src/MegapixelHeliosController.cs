@@ -362,7 +362,7 @@ namespace MegapixelHelios
 		public MegapixelHeliosController(string key, string name, MegapixelHeliosPropertiesConfig propertiesConfig, IRestfulComms client)
 			: base(key, name)
 		{
-			Debug.Console(0, this, "Constructing new {0} instance", name);
+			Debug.Console(MegapixelHeliosDebug.Trace, this, "Constructing new {0} instance", name);
 
 			MegapixelHeliosDebug.ResetDebugLevels();
 
@@ -580,7 +580,7 @@ namespace MegapixelHelios
 			try
 			{
 				var jToken = JToken.Parse(contentString);
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
+				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
 				return jToken;
 			}
 			catch (JsonReaderException jex)
@@ -631,7 +631,7 @@ namespace MegapixelHelios
 		{
 			try
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this,
+				Debug.Console(MegapixelHeliosDebug.Verbose, this,
 					"OnResponseReceived: Code = {0} | ContentString = {1}",
 					args.Code, args.ContentString);
 
@@ -1052,7 +1052,7 @@ namespace MegapixelHelios
 				return;
 			}
 
-            Debug.Console(MegapixelHeliosDebug.Notice, this, "PowerOn: content-'{0}'", content);
+            Debug.Console(MegapixelHeliosDebug.Verbose, this, "PowerOn: content-'{0}'", content);
 
             CrestronInvoke.BeginInvoke((o) =>
             {
@@ -1090,7 +1090,7 @@ namespace MegapixelHelios
 				return;
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Notice, this, "PowerOff: content-'{0}'", content);
+			Debug.Console(MegapixelHeliosDebug.Verbose, this, "PowerOff: content-'{0}'", content);
 
             CrestronInvoke.BeginInvoke((o) =>
             {
@@ -1134,7 +1134,7 @@ namespace MegapixelHelios
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Notice, this, "SetBrightness: content-'{0}'", content);
+            Debug.Console(MegapixelHeliosDebug.Verbose, this, "SetBrightness: content-'{0}'", content);
             _client.SendRequest("PATCH", "/api/v1/public", content);
         }
 
@@ -1169,7 +1169,7 @@ namespace MegapixelHelios
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Notice, this, "TestPatternEnable: content-'{0}'", content);
+            Debug.Console(MegapixelHeliosDebug.Verbose, this, "TestPatternEnable: content-'{0}'", content);
 
             CrestronInvoke.BeginInvoke((o) =>
             {
@@ -1210,7 +1210,7 @@ namespace MegapixelHelios
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Notice, this, "TestPatternEnable: content-'{0}'", content);
+            Debug.Console(MegapixelHeliosDebug.Verbose, this, "TestPatternEnable: content-'{0}'", content);
 
             CrestronInvoke.BeginInvoke((o) =>
             {
@@ -1271,7 +1271,7 @@ namespace MegapixelHelios
 				return;
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Notice, this, "RecallPresetByName: content-'{0}'", content);
+			Debug.Console(MegapixelHeliosDebug.Verbose, this, "RecallPresetByName: content-'{0}'", content);
 			_client.SendRequest("POST", "/api/v1/presets/apply", content);
 		}
 
@@ -1304,7 +1304,7 @@ namespace MegapixelHelios
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Notice, this, "RecallInputByName: content-'{0}'", content);
+            Debug.Console(MegapixelHeliosDebug.Verbose, this, "RecallInputByName: content-'{0}'", content);
             
             CrestronInvoke.BeginInvoke((o) =>
             {

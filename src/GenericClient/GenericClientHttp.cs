@@ -119,7 +119,7 @@ Password = {5}
 				request.Header.SetHeaderValue("Authorization", AuthorizationBase64);
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Notice, this, @"
+			Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
 {0}
 >>>>> SendRequest
 url: {1}
@@ -140,7 +140,7 @@ requestType: {3}
 			{
 				if (response == null)
 				{
-					Debug.Console(MegapixelHeliosDebug.Notice, this, @"
+					Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
 {0}
 >>>>> RequestDispatch
 error: {1}
@@ -161,7 +161,7 @@ error: {1}
 		private void OnResponseRecieved(GenericClientResponseEventArgs args)
 		{
 
-			Debug.Console(MegapixelHeliosDebug.Notice, this, @"
+			Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
 {0}
 >>>>> OnResponseReceived: 
 args.Code = {1}
@@ -232,7 +232,7 @@ args.ContentString = {2}
 			catch (JsonReaderException jex)
 			{
 				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson JsonReaderException.Message: {0}", jex.Message);
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson JsonReaderException.StackTrace: {0}", jex.StackTrace);
+				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson JsonReaderException.StackTrace: {0}", jex.StackTrace);
 				if (jex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson JsonReaderException.InnerException: {0}", jex.InnerException);
 
 				return null;
@@ -240,7 +240,7 @@ args.ContentString = {2}
 			catch (Exception ex)
 			{
 				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson Exception.Message: {0}", ex.Message);
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson Exception.StackTrace: {0}", ex.StackTrace);
+				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Exception.StackTrace: {0}", ex.StackTrace);
 				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Exception.InnerException: {0}", ex.InnerException);
 
 				return null;
