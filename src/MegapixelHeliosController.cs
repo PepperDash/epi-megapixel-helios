@@ -10,6 +10,8 @@ using Newtonsoft.Json.Linq;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
+using PepperDash.Essentials.Core.Routing;
+using PepperDash.Essentials.Core.Queues;
 using Crestron.SimplSharp;
 using Crestron.SimplSharpPro.CrestronThread;
 
@@ -19,7 +21,7 @@ namespace MegapixelHelios
 	/// <summary>
 	/// Plugin device template for third party devices that use IBasicCommunication
 	/// </summary>
-	public class MegapixelHeliosController : EssentialsBridgeableDevice
+    public class MegapixelHeliosController : EssentialsBridgeableDevice
 	{
 		private static readonly string Separator = new string('-', 50);
 
@@ -99,6 +101,14 @@ namespace MegapixelHelios
             }
         }
 
+        public static List<string> InputKeys = new List<string>();       
+        public StringFeedback CurrentInputFeedback { set;  get; }
+        public List<BoolFeedback> InputFeedback;
+        public IntFeedback InputNumberFeedback;
+        private List<bool> _inputFeedback;
+        private int _inputNumber;
+        private int _maxInputCount { get; set; }
+    
         public BoolFeedback Hdmi1InvalidFeedback { get; set; }
 
         private bool _hdmi1Invalid;
@@ -417,6 +427,10 @@ namespace MegapixelHelios
             RedundancyStateIsStandbyFeedback = new BoolFeedback(() => RedundancyStateIsStandby);
             RedundancyStateIsMixedFeedback = new BoolFeedback(() => RedundancyStateIsMixed);
 
+            InputNumberFeedback = new IntFeedback(() => _inputNumber);
+            _inputFeedback = new List<bool>();
+            InputFeedback = new List<BoolFeedback>();
+
             _presets = propertiesConfig.Presets;
 		}
 
@@ -691,6 +705,7 @@ namespace MegapixelHelios
                     {
                         CurrentInputName = (string)feedback.Dev.Ingest.Input;
                         //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Input");
+                        UpdateInputFb(CurrentInputName);
                     }
                     if (feedback.Dev.Ingest.Inputs != null)
                     {
@@ -1101,6 +1116,93 @@ namespace MegapixelHelios
 		}
 
         /// <summary>
+		/// Power Toggle
+		public void PowerToggle()
+		{
+	        if(PowerIsOn)
+                PowerOff();
+            else
+	        {
+                PowerOn();
+	        }
+		}
+
+        public int InputNumber
+        {
+            get { return _inputNumber; }
+            private set
+            {
+                if (_inputNumber == value) return;
+
+                _inputNumber = value;
+                InputNumberFeedback.FireUpdate();
+                UpdateBooleanFeedback(value);
+            }
+        }
+
+        /// <summary>
+        /// Process Input Feedback from Response
+        /// </summary>
+        /// <param name="s">response from device</param>
+        public void UpdateInputFb(string s)
+        {
+            _maxInputCount = 4;
+
+            var newInput = s.ToLower();
+            if (newInput != null && newInput != CurrentInputName)
+            {
+    
+                CurrentInputFeedback.FireUpdate();
+                switch (newInput)
+                {
+                    case "hdmi1":
+                        InputNumber = 1;
+                        break;
+                    case "hdmi2":
+                        InputNumber = 2;
+                        break;
+                    case "sdi1":
+                        InputNumber = 3;
+                        break;
+                    case "sdi2":
+                        InputNumber = 4;
+                        break;
+                }                
+            }
+        }
+
+        /// <summary>
+        /// Updates Digital Route Feedback for Simpl EISC
+        /// </summary>
+        /// <param name="data">currently routed source</param>
+        private void UpdateBooleanFeedback(int data)
+        {
+            try
+            {
+                if (_inputFeedback[data])
+                {
+                    return;
+                }
+
+                for (var i = 1; i < _maxInputCount + 1; i++)
+                {
+                    _inputFeedback[i] = false;
+                }
+
+                _inputFeedback[data] = true;
+                foreach (var item in InputFeedback)
+                {
+                    var update = item;
+                    update.FireUpdate();
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Console(0, this, "{0}", e.Message);
+            }
+        }
+
+        /// <summary>
         /// Brightiness (Brightness: 50)
         /// </summary>
         /// <remarks>
@@ -1313,6 +1415,6 @@ namespace MegapixelHelios
                 Poll();
             });
         }
-	}
+    }
 }
 
