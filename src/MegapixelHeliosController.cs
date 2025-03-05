@@ -10,16 +10,26 @@ using Newtonsoft.Json.Linq;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
+using Feedback = PepperDash.Essentials.Core.Feedback;
 using Crestron.SimplSharp;
 using Crestron.SimplSharpPro.CrestronThread;
 
 
 namespace MegapixelHelios
 {
-	/// <summary>
+    //TODO [ ] Add required IRoutingFeedback interface objects
+    //TODO [x] Add required IPower interface objects
+    //TODO [x] Add required IHasPowerControlWithFeedback interface objects
+    //TODO [x] Add required IHasPowerControl interface objects
+    //TODO [x] Add required IBridgedAdvanced interface objects    
+    //TODO [x] Add required IHasFeedback interface objects
+    //TODO [ ] Add required ICommunicationMonitor interface objects
+    //TODO [ ] Add required IOnline interface objects
+    
+    /// <summary>
 	/// Plugin device template for third party devices that use IBasicCommunication
 	/// </summary>
-	public class MegapixelHeliosController : EssentialsBridgeableDevice
+	public class MegapixelHeliosController : TwoWayDisplayBase, IBridgeAdvanced
 	{
 		private static readonly string Separator = new string('-', 50);
 
@@ -40,7 +50,6 @@ namespace MegapixelHelios
 		}
 
 		public IntFeedback ResponseCodeFeedback { get; private set; }
-
 
 		private string _responseContent;
 		public string ResponseContent
@@ -72,8 +81,8 @@ namespace MegapixelHelios
 		public StringFeedback ResponseErrorFeedback { get; private set; }
 
 		#endregion
-
-		private bool _powerIsOn;
+        		        
+        private bool _powerIsOn;
 		public bool PowerIsOn
 		{
 			get { return _powerIsOn; }
@@ -83,9 +92,15 @@ namespace MegapixelHelios
 				_powerIsOn = value;
 				PowerIsOnFeedback.FireUpdate();
 			}
-		}
+		}	
 
-		public BoolFeedback PowerIsOnFeedback { get; set; }
+        protected override Func<string> CurrentInputFeedbackFunc { get { return () => _currentInputName; } }
+        protected override Func<bool> PowerIsOnFeedbackFunc { get { return () => PowerIsOn; } }
+
+        bool _IsWarmingUp;
+        bool _IsCoolingDown;
+        protected override Func<bool> IsCoolingDownFeedbackFunc { get { return () => _IsCoolingDown; } }
+        protected override Func<bool> IsWarmingUpFeedbackFunc { get { return () => _IsWarmingUp; } }
 
         private bool _testPatternIsOn;
         public bool TestPatternIsOn
@@ -341,6 +356,14 @@ namespace MegapixelHelios
         }
         public BoolFeedback IsOnlineFeedback;
 
+        public override void ExecuteSwitch(object selector)
+        {
+            if (selector is Action)
+                (selector as Action).Invoke();
+            else
+                Debug.Console(1, this, "WARNING: ExecuteSwitch cannot handle type {0}", selector.GetType());       
+        }
+
 
 		/// <summary>
 		/// Reports online feedback through the bridge
@@ -476,7 +499,7 @@ namespace MegapixelHelios
 		/// <param name="joinStart"></param>
 		/// <param name="joinMapKey"></param>
 		/// <param name="bridge"></param>
-		public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+		public void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
 		{
 			var joinMap = new MegapixelHeliosBridgeJoinMap(joinStart);
 
@@ -566,6 +589,18 @@ namespace MegapixelHelios
 			};
 		}
 
+        public override FeedbackCollection<Feedback> Feedbacks
+        {
+            get
+            {
+                var list = base.Feedbacks;
+                list.AddRange(new List<Feedback>
+                {
+
+                });
+                return list;
+            }
+        }
 		#endregion
 
 
@@ -660,6 +695,7 @@ namespace MegapixelHelios
                     {
                         //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Blackout");
                         PowerIsOn = !(bool)feedback.Dev.Display.Blackout;
+                        PowerIsOnFeedback.FireUpdate();
                     }
                     
                     if (feedback.Dev.Display.Brightness != null)
@@ -690,6 +726,7 @@ namespace MegapixelHelios
                     if (feedback.Dev.Ingest.Input != null)
                     {
                         CurrentInputName = (string)feedback.Dev.Ingest.Input;
+                        CurrentInputFeedback.FireUpdate();
                         //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Input");
                     }
                     if (feedback.Dev.Ingest.Inputs != null)
@@ -1032,7 +1069,7 @@ namespace MegapixelHelios
 		/// path: "/api/v1/public"
 		/// content: { "dev": { "display": { "blackout": false } } }
 		/// </remarks>
-		public void PowerOn()
+		public override void PowerOn()
 		{
 			var jsonObject = new RootDevObject
 			{
@@ -1070,7 +1107,7 @@ namespace MegapixelHelios
 		/// path: "/api/v1/public"
 		/// content: { "dev": { "display": { "blackout": true } } }
 		/// </remarks>
-		public void PowerOff()
+		public override void PowerOff()
 		{
 			var jsonObject = new RootDevObject
 			{
@@ -1099,6 +1136,21 @@ namespace MegapixelHelios
                 Poll();
             });
 		}
+
+        /// <summary>
+        /// Toggle device power
+        /// </summary>
+        public override void PowerToggle()
+        {
+            if (PowerIsOn)
+            {
+                PowerOff();
+            }
+            else
+            {
+                PowerOn();
+            }
+        }
 
         /// <summary>
         /// Brightiness (Brightness: 50)
