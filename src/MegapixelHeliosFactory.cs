@@ -18,7 +18,7 @@ namespace MegapixelHelios
 		{
 			MinimumEssentialsFrameworkVersion = "1.16.0";
 
-			TypeNames = new List<string>() { "megapixelhelios" };
+			TypeNames = new List<string>() { "megapixelhelios", "megapixelHelios" };
 		}
 
 		/// <summary>

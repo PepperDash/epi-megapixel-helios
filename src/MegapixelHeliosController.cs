@@ -14,25 +14,13 @@ using Feedback = PepperDash.Essentials.Core.Feedback;
 using Crestron.SimplSharp;
 using Crestron.SimplSharpPro.CrestronThread;
 
-
 namespace MegapixelHelios
-{
-    //TODO [ ] Add required IRoutingFeedback interface objects
-    //TODO [x] Add required IPower interface objects
-    //TODO [x] Add required IHasPowerControlWithFeedback interface objects
-    //TODO [x] Add required IHasPowerControl interface objects
-    //TODO [x] Add required IBridgedAdvanced interface objects    
-    //TODO [x] Add required IHasFeedback interface objects
-    //TODO [ ] Add required ICommunicationMonitor interface objects
-    //TODO [ ] Add required IOnline interface objects
-    
+{    
     /// <summary>
 	/// Plugin device template for third party devices that use IBasicCommunication
 	/// </summary>
-	public class MegapixelHeliosController : TwoWayDisplayBase, IBridgeAdvanced
+	public class MegapixelHeliosController : TwoWayDisplayBase, IBridgeAdvanced, IOnline, IHasPowerControlWithFeedback, IHasFeedback
 	{
-		private static readonly string Separator = new string('-', 50);
-
 		#region IRestfulComms
 
 		private readonly IRestfulComms _client;
@@ -81,7 +69,25 @@ namespace MegapixelHelios
 		public StringFeedback ResponseErrorFeedback { get; private set; }
 
 		#endregion
-        		        
+
+        #region Fields, Properties, Feedbacks, Lists, CTimer
+        private List<MegaPixelHeliosPresetConfig> _presets;
+        private static readonly string Separator = new string('-', 50);
+        private CTimer _pollTimer;
+
+        private bool _DeviceIsOnline;
+        public BoolFeedback IsOnline { get; private set; }
+        public bool DeviceIsOnline
+        {
+            get { return _DeviceIsOnline; }
+            set
+            {
+                if (_DeviceIsOnline == value) return;
+                _DeviceIsOnline = value;
+                IsOnline.FireUpdate();
+            }
+        }
+        
         private bool _powerIsOn;
 		public bool PowerIsOn
 		{
@@ -92,13 +98,14 @@ namespace MegapixelHelios
 				_powerIsOn = value;
 				PowerIsOnFeedback.FireUpdate();
 			}
-		}	
+		}
 
-        protected override Func<string> CurrentInputFeedbackFunc { get { return () => _currentInputName; } }
+        protected override Func<string> CurrentInputFeedbackFunc { get { return () => CurrentInputName; } }
         protected override Func<bool> PowerIsOnFeedbackFunc { get { return () => PowerIsOn; } }
 
         bool _IsWarmingUp;
         bool _IsCoolingDown;
+
         protected override Func<bool> IsCoolingDownFeedbackFunc { get { return () => _IsCoolingDown; } }
         protected override Func<bool> IsWarmingUpFeedbackFunc { get { return () => _IsWarmingUp; } }
 
@@ -221,6 +228,7 @@ namespace MegapixelHelios
             {
                 if (_currentInputName == value) return;
                 _currentInputName = value;
+                Debug.Console(MegapixelHeliosDebug.Notice, this, "Current Input change. Input: {0}", _currentInputName);
                 CurrentInputNameFeedback.FireUpdate();
             }
         }
@@ -340,42 +348,31 @@ namespace MegapixelHelios
         }
         public BoolFeedback RedundancyStateIsStandbyFeedback { get; set; }
 
-        private List<MegaPixelHeliosPresetConfig> _presets;
+        #endregion
 
-        private CTimer _pollTimer;
-
-        private bool _isOnline;
-        public bool IsOnline
-        {
-            get { return _isOnline; }
-            set
-            {
-                _isOnline = value;
-                IsOnlineFeedback.FireUpdate();
-            }
-        }
-        public BoolFeedback IsOnlineFeedback;
+        #region Overrides of Essentials Core TwoWayDisplayBase
 
         public override void ExecuteSwitch(object selector)
         {
             if (selector is Action)
                 (selector as Action).Invoke();
             else
-                Debug.Console(1, this, "WARNING: ExecuteSwitch cannot handle type {0}", selector.GetType());       
+                Debug.Console(1, this, "WARNING: ExecuteSwitch cannot handle type {0}", selector.GetType());
         }
 
+        /// <summary>
+        /// Initializes plugin
+        /// </summary>
+        public override void Initialize()
+        {
+            base.Initialize();
+        }
 
-		/// <summary>
-		/// Reports online feedback through the bridge
-		/// </summary>
-		//public BoolFeedback OnlineFeedback { get; private set; }
+        #endregion
 
-		/// <summary>
-		/// Reports socket status feedback through the bridge
-		/// </summary>
-		//public IntFeedback StatusFeedback { get; private set; }
+        #region Constructor
 
-		/// <summary>
+        /// <summary>
 		/// Plugin device constructor for devices that need IBasicCommunication
 		/// </summary>
 		/// <param name="key">device key</param>
@@ -405,10 +402,8 @@ namespace MegapixelHelios
 				return;
 			}
 
-			_client.ResponseReceived += OnResponseReceived;
-
-			//OnlineFeedback = new BoolFeedback(() => _commsMonitor.IsOnline);
-			//StatusFeedback = new IntFeedback(() => (int)_commsMonitor.Status);
+			_client.ResponseReceived += OnResponseReceived;   
+            _client.DispatchErrorOnReceived += DispatchErrorOnReceived;
 
             BrightnessLevel.High = propertiesConfig.Brightness.High;
             BrightnessLevel.Medium = propertiesConfig.Brightness.Medium;
@@ -420,12 +415,13 @@ namespace MegapixelHelios
 
             TestPatternIsOnFeedback = new BoolFeedback(() => TestPatternIsOn);
             BrightnessFeedback = new IntFeedback(() => Brightness);
-            IsOnlineFeedback = new BoolFeedback(() => IsOnline);
+            IsOnline = new BoolFeedback(() => DeviceIsOnline);
 
             Hdmi1InvalidFeedback = new BoolFeedback(() => Hdmi1Invalid);
             Hdmi2InvalidFeedback = new BoolFeedback(() => Hdmi2Invalid);
             Sdi1IsValidFeedback = new BoolFeedback(() => Sdi1Invalid);
             Sdi2IsValidFeedback = new BoolFeedback(() => Sdi2Invalid);
+
             CurrentInputNameFeedback = new StringFeedback(() => CurrentInputName);
 
 			ResponseCodeFeedback = new IntFeedback(() => ResponseCode);
@@ -441,54 +437,20 @@ namespace MegapixelHelios
             RedundancyStateIsMixedFeedback = new BoolFeedback(() => RedundancyStateIsMixed);
 
             _presets = propertiesConfig.Presets;
-		}
 
-		/// <summary>
-		/// Initializes plugin
-		/// </summary>
-		public override void Initialize()
-		{
-			base.Initialize();
+            var pollInterval = propertiesConfig.PollTimeMs > 0 ? propertiesConfig.PollTimeMs : 15000; // Default poll time is 45 seconds
+            var warningInterval = propertiesConfig.WarningTimeoutMs > 0 ? propertiesConfig.WarningTimeoutMs : 180000; // Default warning time is 3 minutes
+            var errorInterval = propertiesConfig.ErrorTimeoutMs > 0 ? propertiesConfig.ErrorTimeoutMs : 300000; // Default error time is 5 minutes
 
-            StartPollTimer();
-		}
+            _pollTimer = new CTimer((o) => Poll(), null, pollInterval, pollInterval);
 
-        private void StartPollTimer()
-        {
-            _pollTimer = new CTimer((o) => Poll(), null, 15000, 15000);
+            WarmupTime = 1500; // Default warmup time is 1.5 seconds
+            CooldownTime = 1500; // Default cooldown time is 1.5 seconds
+            base.WarmupTime = WarmupTime;
+            base.CooldownTime = CooldownTime;
         }
 
-		private void UpdateFeedbacks()
-		{
-			//OnlineFeedback.FireUpdate();
-			//StatusFeedback.FireUpdate();
-
-			PowerIsOnFeedback.FireUpdate();
-			CurrentPresetIdFeedback.FireUpdate();
-			CurrentPresetNameFeedback.FireUpdate();
-
-            Hdmi1InvalidFeedback.FireUpdate();
-            Hdmi2InvalidFeedback.FireUpdate();
-            Sdi1IsValidFeedback.FireUpdate();
-            Sdi2IsValidFeedback.FireUpdate();
-            CurrentInputNameFeedback.FireUpdate();
-
-            BrightnessFeedback.FireUpdate();
-            TestPatternIsOnFeedback.FireUpdate();
-            IsOnlineFeedback.FireUpdate();
-
-			ResponseCodeFeedback.FireUpdate();
-			ResponseContentFeedback.FireUpdate();
-			ResponseErrorFeedback.FireUpdate();
-
-            RedundancyRoleIsMainFeedback.FireUpdate();
-            RedundancyRoleIsBackupFeedback.FireUpdate();
-            RedundancyRoleIsOfflineFeedback.FireUpdate();
-
-            RedundancyStateIsActiveFeedback.FireUpdate();
-            RedundancyStateIsStandbyFeedback.FireUpdate();
-            RedundancyStateIsMixedFeedback.FireUpdate();
-		}
+        #endregion
 
 		#region Overrides of EssentialsBridgeableDevice
 
@@ -569,7 +531,7 @@ namespace MegapixelHelios
 			PowerIsOnFeedback.LinkInputSig(trilist.BooleanInput[joinMap.PowerOn.JoinNumber]);
 			PowerIsOnFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.PowerOff.JoinNumber]);
 
-            IsOnlineFeedback.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
+            IsOnline.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
 
             TestPatternIsOnFeedback.LinkInputSig(trilist.BooleanInput[joinMap.TestPatternOn.JoinNumber]);
             TestPatternIsOnFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.TestPatternOff.JoinNumber]);
@@ -603,6 +565,38 @@ namespace MegapixelHelios
         }
 		#endregion
 
+        #region Feedbacks and Responses
+
+        private void UpdateFeedbacks()
+        {
+            IsOnline.FireUpdate();
+
+            PowerIsOnFeedback.FireUpdate();
+            CurrentPresetIdFeedback.FireUpdate();
+            CurrentPresetNameFeedback.FireUpdate();
+
+            Hdmi1InvalidFeedback.FireUpdate();
+            Hdmi2InvalidFeedback.FireUpdate();
+            Sdi1IsValidFeedback.FireUpdate();
+            Sdi2IsValidFeedback.FireUpdate();
+            CurrentInputNameFeedback.FireUpdate();
+
+            BrightnessFeedback.FireUpdate();
+            TestPatternIsOnFeedback.FireUpdate();
+            IsOnline.FireUpdate();
+
+            ResponseCodeFeedback.FireUpdate();
+            ResponseContentFeedback.FireUpdate();
+            ResponseErrorFeedback.FireUpdate();
+
+            RedundancyRoleIsMainFeedback.FireUpdate();
+            RedundancyRoleIsBackupFeedback.FireUpdate();
+            RedundancyRoleIsOfflineFeedback.FireUpdate();
+
+            RedundancyStateIsActiveFeedback.FireUpdate();
+            RedundancyStateIsStandbyFeedback.FireUpdate();
+            RedundancyStateIsMixedFeedback.FireUpdate();
+        }
 
 		private JToken IsValidJson(string contentString)
 		{
@@ -615,7 +609,7 @@ namespace MegapixelHelios
 			try
 			{
 				var jToken = JToken.Parse(contentString);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
+				//Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
 				return jToken;
 			}
 			catch (JsonReaderException jex)
@@ -638,39 +632,34 @@ namespace MegapixelHelios
 			}
 		}
 
-		public void TestOnResponseReceived()
-		{
-			var jsonObject = new RootDevObject
-			{
-				Dev = new DevObject
-				{
-					Display = new DisplayObject
-					{
-						Blackout = true
-					}
-				}
-			};
-			var contentString = JsonConvert.SerializeObject(jsonObject, Formatting.Indented);
-
-			var sender = new object();
-			var args = new GenericClientResponseEventArgs
-			{
-				Code = 200,
-				ContentString = contentString
-			};
-
-			OnResponseReceived(sender, args);
-		}
+        private void DispatchErrorOnReceived(object sender, GenericClientDispatchErrorOnReceivedEventArgs args)
+        {
+            if (args.errorState)
+                DeviceIsOnline = false;
+        }
 
 		private void OnResponseReceived(object sender, GenericClientResponseEventArgs args)
 		{
 			try
 			{
-				Debug.Console(MegapixelHeliosDebug.Verbose, this,
-					"OnResponseReceived: Code = {0} | ContentString = {1}",
-					args.Code, args.ContentString);
+				//Debug.Console(MegapixelHeliosDebug.Verbose, this, "OnResponseReceived: Code = {0} | ContentString = {1}", args.Code, args.ContentString);
 
 				ResponseCode = args.Code;
+
+                // if ResponseCode is not 200, IsOnline is false
+                if (ResponseCode != 200)
+                {
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                    Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: ResponseCode != 200, Code received: {0}", ResponseCode);  
+                    return;
+                }
+
+                if(ResponseCode == 200)
+                {
+                    DeviceIsOnline = true;
+                    IsOnline.FireUpdate();
+                }
 
 				if (string.IsNullOrEmpty(args.ContentString))
 				{
@@ -726,8 +715,10 @@ namespace MegapixelHelios
                     if (feedback.Dev.Ingest.Input != null)
                     {
                         CurrentInputName = (string)feedback.Dev.Ingest.Input;
-                        CurrentInputFeedback.FireUpdate();
-                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Input");
+                    }
+                    else
+                    {
+                        Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Input = Null");
                     }
                     if (feedback.Dev.Ingest.Inputs != null)
                     {
@@ -760,9 +751,13 @@ namespace MegapixelHelios
 				Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Stack Trace: {0}", ex.StackTrace);
 				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Inner Exception {0}", ex.InnerException);
 			}
-		}
+        }
 
-		/// <summary>
+        #endregion
+
+        #region Requests
+
+        /// <summary>
 		/// Polls the device public API
 		/// </summary>
         /// <example>
@@ -775,7 +770,6 @@ namespace MegapixelHelios
 		/// </remarks>
 		public void Poll()
 		{
-			// TODO [ ] Update Poll method as needed for the plugin being developed
 			// Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
             _client.SendRequest("GET", "/api/v1/public", string.Empty);
 		}
@@ -793,7 +787,6 @@ namespace MegapixelHelios
         /// </remarks>
         public void PollPrivateApi()
         {
-            // TODO [ ] Update Poll method as needed for the plugin being developed
             // Example: _client.SendRequest(REQUEST_TYPE, REQUEST_PATH, REQUEST_CONTENT);
             _client.SendRequest("GET", "/api/v1/data", string.Empty);
             //GetRedundancyState();
@@ -1097,6 +1090,20 @@ namespace MegapixelHelios
                 Thread.Sleep(2000);
                 Poll();
             });
+
+            if (!PowerIsOnFeedback.BoolValue && !_IsWarmingUp && !_IsCoolingDown)
+            {
+                _IsWarmingUp = true;
+                IsWarmingUpFeedback.FireUpdate();
+                // Fake power-up cycle
+                WarmupTimer = new CTimer(o =>
+                {
+                    Debug.Console(MegapixelHeliosDebug.Verbose, this, "Warmup timer ending.");
+                    _IsWarmingUp = false;
+                    PowerIsOn = true;
+                    IsWarmingUpFeedback.FireUpdate();
+                }, WarmupTime);
+            }
 		}
 
 		/// <summary>
@@ -1135,6 +1142,17 @@ namespace MegapixelHelios
                 Thread.Sleep(2000);
                 Poll();
             });
+
+            _IsCoolingDown = true;
+            PowerIsOn = false;
+            IsCoolingDownFeedback.FireUpdate();
+            // Fake cool-down cycle
+            CooldownTimer = new CTimer(o =>
+            {
+                Debug.Console(MegapixelHeliosDebug.Verbose, this, "Cooldown timer ending.");
+                _IsCoolingDown = false;
+                IsCoolingDownFeedback.FireUpdate();
+            }, CooldownTime);
 		}
 
         /// <summary>
@@ -1365,6 +1383,8 @@ namespace MegapixelHelios
                 Poll();
             });
         }
-	}
+
+        #endregion
+    }
 }
 

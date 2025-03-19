@@ -17,6 +17,63 @@ namespace MegapixelHelios
         public EssentialsControlPropertiesConfig Control { get; set; }
 
         /// <summary>
+        /// Serializes the poll time value
+        /// </summary>
+        /// <remarks>
+        /// This is an exmaple device plugin property.  This should be modified or deleted as needed for the plugin being built.
+        /// </remarks>
+        /// <value>
+        /// PollTimeMs property gets/sets the value as a long
+        /// </value>
+        /// <example>
+        /// <code>
+        /// "properties": {
+        ///		"polltimeMs": 30000
+        /// }
+        /// </code>
+        /// </example>
+        [JsonProperty("pollTimeMs", NullValueHandling = NullValueHandling.Ignore)]
+        public long PollTimeMs { get; set; }
+
+        /// <summary>
+        /// Serializes the warning timeout value
+        /// </summary>
+        /// <remarks>
+        /// This is an exmaple device plugin property.  This should be modified or deleted as needed for the plugin being built.
+        /// </remarks>
+        /// <value>
+        /// WarningTimeoutMs property gets/sets the value as a long
+        /// </value>
+        /// <example>
+        /// <code>
+        /// "properties": {
+        ///		"warningTimeoutMs": 180000
+        /// }
+        /// </code>
+        /// </example>
+        [JsonProperty("warningTimeoutMs", NullValueHandling = NullValueHandling.Ignore)]
+        public long WarningTimeoutMs { get; set; }
+
+        /// <summary>
+        /// Serializes the error timeout value
+        /// </summary>
+        /// /// <remarks>
+        /// This is an exmaple device plugin property.  This should be modified or deleted as needed for the plugin being built.
+        /// </remarks>
+        /// <value>
+        /// ErrorTimeoutMs property gets/sets the value as a long
+        /// </value>
+        /// <example>
+        /// <code>
+        /// "properties": {
+        ///		"errorTimeoutMs": 300000
+        /// }
+        /// </code>
+        /// </example>
+        [JsonProperty("errorTimeoutMs", NullValueHandling = NullValueHandling.Ignore)]
+        public long ErrorTimeoutMs { get; set; }
+
+        /// <summary>
         /// Constuctor
         /// </summary>
         public MegapixelHeliosPropertiesConfig()
