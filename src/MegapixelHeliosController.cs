@@ -438,9 +438,7 @@ namespace MegapixelHelios
 
             _presets = propertiesConfig.Presets;
 
-            var pollInterval = propertiesConfig.PollTimeMs > 0 ? propertiesConfig.PollTimeMs : 15000; // Default poll time is 45 seconds
-            var warningInterval = propertiesConfig.WarningTimeoutMs > 0 ? propertiesConfig.WarningTimeoutMs : 180000; // Default warning time is 3 minutes
-            var errorInterval = propertiesConfig.ErrorTimeoutMs > 0 ? propertiesConfig.ErrorTimeoutMs : 300000; // Default error time is 5 minutes
+            var pollInterval = propertiesConfig.PollTimeMs > 0 ? propertiesConfig.PollTimeMs : 15000; // Default poll time is 15 seconds
 
             _pollTimer = new CTimer((o) => Poll(), null, pollInterval, pollInterval);
 
