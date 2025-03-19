@@ -656,7 +656,6 @@ namespace MegapixelHelios
                 if(ResponseCode == 200)
                 {
                     DeviceIsOnline = true;
-                    IsOnline.FireUpdate();
                 }
 
 				if (string.IsNullOrEmpty(args.ContentString))
@@ -682,7 +681,6 @@ namespace MegapixelHelios
                     {
                         //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Blackout");
                         PowerIsOn = !(bool)feedback.Dev.Display.Blackout;
-                        PowerIsOnFeedback.FireUpdate();
                     }
                     
                     if (feedback.Dev.Display.Brightness != null)
