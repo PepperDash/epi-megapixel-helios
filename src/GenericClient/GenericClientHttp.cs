@@ -21,11 +21,20 @@ namespace MegapixelHelios.GenericClient
 		private readonly HttpClient _client;
 		private readonly CrestronQueue<Action> _requestQueue = new CrestronQueue<Action>(20);
 
+        public bool DispatchError { get; private set; }
 		public string Host { get; private set; }
 		public int Port { get; private set; }
 		public string Username { get; private set; }
 		public string Password { get; private set; }
 		public string AuthorizationBase64 { get; set; }
+        /// <summary>
+        /// Client response event
+        /// </summary>
+        public event EventHandler<GenericClientResponseEventArgs> ResponseReceived;
+        /// <summary>
+        /// Client dispatch error OnResponse event
+        /// </summary>
+        public event EventHandler<GenericClientDispatchErrorOnReceivedEventArgs> DispatchErrorOnReceived;
 
 		/// <summary>
 		/// Constructor
@@ -145,17 +154,16 @@ requestType: {3}
 >>>>> RequestDispatch
 error: {1}
 {0}", Separator, error);
-					return;
+
+                    DispatchError = true;
+                    DispatchErrorOnReceived(this, new GenericClientDispatchErrorOnReceivedEventArgs(DispatchError));
+                    return;
 				}
 
+                DispatchError = false;
 				OnResponseRecieved(new GenericClientResponseEventArgs(response.Code, response.ContentString));
 			});
 		}
-
-		/// <summary>
-		/// Client response event
-		/// </summary>
-		public event EventHandler<GenericClientResponseEventArgs> ResponseReceived;
 
 		// client response event handler
 		private void OnResponseRecieved(GenericClientResponseEventArgs args)

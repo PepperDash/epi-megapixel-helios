@@ -17,6 +17,25 @@ namespace MegapixelHelios
         public EssentialsControlPropertiesConfig Control { get; set; }
 
         /// <summary>
+        /// Serializes the poll time value
+        /// </summary>
+        /// <remarks>
+        /// This is an exmaple device plugin property.  This should be modified or deleted as needed for the plugin being built.
+        /// </remarks>
+        /// <value>
+        /// PollTimeMs property gets/sets the value as a long
+        /// </value>
+        /// <example>
+        /// <code>
+        /// "properties": {
+        ///		"polltimeMs": 30000
+        /// }
+        /// </code>
+        /// </example>
+        [JsonProperty("pollTimeMs", NullValueHandling = NullValueHandling.Ignore)]
+        public long PollTimeMs { get; set; }
+
+        /// <summary>
         /// Constuctor
         /// </summary>
         public MegapixelHeliosPropertiesConfig()

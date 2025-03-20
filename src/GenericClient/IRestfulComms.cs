@@ -17,5 +17,6 @@ namespace MegapixelHelios.GenericClient
 		/// This event will fire when a response is received from the Host
 		/// </summary>
 		event EventHandler<GenericClientResponseEventArgs> ResponseReceived;
+        event EventHandler<GenericClientDispatchErrorOnReceivedEventArgs> DispatchErrorOnReceived;
 	}
 }

@@ -66,4 +66,28 @@ namespace MegapixelHelios.GenericClient
 			ContentString = string.IsNullOrEmpty(contentString) ? "" : contentString;
 		}
 	}
+
+	public class GenericClientDispatchErrorOnReceivedEventArgs : EventArgs
+	{
+		/// <summary>
+		/// Client response code
+		/// </summary>
+		public bool errorState { get; set; }
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		public GenericClientDispatchErrorOnReceivedEventArgs()
+		{
+		}
+
+		/// <summary>
+		/// Constructor overload
+		/// </summary>
+		/// <param name="errorState"></param>
+		public GenericClientDispatchErrorOnReceivedEventArgs(bool errorState)
+		{
+			this.errorState = errorState;
+		}
+	}
 }
