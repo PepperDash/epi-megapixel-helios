@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text;
 using Crestron.SimplSharp;
 using Crestron.SimplSharp.Net.Http;
-using MegapixelHelios;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PepperDash.Core;
