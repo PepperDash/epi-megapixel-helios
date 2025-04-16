@@ -120,9 +120,8 @@ namespace MegapixelHelios
                 TestPatternIsOnFeedback.FireUpdate();
             }
         }
-
-        public BoolFeedback Hdmi1InvalidFeedback { get; set; }
-
+        public BoolFeedback TestPatternIsOnFeedback { get; set; }
+       
         private bool _hdmi1Invalid;
         public bool Hdmi1Invalid
         {
@@ -134,9 +133,34 @@ namespace MegapixelHelios
                 Hdmi1InvalidFeedback.FireUpdate();
             }
         }
+        public BoolFeedback Hdmi1InvalidFeedback { get; set; }
 
-        public BoolFeedback Hdmi2InvalidFeedback { get; set; }
+        private string _hdmi1Resolution;
+        public string Hdmi1Resolution
+        {
+            get { return _hdmi1Resolution; }
+            set
+            {
+                if (_hdmi1Resolution == value) return;
+                _hdmi1Resolution = value;
+                Hdmi1ResolutionFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Hdmi1ResolutionFeedback { get; set; }
 
+        private string _hdmi1Format;
+        public string Hdmi1Format
+        {
+            get { return _hdmi1Format; }
+            set
+            {
+                if (_hdmi1Format == value) return;
+                _hdmi1Format = value;
+                Hdmi1FormatFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Hdmi1FormatFeedback { get; set; }
+        
         private bool _hdmi2Invalid;
         public bool Hdmi2Invalid
         {
@@ -148,8 +172,33 @@ namespace MegapixelHelios
                 Hdmi2InvalidFeedback.FireUpdate();
             }
         }
+        public BoolFeedback Hdmi2InvalidFeedback { get; set; }
 
-        public BoolFeedback Sdi1IsValidFeedback { get; set; }
+        private string _hdmi2Resolution;
+        public string Hdmi2Resolution
+        {
+            get { return _hdmi2Resolution; }
+            set
+            {
+                if (_hdmi2Resolution == value) return;
+                _hdmi2Resolution = value;
+                Hdmi2ResolutionFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Hdmi2ResolutionFeedback { get; set; }
+
+        private string _hdmi2Format;
+        public string Hdmi2Format
+        {
+            get { return _hdmi2Format; }
+            set
+            {
+                if (_hdmi2Format == value) return;
+                _hdmi2Format = value;
+                Hdmi2FormatFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Hdmi2FormatFeedback { get; set; }
 
         private bool _sdi1IsValid;
         public bool Sdi1Invalid
@@ -159,12 +208,37 @@ namespace MegapixelHelios
             {
                 if (_sdi1IsValid == value) return;
                 _sdi1IsValid = value;
-                Sdi1IsValidFeedback.FireUpdate();
+                Sdi1InvalidFeedback.FireUpdate();
             }
         }
+        public BoolFeedback Sdi1InvalidFeedback { get; set; }
 
-        public BoolFeedback Sdi2IsValidFeedback { get; set; }
+        private string _sdi1Resolution;
+        public string Sdi1Resolution
+        {
+            get { return _sdi1Resolution; }
+            set
+            {
+                if (_sdi1Resolution == value) return;
+                _sdi1Resolution = value;
+                Sdi1ResolutionFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Sdi1ResolutionFeedback { get; set; }
 
+        private string _sdi1Format;
+        public string Sdi1Format
+        {
+            get { return _sdi1Format; }
+            set
+            {
+                if (_sdi1Format == value) return;
+                _sdi1Format = value;
+                Sdi1FormatFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Sdi1FormatFeedback { get; set; }
+        
         private bool _sdi2IsValid;
         public bool Sdi2Invalid
         {
@@ -173,11 +247,37 @@ namespace MegapixelHelios
             {
                 if (_sdi2IsValid == value) return;
                 _sdi2IsValid = value;
-                Sdi2IsValidFeedback.FireUpdate();
+                Sdi2InvalidFeedback.FireUpdate();
             }
         }
-        public BoolFeedback TestPatternIsOnFeedback { get; set; }
+        public BoolFeedback Sdi2InvalidFeedback { get; set; }
 
+        private string _sdi2Resolution;
+        public string Sdi2Resolution
+        {
+            get { return _sdi2Resolution; }
+            set
+            {
+                if (_sdi2Resolution == value) return;
+                _sdi2Resolution = value;
+                Sdi2ResolutionFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Sdi2ResolutionFeedback { get; set; }
+
+        private string _sdi2Format;
+        public string Sdi2Format
+        {
+            get { return _sdi2Format; }
+            set
+            {
+                if (_sdi2Format == value) return;
+                _sdi2Format = value;
+                Sdi2FormatFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Sdi2FormatFeedback { get; set; }
+        
         private int _brightness;
         public int Brightness
         {
@@ -189,7 +289,6 @@ namespace MegapixelHelios
                 BrightnessFeedback.FireUpdate();
             }
         }
-
         public IntFeedback BrightnessFeedback { get; set; }
 
 		private int _currentPresetId;
@@ -203,7 +302,6 @@ namespace MegapixelHelios
 				CurrentPresetIdFeedback.FireUpdate();
 			}
 		}
-
 		public IntFeedback CurrentPresetIdFeedback { get; set; }
 
 		private string _currentPresetName;
@@ -217,7 +315,6 @@ namespace MegapixelHelios
 				CurrentPresetNameFeedback.FireUpdate();
 			}
 		}
-
 		public StringFeedback CurrentInputNameFeedback { get; set; }
 
         private string _currentInputName;
@@ -419,8 +516,8 @@ namespace MegapixelHelios
 
             Hdmi1InvalidFeedback = new BoolFeedback(() => Hdmi1Invalid);
             Hdmi2InvalidFeedback = new BoolFeedback(() => Hdmi2Invalid);
-            Sdi1IsValidFeedback = new BoolFeedback(() => Sdi1Invalid);
-            Sdi2IsValidFeedback = new BoolFeedback(() => Sdi2Invalid);
+            Sdi1InvalidFeedback = new BoolFeedback(() => Sdi1Invalid);
+            Sdi2InvalidFeedback = new BoolFeedback(() => Sdi2Invalid);
 
             CurrentInputNameFeedback = new StringFeedback(() => CurrentInputName);
 
@@ -575,8 +672,8 @@ namespace MegapixelHelios
 
             Hdmi1InvalidFeedback.FireUpdate();
             Hdmi2InvalidFeedback.FireUpdate();
-            Sdi1IsValidFeedback.FireUpdate();
-            Sdi2IsValidFeedback.FireUpdate();
+            Sdi1InvalidFeedback.FireUpdate();
+            Sdi2InvalidFeedback.FireUpdate();
             CurrentInputNameFeedback.FireUpdate();
 
             BrightnessFeedback.FireUpdate();
