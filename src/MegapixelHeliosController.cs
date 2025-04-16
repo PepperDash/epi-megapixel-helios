@@ -457,17 +457,22 @@ namespace MegapixelHelios
         public string ReformatResolutionString(string input)
         {
             if (string.IsNullOrEmpty(input))
-                return string.Empty;
+                return "No input";
 
             // Replace 'x' with ' x ' and 'p' with ' @ '
             try
             {
-                string result = input.Replace("x", " x ").Replace("p", "@");
-                return result;
+                if (input.Contains("x"))
+                {
+                    string result = input.Replace("x", " x ").Replace("p", "@");
+                    return result;
+                }
+                else // Resolution string value may contain 'Invalid' which should be passed back as-is.
+                    return input;                             
             }
             catch 
             {
-                return string.Empty;
+                return "No input";
             }
         }
 
@@ -570,10 +575,11 @@ namespace MegapixelHelios
             base.WarmupTime = WarmupTime;
             base.CooldownTime = CooldownTime;
 
-            Hdmi1Resolution = "0x0p0.00";
-            Hdmi2Resolution = "0x0p0.00";
-            Sdi1Resolution = "0x0p0.00";
-            Sdi2Resolution = "0x0p0.00";
+            // Constructor default string value should match device when no input resolution present
+            Hdmi1Resolution = "No input";
+            Hdmi2Resolution = "No input";
+            Sdi1Resolution = "No input";
+            Sdi2Resolution = "No input";
         }
 
         #endregion
