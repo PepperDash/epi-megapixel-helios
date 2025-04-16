@@ -596,6 +596,16 @@ namespace MegapixelHelios
             Hdmi1InvalidFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Hdmi1Invalid.JoinNumber]);
             Hdmi2InvalidFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Hdmi2Invalid.JoinNumber]);
 
+            Hdmi1ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi1Resolution.JoinNumber]);
+            Hdmi2ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi2Resolution.JoinNumber]);
+            Sdi1ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi1Resolution.JoinNumber]);
+            Sdi2ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi2Resolution.JoinNumber]);
+
+            Hdmi1FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi1Format.JoinNumber]);
+            Hdmi2FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi2Format.JoinNumber]);
+            Sdi1FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi1Format.JoinNumber]);
+            Sdi2FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi2Format.JoinNumber]);
+
             trilist.SetSigTrueAction(joinMap.HotplugHdmi1.JoinNumber, HotplugHdmi1);
             trilist.SetSigTrueAction(joinMap.HotplugHdmi2.JoinNumber, HotplugHdmi2);
 
@@ -671,9 +681,18 @@ namespace MegapixelHelios
             CurrentPresetNameFeedback.FireUpdate();
 
             Hdmi1InvalidFeedback.FireUpdate();
+            Hdmi1ResolutionFeedback.FireUpdate();
+            Hdmi1FormatFeedback.FireUpdate();
             Hdmi2InvalidFeedback.FireUpdate();
+            Hdmi2ResolutionFeedback.FireUpdate();
+            Hdmi2FormatFeedback.FireUpdate();
             Sdi1InvalidFeedback.FireUpdate();
+            Sdi1ResolutionFeedback.FireUpdate();
+            Sdi1FormatFeedback.FireUpdate();
             Sdi2InvalidFeedback.FireUpdate();
+            Sdi2ResolutionFeedback.FireUpdate();
+            Sdi2FormatFeedback.FireUpdate();
+            
             CurrentInputNameFeedback.FireUpdate();
 
             BrightnessFeedback.FireUpdate();

@@ -413,6 +413,118 @@ namespace MegapixelHelios
 				JoinType = eJoinType.Serial
 			});
 
+        [JoinName("Hdmi1Resolution")]
+        public JoinDataComplete Hdmi1Resolution = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 31,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Hdmi 1 Resolution",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Serial
+            });
+
+        [JoinName("Hdmi2Resolution")]
+        public JoinDataComplete Hdmi2Resolution = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 32,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Hdmi 2 Resolution",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Serial
+            });
+
+        [JoinName("Sdi1Resolution")]
+        public JoinDataComplete Sdi1Resolution = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 33,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Sdi 1 Resolution",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Serial
+            });
+
+        [JoinName("Sdi2Resolution")]
+        public JoinDataComplete Sdi2Resolution = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 34,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Sdi 2 Resolution",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Serial
+            });
+
+        [JoinName("Hdmi1Format")]
+        public JoinDataComplete Hdmi1Format = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 41,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Hdmi 1 Format",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Serial
+            });
+
+        [JoinName("Hdmi2Format")]
+        public JoinDataComplete Hdmi2Format = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 42,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Hdmi 2 Format",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Serial
+            });
+
+        [JoinName("Sdi1Format")]
+        public JoinDataComplete Sdi1Format = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 43,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Sdi 1 Format",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Serial
+            });
+
+        [JoinName("Sdi2Format")]
+        public JoinDataComplete Sdi2Format = new JoinDataComplete(
+            new JoinData
+            {
+                JoinNumber = 44,
+                JoinSpan = 1
+            },
+            new JoinMetadata
+            {
+                Description = "Sdi 2 Format",
+                JoinCapabilities = eJoinCapabilities.ToSIMPL,
+                JoinType = eJoinType.Serial
+            });
+
 		#endregion
 
 		/// <summary>
