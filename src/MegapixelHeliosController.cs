@@ -818,22 +818,26 @@ namespace MegapixelHelios
                         if (feedback.Dev.Ingest.Inputs.Hdmi1 != null)
                         {
                             Hdmi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi1.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi1.Valid");
+                            Hdmi1Resolution = (string)feedback.Dev.Ingest.Inputs.Hdmi1.Resolution;
+                            Hdmi1Format = (string)feedback.Dev.Ingest.Inputs.Hdmi1.Format;
                         }
                         if (feedback.Dev.Ingest.Inputs.Hdmi2 != null)
                         {
                             Hdmi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi2.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi2.Valid");
+                            Hdmi2Resolution = (string)feedback.Dev.Ingest.Inputs.Hdmi2.Resolution;
+                            Hdmi2Format = (string)feedback.Dev.Ingest.Inputs.Hdmi2.Format;                           
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi1 != null)
                         {
                             Sdi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi1.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi1.Valid");
+                            Sdi1Resolution = (string)feedback.Dev.Ingest.Inputs.Sdi1.Resolution;
+                            Sdi1Format = (string)feedback.Dev.Ingest.Inputs.Sdi1.Format;                            
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi2 != null)
                         {
                             Sdi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi2.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi2.Valid");
+                            Sdi2Resolution = (string)feedback.Dev.Ingest.Inputs.Sdi2.Resolution;
+                            Sdi2Format = (string)feedback.Dev.Ingest.Inputs.Sdi2.Format;
                         }
                     }
                 }

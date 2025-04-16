@@ -72,9 +72,9 @@ namespace MegapixelHelios.JsonObjects
         [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
         [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
-        public Hdmi1Object Resolution { get; set; }
+        public string Resolution { get; set; }
         [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
-        public Hdmi2Object Format { get; set; }
+        public string Format { get; set; }
     }
 
     public class Hdmi2Object
@@ -82,9 +82,9 @@ namespace MegapixelHelios.JsonObjects
         [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
         [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
-        public Hdmi1Object Resolution { get; set; }
+        public string Resolution { get; set; }
         [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
-        public Hdmi2Object Format { get; set; }
+        public string Format { get; set; }
     }
 
     public class Sdi1Object
@@ -92,9 +92,9 @@ namespace MegapixelHelios.JsonObjects
         [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
         [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
-        public Hdmi1Object Resolution { get; set; }
+        public string Resolution { get; set; }
         [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
-        public Hdmi2Object Format { get; set; }
+        public string Format { get; set; }
     }
 
     public class Sdi2Object
@@ -102,9 +102,9 @@ namespace MegapixelHelios.JsonObjects
         [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
         [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
-        public Hdmi1Object Resolution { get; set; }
+        public string Resolution { get; set; }
         [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
-        public Hdmi2Object Format { get; set; }
+        public string Format { get; set; }
     }
 
     public class RedundancyObject
