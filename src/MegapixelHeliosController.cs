@@ -447,6 +447,32 @@ namespace MegapixelHelios
 
         #endregion
 
+        #region Generic Methods
+
+        /// <summary>
+        /// Reformat the input resolution string to include spaces as needed.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public string ReformatResolutionString(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return string.Empty;
+
+            // Replace 'x' with ' x ' and 'p' with ' @ '
+            try
+            {
+                string result = input.Replace("x", " x ").Replace("p", "@");
+                return result;
+            }
+            catch 
+            {
+                return string.Empty;
+            }
+        }
+
+        #endregion
+
         #region Overrides of Essentials Core TwoWayDisplayBase
 
         public override void ExecuteSwitch(object selector)
@@ -543,6 +569,11 @@ namespace MegapixelHelios
             CooldownTime = 1500; // Default cooldown time is 1.5 seconds
             base.WarmupTime = WarmupTime;
             base.CooldownTime = CooldownTime;
+
+            Hdmi1Resolution = "0x0p0.00";
+            Hdmi2Resolution = "0x0p0.00";
+            Sdi1Resolution = "0x0p0.00";
+            Sdi2Resolution = "0x0p0.00";
         }
 
         #endregion
