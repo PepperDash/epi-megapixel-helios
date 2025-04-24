@@ -1,10 +1,14 @@
-![4Series-Tested](https://img.shields.io/badge/4_Series-Tested-teal.svg)
-
 ![PepperDash Essentials Pluign Logo](/images/essentials-plugin-blue.png)
 
 # Megapixel Helios (c) 2024
 
-Minimum Helios firmware version = `24.11.0.23030`
+### Minimum Helios firmware version
+
+- 24.11.0.23030
+
+### Minimum Essentials Framework Versions
+
+- 2.4.4
 
 ## License
 
@@ -13,8 +17,6 @@ Provided under MIT license
 ## Configuration Object
 
 ### Device
-
-MinimumEssentialsFrameworkVersion = `1.16.0`
 
 Type: `megapixelhelios`
 
@@ -156,5 +158,86 @@ devjson:1 {"deviceKey":"display-1","methodName":"RecallInputByName"          ,"p
 devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi1"               ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi2"               ,"params":[       ]}
 ```
+<!-- START Supported Types -->
+### Supported Types
+
+- megapixelHelios
+<!-- END Supported Types -->
+<!-- START Join Maps -->
+
+<!-- END Join Maps -->
+<!-- START Interfaces Implemented -->
+### Interfaces Implemented
+
+- IBridgeAdvanced
+- IOnline
+- IHasPowerControlWithFeedback
+- IHasFeedback
+- IRestfulComms
+<!-- END Interfaces Implemented -->
+<!-- START Base Classes -->
+### Base Classes
+
+- JoinMapBaseAdvanced
+- TwoWayDisplayBase
+- EventArgs
+<!-- END Base Classes -->
+<!-- START Public Methods -->
+### Public Methods
+
+- public void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+- public void Poll()
+- public void PollPrivateApi()
+- public void HotplugHdmi1()
+- public void HotplugHdmi2()
+- public void GetRedundancyState()
+- public void SetRedundancyRoleToMain()
+- public void SetRedundancyRoleToBackup()
+- public void SetRedundancyRoleToOffline()
+- public void SetRedundancyStateToMain()
+- public void SetRedundancyStateToBackup()
+- public void SetBrightness(ushort brightness)
+- public void TestPatternOn()
+- public void TestPatternOff()
+- public void GetPresetsList()
+- public void RecallPresetById(uint id)
+- public void RecallPresetByName(string name)
+- public void RecallInputByName(string name)
+- public void SendRequest(string requestType, string path, string content)
+- public void SendRequest(RequestType requestType, string path, string content)
+- public void SendRequest(string requestType, string path, string content)
+- public void SendRequest(RequestType requestType, string path, string content)
+<!-- END Public Methods -->
+<!-- START Bool Feedbacks -->
+### Bool Feedbacks
+
+- IsOnline
+- Hdmi1InvalidFeedback
+- Hdmi2InvalidFeedback
+- Sdi1IsValidFeedback
+- Sdi2IsValidFeedback
+- TestPatternIsOnFeedback
+- RedundancyRoleIsMainFeedback
+- RedundancyRoleIsBackupFeedback
+- RedundancyRoleIsOfflineFeedback
+- RedundancyStateIsActiveFeedback
+- RedundancyStateIsMixedFeedback
+- RedundancyStateIsStandbyFeedback
+<!-- END Bool Feedbacks -->
+<!-- START Int Feedbacks -->
+### Int Feedbacks
+
+- ResponseCodeFeedback
+- BrightnessFeedback
+- CurrentPresetIdFeedback
+<!-- END Int Feedbacks -->
+<!-- START String Feedbacks -->
+### String Feedbacks
+
+- ResponseContentFeedback
+- ResponseErrorFeedback
+- CurrentInputNameFeedback
+- CurrentPresetNameFeedback
+<!-- END String Feedbacks -->
 
 
