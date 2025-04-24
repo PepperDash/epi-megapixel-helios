@@ -13,6 +13,7 @@ using PepperDash.Essentials.Core.Bridges;
 using Feedback = PepperDash.Essentials.Core.Feedback;
 using Crestron.SimplSharp;
 using Crestron.SimplSharpPro.CrestronThread;
+using TwoWayDisplayBase = PepperDash.Essentials.Devices.Common.Displays.TwoWayDisplayBase;
 
 namespace MegapixelHelios
 {    
