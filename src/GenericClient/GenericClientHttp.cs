@@ -45,7 +45,7 @@ namespace MegapixelHelios.GenericClient
 		{
 			if (string.IsNullOrEmpty(key) || controlConfig == null)
 			{
-				Debug.Console(MegapixelHeliosDebug.Verbose, Debug.ErrorLogLevel.Error,
+				Debug.LogInformation(key,
 					"GenericClient key or host is null or empty, failed to create client for {0}", key);
 				return;
 			}
@@ -66,7 +66,7 @@ namespace MegapixelHelios.GenericClient
 
 			AuthorizationBase64 = EncodeBase64(Username, Password);
 
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
+			Debug.LogInformation(this, @"
 {0}
 >>>>> GenericClientHttps: 
 Key = {1}
@@ -128,7 +128,7 @@ Password = {5}
 				request.Header.SetHeaderValue("Authorization", AuthorizationBase64);
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
+			Debug.LogInformation(this, @"
 {0}
 >>>>> SendRequest
 url: {1}
@@ -149,7 +149,7 @@ requestType: {3}
 			{
 				if (response == null)
 				{
-					Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
+					Debug.LogInformation(this, @"
 {0}
 >>>>> RequestDispatch
 error: {1}
@@ -169,7 +169,7 @@ error: {1}
 		private void OnResponseRecieved(GenericClientResponseEventArgs args)
 		{
 
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
+			Debug.LogInformation(this, @"
 {0}
 >>>>> OnResponseReceived: 
 args.Code = {1}
@@ -190,7 +190,7 @@ args.ContentString = {2}
 			var jToken = IsValidJson(args.ContentString);
 			if (jToken == null)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessSuccessResponse: IsValidJson obj is null");
+				Debug.LogDebug(this, "ProcessSuccessResponse: IsValidJson obj is null");
 				return;
 			}
 
@@ -206,7 +206,7 @@ args.ContentString = {2}
 			var jToken = IsValidJson(args.ContentString);
 			if (jToken == null)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessErrorResponse: IsValidJson obj is null");
+				Debug.LogDebug(this, "ProcessErrorResponse: IsValidJson obj is null");
 				return;
 			}
 
@@ -233,23 +233,23 @@ args.ContentString = {2}
 			try
 			{
 				var jToken = JToken.Parse(contentString);
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
+				Debug.LogDebug(this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
 
 				return jToken;
 			}
 			catch (JsonReaderException jex)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson JsonReaderException.Message: {0}", jex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson JsonReaderException.StackTrace: {0}", jex.StackTrace);
-				if (jex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson JsonReaderException.InnerException: {0}", jex.InnerException);
+				Debug.LogDebug(this, "IsValidJson JsonReaderException.Message: {0}", jex.Message);
+				Debug.LogInformation(this, "IsValidJson JsonReaderException.StackTrace: {0}", jex.StackTrace);
+				if (jex.InnerException != null) Debug.LogInformation(this, "IsValidJson JsonReaderException.InnerException: {0}", jex.InnerException);
 
 				return null;
 			}
 			catch (Exception ex)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson Exception.Message: {0}", ex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Exception.StackTrace: {0}", ex.StackTrace);
-				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Exception.InnerException: {0}", ex.InnerException);
+				Debug.LogDebug(this, "IsValidJson Exception.Message: {0}", ex.Message);
+				Debug.LogInformation(this, "IsValidJson Exception.StackTrace: {0}", ex.StackTrace);
+				if (ex.InnerException != null) Debug.LogInformation(this, "IsValidJson Exception.InnerException: {0}", ex.InnerException);
 
 				return null;
 			}
@@ -258,9 +258,9 @@ args.ContentString = {2}
 		// Checks request queue and issues next request
 		private void CheckRequestQueue()
 		{
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, "CheckRequestQueue: _requestQueue.Count = {0}", _requestQueue.Count);
+			Debug.LogInformation(this, "CheckRequestQueue: _requestQueue.Count = {0}", _requestQueue.Count);
 			var nextRequest = _requestQueue.TryToDequeue();
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, "CheckRequestQueue: _requestQueue.TryToDequeue was {0}",
+			Debug.LogInformation(this, "CheckRequestQueue: _requestQueue.TryToDequeue was {0}",
 				(nextRequest == null) ? "unsuccessful" : "successful");
 			if (nextRequest != null)
 			{
@@ -286,7 +286,7 @@ args.ContentString = {2}
 			}
 			catch (Exception err)
 			{
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "EncodeBase64 Exception:\r{0}", err);
+				Debug.LogError(this, "EncodeBase64 Exception:\r{0}", err);
 				return "";
 			}
 		}
