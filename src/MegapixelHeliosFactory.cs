@@ -16,7 +16,7 @@ namespace MegapixelHelios
 		/// </summary>
 		public MegapixelHelioFactory()
 		{
-			MinimumEssentialsFrameworkVersion = "1.16.0";
+			MinimumEssentialsFrameworkVersion = "2.4.4";
 
 			TypeNames = new List<string>() { "megapixelHelios" };
 		}
@@ -26,13 +26,13 @@ namespace MegapixelHelios
 		/// </summary>
 		public override EssentialsDevice BuildDevice(DeviceConfig dc)
 		{
-			Debug.Console(MegapixelHeliosDebug.Notice, "[{0}] Factory Attempting to create new device from type: {1}", dc.Key, dc.Type);
+			Debug.LogDebug("[{0}] Factory Attempting to create new device from type: {1}", dc.Key, dc.Type);
 
 			// get the plugin device properties configuration object & check for null 
 			var propertiesConfig = dc.Properties.ToObject<MegapixelHeliosPropertiesConfig>();
 			if (propertiesConfig == null)
 			{
-				Debug.Console(MegapixelHeliosDebug.Trace, "[{0}] Factory: failed to read properties config for {1}", dc.Key, dc.Name);
+				Debug.LogVerbose("[{0}] Factory: failed to read properties config for {1}", dc.Key, dc.Name);
 				return null;
 			}
 
@@ -42,7 +42,7 @@ namespace MegapixelHelios
 			{
 				case eControlMethod.Http:
 					{
-						Debug.Console(MegapixelHeliosDebug.Notice, "[{0}] buidling {1} client",
+						Debug.LogDebug("[{0}] buidling {1} client",
 							dc.Key, propertiesConfig.Control.Method);
 
 						client = new GenericClientHttp(string.Format("{0}-http", dc.Key), propertiesConfig.Control);
@@ -50,7 +50,7 @@ namespace MegapixelHelios
 					}
 				case eControlMethod.Https:
 					{
-						Debug.Console(MegapixelHeliosDebug.Notice, "[{0}] buidling {1} client",
+						Debug.LogDebug("[{0}] buidling {1} client",
 							dc.Key, propertiesConfig.Control.Method);
 
 						client = new GenericClientHttps(string.Format("{0}-https", dc.Key), propertiesConfig.Control);
@@ -58,7 +58,7 @@ namespace MegapixelHelios
 					}
 				default:
 					{
-						Debug.Console(MegapixelHeliosDebug.Trace, "[{0}] control method {1} not supported, check configuration and update to HTTP or HTTPS",
+						Debug.LogVerbose("[{0}] control method {1} not supported, check configuration and update to HTTP or HTTPS",
 							dc.Key, propertiesConfig.Control.Method);
 
 						client = null;
@@ -68,7 +68,7 @@ namespace MegapixelHelios
 
 			if(client != null) return new MegapixelHeliosController(dc.Key, dc.Name, propertiesConfig, client);
 
-			Debug.Console(MegapixelHeliosDebug.Trace, "[{0}] Factory Notice: No control object present for device {1}", dc.Key, dc.Name);
+			Debug.LogVerbose("[{0}] Factory Notice: No control object present for device {1}", dc.Key, dc.Name);
 			return null;
 		}
 	}

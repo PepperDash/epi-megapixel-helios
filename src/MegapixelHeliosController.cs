@@ -13,6 +13,7 @@ using PepperDash.Essentials.Core.Bridges;
 using Feedback = PepperDash.Essentials.Core.Feedback;
 using Crestron.SimplSharp;
 using Crestron.SimplSharpPro.CrestronThread;
+using TwoWayDisplayBase = PepperDash.Essentials.Devices.Common.Displays.TwoWayDisplayBase;
 
 namespace MegapixelHelios
 {    
@@ -228,7 +229,7 @@ namespace MegapixelHelios
             {
                 if (_currentInputName == value) return;
                 _currentInputName = value;
-                Debug.Console(MegapixelHeliosDebug.Notice, this, "Current Input change. Input: {0}", _currentInputName);
+                Debug.LogDebug(this, "Current Input change. Input: {0}", _currentInputName);
                 CurrentInputNameFeedback.FireUpdate();
             }
         }
@@ -357,7 +358,7 @@ namespace MegapixelHelios
             if (selector is Action)
                 (selector as Action).Invoke();
             else
-                Debug.Console(1, this, "WARNING: ExecuteSwitch cannot handle type {0}", selector.GetType());
+                Debug.LogDebug(this, "WARNING: ExecuteSwitch cannot handle type {0}", selector.GetType());
         }
 
         /// <summary>
@@ -382,24 +383,22 @@ namespace MegapixelHelios
 		public MegapixelHeliosController(string key, string name, MegapixelHeliosPropertiesConfig propertiesConfig, IRestfulComms client)
 			: base(key, name)
 		{
-			Debug.Console(MegapixelHeliosDebug.Trace, this, "Constructing new {0} instance", name);
+			Debug.LogVerbose(this, "Constructing new {0} instance", name);
 
 			MegapixelHeliosDebug.ResetDebugLevels();
 
 
 			if (propertiesConfig == null || propertiesConfig.Control == null)
 			{
-				Debug.Console(MegapixelHeliosDebug.Trace, this, "Configuration or control object is null, unable to construct new {0} instance.  Check configuration.", name);
+				Debug.LogVerbose(this, "Configuration or control object is null, unable to construct new {0} instance.  Check configuration.", name);
 				return;
 			}
 
 			_client = client;
 			if (_client == null)
-			{
-				Debug.Console(MegapixelHeliosDebug.Trace, this, Debug.ErrorLogLevel.Error,
-					"Failed to construct '{1}' using method {0}",
-					propertiesConfig.Control.Method, name);
-				return;
+			{				
+				Debug.LogError(this, "Failed to construct '{1}' using method {0}",propertiesConfig.Control.Method, name);
+                return;
 			}
 
 			_client.ResponseReceived += OnResponseReceived;   
@@ -476,8 +475,8 @@ namespace MegapixelHelios
 				joinMap.SetCustomJoinData(customJoins);
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Notice, "Linking to Trilist '{0}'", trilist.ID.ToString("X"));
-			Debug.Console(MegapixelHeliosDebug.Notice, "Linking to Bridge Type {0}", GetType().Name);
+			Debug.LogDebug("Linking to Trilist '{0}'", trilist.ID.ToString("X"));
+			Debug.LogDebug("Linking to Bridge Type {0}", GetType().Name);
 
 			// links to bridge
 			trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
@@ -607,24 +606,24 @@ namespace MegapixelHelios
 			try
 			{
 				var jToken = JToken.Parse(contentString);
-				//Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
+				//Debug.LogInformation(this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
 				return jToken;
 			}
 			catch (JsonReaderException jex)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson Exception Message: {0}", jex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Stack Trace: {0}", jex.StackTrace);
+				Debug.LogDebug(this, "IsValidJson Exception Message: {0}", jex.Message);
+				Debug.LogInformation(this, "IsValidJson Stack Trace: {0}", jex.StackTrace);
 				if (jex.InnerException != null)
-					Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Inner Exception: {0}", jex.InnerException);
+					Debug.LogInformation(this, "IsValidJson Inner Exception: {0}", jex.InnerException);
 
 				return null;
 			}
 			catch (Exception ex)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson Exception Message: {0}", ex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Stack Trace: {0}", ex.StackTrace);
+				Debug.LogDebug(this, "IsValidJson Exception Message: {0}", ex.Message);
+				Debug.LogInformation(this, "IsValidJson Stack Trace: {0}", ex.StackTrace);
 				if (ex.InnerException != null)
-					Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Inner Exception: {0}", ex.InnerException);
+					Debug.LogInformation(this, "IsValidJson Inner Exception: {0}", ex.InnerException);
 
 				return null;
 			}
@@ -640,7 +639,7 @@ namespace MegapixelHelios
 		{
 			try
 			{
-				//Debug.Console(MegapixelHeliosDebug.Verbose, this, "OnResponseReceived: Code = {0} | ContentString = {1}", args.Code, args.ContentString);
+				//Debug.LogInformation(this, "OnResponseReceived: Code = {0} | ContentString = {1}", args.Code, args.ContentString);
 
 				ResponseCode = args.Code;
 
@@ -649,7 +648,7 @@ namespace MegapixelHelios
                 {
                     DeviceIsOnline = false;
                     IsOnline.FireUpdate();
-                    Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: ResponseCode != 200, Code received: {0}", ResponseCode);  
+                    Debug.LogDebug(this, "OnResponseReceived: ResponseCode != 200, Code received: {0}", ResponseCode);  
                     return;
                 }
 
@@ -660,7 +659,7 @@ namespace MegapixelHelios
 
 				if (string.IsNullOrEmpty(args.ContentString))
 				{
-					Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: args.ContentString is null or empty");
+					Debug.LogDebug(this, "OnResponseReceived: args.ContentString is null or empty");
 					return;
 				}
 
@@ -669,23 +668,23 @@ namespace MegapixelHelios
 				var jToken = IsValidJson(args.ContentString);
 				if (jToken == null)
 				{
-					Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: IsValidJson failed, passing ContentString as string");
+					Debug.LogDebug(this, "OnResponseReceived: IsValidJson failed, passing ContentString as string");
 					return;
 				}
 
                 var feedback = JsonConvert.DeserializeObject<RootDevObject>(ResponseContent);
-                //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Begin parsing deserialized JSON objects");
+                //Debug.LogDebug("OnResponseReceived: Begin parsing deserialized JSON objects");
                 if (feedback.Dev.Display != null)
                 {
                     if (feedback.Dev.Display.Blackout != null)
                     {
-                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Blackout");
+                        //Debug.LogDebug("OnResponseReceived: Parse deserialized JSON object: Dev.Display.Blackout");
                         PowerIsOn = !(bool)feedback.Dev.Display.Blackout;
                     }
                     
                     if (feedback.Dev.Display.Brightness != null)
                     {
-                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Brightness");
+                        //Debug.LogDebug("OnResponseReceived: Parse deserialized JSON object: Dev.Display.Brightness");
                         Brightness = (int)feedback.Dev.Display.Brightness;
                     }
 
@@ -697,7 +696,7 @@ namespace MegapixelHelios
                         RedundancyStateIsActive = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.active);
                         RedundancyStateIsMixed = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.mixed);
                         RedundancyStateIsStandby = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.standby);
-                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Redundancy");
+                        //Debug.LogDebug("OnResponseReceived: Parse deserialized JSON object: Dev.Display.Redundancy");
                     }
                 }
 
@@ -706,7 +705,7 @@ namespace MegapixelHelios
                     if (feedback.Dev.Ingest.TestPattern != null)
                     {
                         TestPatternIsOn = (bool)feedback.Dev.Ingest.TestPattern.Enabled;
-                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.TestPattern");
+                        //Debug.LogDebug("OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.TestPattern");
                     }
                     if (feedback.Dev.Ingest.Input != null)
                     {
@@ -714,39 +713,40 @@ namespace MegapixelHelios
                     }
                     else
                     {
-                        Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Input = Null");
+                        Debug.LogDebug("OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Input = Null");
                     }
                     if (feedback.Dev.Ingest.Inputs != null)
                     {
                         if (feedback.Dev.Ingest.Inputs.Hdmi1 != null)
                         {
                             Hdmi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi1.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi1.Valid");
+                            //Debug.LogDebug("OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi1.Valid");
                         }
                         if (feedback.Dev.Ingest.Inputs.Hdmi2 != null)
                         {
                             Hdmi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi2.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi2.Valid");
+                            //Debug.LogDebug("OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi2.Valid");
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi1 != null)
                         {
                             Sdi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi1.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi1.Valid");
+                            //Debug.LogDebug("OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi1.Valid");
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi2 != null)
                         {
                             Sdi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi2.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi2.Valid");
+                            //Debug.LogDebug("OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi2.Valid");
                         }
                     }
                 }
 			}
 			catch (Exception ex)
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Exception Message: {0}", ex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Stack Trace: {0}", ex.StackTrace);
-				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Inner Exception {0}", ex.InnerException);
-			}
+			{			
+                Debug.LogError(this, "OnResponseReceived Exception Message: {0}", ex.Message);
+                Debug.LogError(this, "OnResponseReceived Stack Trace: {0}", ex.StackTrace);
+                if (ex.InnerException != null)
+                    Debug.LogError(this, "OnResponseReceived Exception: {0}", ex.InnerException);
+            }
         }
 
         #endregion
@@ -1074,11 +1074,11 @@ namespace MegapixelHelios
 			var content = JsonConvert.SerializeObject(jsonObject);
 			if (string.IsNullOrEmpty(content))
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, "PowerOn: failed to serialzie request content");
+				Debug.LogDebug("PowerOn: failed to serialzie request content");
 				return;
 			}
 
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "PowerOn: content-'{0}'", content);
+            Debug.LogInformation(this, "PowerOn: content-'{0}'", content);
 
             CrestronInvoke.BeginInvoke((o) =>
             {
@@ -1094,7 +1094,7 @@ namespace MegapixelHelios
                 // Fake power-up cycle
                 WarmupTimer = new CTimer(o =>
                 {
-                    Debug.Console(MegapixelHeliosDebug.Verbose, this, "Warmup timer ending.");
+                    Debug.LogInformation(this, "Warmup timer ending.");
                     _IsWarmingUp = false;
                     PowerIsOn = true;
                     IsWarmingUpFeedback.FireUpdate();
@@ -1126,11 +1126,11 @@ namespace MegapixelHelios
 			var content = JsonConvert.SerializeObject(jsonObject);
 			if (string.IsNullOrEmpty(content))
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, "PowerOff: failed to serialzie request content");
+				Debug.LogDebug("PowerOff: failed to serialzie request content");
 				return;
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, "PowerOff: content-'{0}'", content);
+			Debug.LogInformation(this, "PowerOff: content-'{0}'", content);
 
             CrestronInvoke.BeginInvoke((o) =>
             {
@@ -1145,7 +1145,7 @@ namespace MegapixelHelios
             // Fake cool-down cycle
             CooldownTimer = new CTimer(o =>
             {
-                Debug.Console(MegapixelHeliosDebug.Verbose, this, "Cooldown timer ending.");
+                Debug.LogInformation(this, "Cooldown timer ending.");
                 _IsCoolingDown = false;
                 IsCoolingDownFeedback.FireUpdate();
             }, CooldownTime);
@@ -1178,7 +1178,7 @@ namespace MegapixelHelios
         {
             if (brightness <= 0 || brightness >= 100)
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "SetBrightness: Value sent {0} out of range", brightness);
+                Debug.LogDebug("SetBrightness: Value sent {0} out of range", brightness);
                 return;
             }
 
@@ -1196,11 +1196,11 @@ namespace MegapixelHelios
             var content = JsonConvert.SerializeObject(jsonObject);
             if (string.IsNullOrEmpty(content))
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "SetBrightness: failed to serialzie request content");
+                Debug.LogDebug("SetBrightness: failed to serialzie request content");
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "SetBrightness: content-'{0}'", content);
+            Debug.LogInformation(this, "SetBrightness: content-'{0}'", content);
             _client.SendRequest("PATCH", "/api/v1/public", content);
         }
 
@@ -1231,11 +1231,11 @@ namespace MegapixelHelios
             var content = JsonConvert.SerializeObject(jsonObject);
             if (string.IsNullOrEmpty(content))
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "TestPatternEnable: failed to serialzie request content");
+                Debug.LogDebug("TestPatternEnable: failed to serialzie request content");
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "TestPatternEnable: content-'{0}'", content);
+            Debug.LogInformation(this, "TestPatternEnable: content-'{0}'", content);
 
             CrestronInvoke.BeginInvoke((o) =>
             {
@@ -1272,11 +1272,11 @@ namespace MegapixelHelios
             var content = JsonConvert.SerializeObject(jsonObject);
             if (string.IsNullOrEmpty(content))
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "TestPatternEnable: failed to serialzie request content");
+                Debug.LogDebug("TestPatternEnable: failed to serialzie request content");
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "TestPatternEnable: content-'{0}'", content);
+            Debug.LogInformation(this, "TestPatternEnable: content-'{0}'", content);
 
             CrestronInvoke.BeginInvoke((o) =>
             {
@@ -1333,11 +1333,11 @@ namespace MegapixelHelios
 			var content = JsonConvert.SerializeObject(jsonObject);
 			if (string.IsNullOrEmpty(content))
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, "RecallPresetByName: failed to serialzie request content");
+				Debug.LogDebug("RecallPresetByName: failed to serialzie request content");
 				return;
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, "RecallPresetByName: content-'{0}'", content);
+			Debug.LogInformation(this, "RecallPresetByName: content-'{0}'", content);
 			_client.SendRequest("POST", "/api/v1/presets/apply", content);
 		}
 
@@ -1366,11 +1366,11 @@ namespace MegapixelHelios
             var content = JsonConvert.SerializeObject(jsonObject);
             if (string.IsNullOrEmpty(content))
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "RecallInputByName: failed to serialzie request content");
+                Debug.LogDebug("RecallInputByName: failed to serialzie request content");
                 return;
             }
 
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "RecallInputByName: content-'{0}'", content);
+            Debug.LogInformation(this, "RecallInputByName: content-'{0}'", content);
             
             CrestronInvoke.BeginInvoke((o) =>
             {
