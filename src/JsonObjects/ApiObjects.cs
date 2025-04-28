@@ -69,26 +69,42 @@ namespace MegapixelHelios.JsonObjects
 
     public class Hdmi1Object
     {
-        [JsonProperty("valid")]
+        [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
+        [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
+        public string Resolution { get; set; }
+        [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
+        public string Format { get; set; }
     }
 
     public class Hdmi2Object
     {
-        [JsonProperty("valid")]
+        [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
+        [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
+        public string Resolution { get; set; }
+        [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
+        public string Format { get; set; }
     }
 
     public class Sdi1Object
     {
-        [JsonProperty("valid")]
+        [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
+        [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
+        public string Resolution { get; set; }
+        [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
+        public string Format { get; set; }
     }
 
     public class Sdi2Object
     {
-        [JsonProperty("valid")]
+        [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
+        [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
+        public string Resolution { get; set; }
+        [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
+        public string Format { get; set; }
     }
 
     public class RedundancyObject

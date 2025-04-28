@@ -1,0 +1,2659 @@
+{
+    "dev": {
+        "display": {
+            "blackClipping": 0,
+            "blackout": false,
+            "brightness": 50,
+            "cal": {
+                "bypassRgbx": false
+            },
+            "cct": 6504,
+            "cctDuv": 0.0032,
+            "camera": {
+                "enabled": false
+            },
+            "freeze": false,
+            "gains": {
+                "b": 1,
+                "g": 1,
+                "r": 1
+            },
+            "gamma": 2.4,
+            "gamut": {
+                "custom": {
+                    "b": {
+                        "x": 0.15,
+                        "y": 0.09
+                    },
+                    "g": {
+                        "x": 0.3,
+                        "y": 0.6
+                    },
+                    "r": {
+                        "x": 0.64,
+                        "y": 0.33
+                    }
+                },
+                "ideal": {
+                    "b": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "g": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "r": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                "input": "rec709",
+                "targets": {
+                    "b": {
+                        "x": 0.15,
+                        "y": 0.06
+                    },
+                    "g": {
+                        "x": 0.3,
+                        "y": 0.6
+                    },
+                    "r": {
+                        "x": 0.64,
+                        "y": 0.33
+                    }
+                },
+                "type": "auto"
+            },
+            "height": 1080,
+            "latencyLow": false,
+            "out": {
+                "adjust": {
+                    "enabled": false,
+                    "gain": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "gamma": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "legacy": false,
+                    "lift": {
+                        "b": 0,
+                        "g": 0,
+                        "r": 0
+                    },
+                    "offset": {
+                        "b": 0,
+                        "g": 0,
+                        "r": 0
+                    },
+                    "saturation": 1
+                }
+            },
+            "redundancy": {
+                "desired": "",
+                "info": "",
+                "mode": "none",
+                "role": "main",
+                "state": "standby"
+            },
+            "tilesCount": 0,
+            "tilesInfo": "No tiles",
+            "tileShowTopology": false,
+            "width": 1920,
+            "x": 0,
+            "y": 0
+        },
+        "ingest": {
+            "alerts": {
+                "inputInvalid": {
+                    "brief": "Input invalid",
+                    "count": 1,
+                    "desc": "Input is using an unrecognized format or is unstable (check upstream input format)",
+                    "devices": {
+                        "inputs": {
+                            "hdmi1": ""
+                        }
+                    },
+                    "severity": 3,
+                    "since": 3
+                },
+                "noInput": {
+                    "brief": "No Input",
+                    "count": 1,
+                    "desc": "No valid input signal",
+                    "severity": 4,
+                    "since": 3
+                }
+            },
+            "alertsCount": 2,
+            "alertsSeverity": 3,
+            "counters": {
+                "hdmi": 0,
+                "hdmi(1)": 0,
+                "reboots": 10,
+                "totalPhy": 0
+            },
+            "currents": {
+                "12V_I": 1.953,
+                "1_8_I": 3.273,
+                "2_5_I": 0.332,
+                "3_3_I": 0.714,
+                "DDR_I": 0.9540000000000001,
+                "SFP_I": 0.007,
+                "VCCINT_I": 8.67
+            },
+            "fans": {
+                "FanCtrl(0)": 1148,
+                "FanCtrl(1)": 1143,
+                "FanCtrl(2)": 1190,
+                "FanCtrl(3)": 1167
+            },
+            "genlock": {
+                "delay": 0,
+                "enabled": true,
+                "enabledInt": false,
+                "enabledPtp": false,
+                "freqExt": 0,
+                "freqSource": 60,
+                "matched": true,
+                "source": "pattern"
+            },
+            "input": "hdmi1",
+            "inputs": {
+                "hdmi1": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "HDMI1",
+                    "resolution": "Invalid",
+                    "saturation": 1,
+                    "stitched": "",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "hdmi1X2": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "HDMI(1x2)",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "[[\"hdmi1\"],[\"hdmi2\"]]",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "hdmi2": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "HDMI2",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "hdmi2X1": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "HDMI(2x1)",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "[[\"hdmi1\",\"hdmi2\"]]",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi1": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI1",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi1X2": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI(1x2)",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "[[\"sdi1\"],[\"sdi3\"]]",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi1X3": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI(1x3)",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "[[\"sdi1\"],[\"sdi3\"],[\"sdi2\"]]",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi1X4": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI(1x4)",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "[[\"sdi1\"],[\"sdi3\"],[\"sdi2\"],[\"sdi4\"]]",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi2": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI2",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi2X1": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI(2x1)",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "[[\"sdi1\",\"sdi3\"]]",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi2X2": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI(2x2)",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "[[\"sdi1\",\"sdi3\"],[\"sdi2\",\"sdi4\"]]",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi3": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI3",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi3X1": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI(3x1)",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "[[\"sdi1\",\"sdi3\",\"sdi2\"]]",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi4": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI4",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                },
+                "sdi4X1": {
+                    "blackLevel": 0,
+                    "brightness": 1,
+                    "contrast": 1,
+                    "eotf": "",
+                    "eotfContentMaxL": 0,
+                    "eotfContentMinL": 0,
+                    "eotfCurve": "0.000000,0.000046,0.000244,0.000646,0.001289,0.002201,0.003410,0.004936,0.006801,0.009023,0.011619,0.014605,0.017997,0.021809,0.026054,0.030746,0.035897,0.041519,0.047624,0.054222,0.061325,0.068944,0.077087,0.085766,0.094989,0.104767,0.115108,0.126020,0.137514,0.149597,0.162278,0.175564,0.189465,0.203987,0.219138,0.234926,0.251359,0.268443,0.286186,0.304595,0.323677,0.343439,0.363887,0.385028,0.406869,0.429416,0.452675,0.476654,0.501357,0.526791,0.552963,0.579878,0.607542,0.635961,0.665140,0.695086,0.725804,0.757300,0.789578,0.822646,0.856507,0.891168,0.926634,0.962909,1.000000",
+                    "eotfDisplayAdjustMaxL": true,
+                    "eotfForce": "auto",
+                    "eotfForceContentMaxL": 0,
+                    "eotfForceContentMinL": 0,
+                    "eotfForceDisplayMaxL": 0,
+                    "eotfType": "sdrPower",
+                    "format": "-",
+                    "freq": 0,
+                    "gains": {
+                        "b": 1,
+                        "g": 1,
+                        "r": 1
+                    },
+                    "h": 0,
+                    "hue": 0,
+                    "name": "SDI(4x1)",
+                    "resolution": "No input",
+                    "saturation": 1,
+                    "stitched": "[[\"sdi1\",\"sdi3\",\"sdi2\",\"sdi4\"]]",
+                    "timings": {
+                        "hBack": 0,
+                        "hFront": 0,
+                        "hPolarity": 0,
+                        "hSync": 0,
+                        "hTotal": 0,
+                        "vBack": 0,
+                        "vFront": 0,
+                        "vPolarity": 0,
+                        "vSync": 0,
+                        "vTotal": 0
+                    },
+                    "valid": false,
+                    "w": 0
+                }
+            },
+            "info": {
+                "serial": "0201240730-0045",
+                "type": "56520201:1:415",
+                "version": {
+                    "bootRev": 415,
+                    "buildDate": "2019-06-01",
+                    "firmware": "v24.11.0.415"
+                }
+            },
+            "latencyLow": false,
+            "macAddress": "8c:6d:c4:00:a8:8f",
+            "outputFreq": 60,
+            "ports": {
+                "1": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "macAddress": "8c:6d:c4:00:a8:80",
+                    "sensors": {},
+                    "speedMbps": 0,
+                    "switchId": "",
+                    "switchPort": -1,
+                    "temps": {},
+                    "tilesCount": 0,
+                    "tilesInfo": "No tiles",
+                    "volts": {}
+                },
+                "2": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "macAddress": "8c:6d:c4:00:a8:81",
+                    "sensors": {},
+                    "speedMbps": 0,
+                    "switchId": "",
+                    "switchPort": -1,
+                    "temps": {},
+                    "tilesCount": 0,
+                    "tilesInfo": "No tiles",
+                    "volts": {}
+                },
+                "3": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "macAddress": "8c:6d:c4:00:a8:82",
+                    "sensors": {},
+                    "speedMbps": 0,
+                    "switchId": "",
+                    "switchPort": -1,
+                    "temps": {},
+                    "tilesCount": 0,
+                    "tilesInfo": "No tiles",
+                    "volts": {}
+                },
+                "4": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "macAddress": "8c:6d:c4:00:a8:83",
+                    "sensors": {},
+                    "speedMbps": 0,
+                    "switchId": "",
+                    "switchPort": -1,
+                    "temps": {},
+                    "tilesCount": 0,
+                    "tilesInfo": "No tiles",
+                    "volts": {}
+                },
+                "5": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "macAddress": "8c:6d:c4:00:a8:84",
+                    "sensors": {},
+                    "speedMbps": 0,
+                    "switchId": "",
+                    "switchPort": -1,
+                    "temps": {},
+                    "tilesCount": 0,
+                    "tilesInfo": "No tiles",
+                    "volts": {}
+                },
+                "6": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "macAddress": "8c:6d:c4:00:a8:85",
+                    "sensors": {},
+                    "speedMbps": 0,
+                    "switchId": "",
+                    "switchPort": -1,
+                    "temps": {},
+                    "tilesCount": 0,
+                    "tilesInfo": "No tiles",
+                    "volts": {}
+                },
+                "7": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "macAddress": "8c:6d:c4:00:a8:86",
+                    "sensors": {},
+                    "speedMbps": 0,
+                    "switchId": "",
+                    "switchPort": -1,
+                    "temps": {},
+                    "tilesCount": 0,
+                    "tilesInfo": "No tiles",
+                    "volts": {}
+                },
+                "8": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "macAddress": "8c:6d:c4:00:a8:87",
+                    "sensors": {},
+                    "speedMbps": 0,
+                    "switchId": "",
+                    "switchPort": -1,
+                    "temps": {},
+                    "tilesCount": 0,
+                    "tilesInfo": "No tiles",
+                    "volts": {}
+                }
+            },
+            "portsIn": {
+                "1": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "sensors": {},
+                    "temps": {},
+                    "valid": false,
+                    "volts": {}
+                },
+                "2": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "sensors": {},
+                    "temps": {},
+                    "valid": false,
+                    "volts": {}
+                },
+                "3": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "sensors": {},
+                    "temps": {},
+                    "valid": false,
+                    "volts": {}
+                },
+                "4": {
+                    "alerts": {},
+                    "alertsCount": 0,
+                    "alertsSeverity": -1,
+                    "currents": {},
+                    "info": "No link",
+                    "sensors": {},
+                    "temps": {},
+                    "valid": false,
+                    "volts": {}
+                }
+            },
+            "temps": {
+                "CPUTemp": 61.400000000000006,
+                "CaseTemp": 45.1
+            },
+            "testPattern": {
+                "color": 16777215,
+                "enabled": false,
+                "mediaEnabled": false,
+                "motion": true,
+                "type": "colorBars",
+                "typeBackup": ""
+            },
+            "tilesCount": 0,
+            "tilesInfo": "No tiles",
+            "volts": {
+                "PS#1": 11.935,
+                "PS#2": 11.914,
+                "PS_MGTRAVCC": 0.849,
+                "PS_MGTRAVTT": 1.797,
+                "VCCAUX": 1.794,
+                "VCCBRAM": 0.847,
+                "VCCINT": 0.838,
+                "VCCO_PSIO0": 3.329,
+                "VCCO_PSIO1": 3.33,
+                "VCCO_PSIO2": 3.326,
+                "VCCO_PSIO3": 2.48,
+                "VCC_PSAUX": 1.795,
+                "VCC_PSINTFP": 0.843,
+                "VCC_PSINTLP": 0.84
+            }
+        }
+    },
+    "sys": {
+        "alerts": {
+            "inputInvalid": {
+                "brief": "Input invalid",
+                "count": 1,
+                "desc": "Input is using an unrecognized format or is unstable (check upstream input format)",
+                "devices": {
+                    "ingest": {
+                        "inputs": {
+                            "hdmi1": ""
+                        }
+                    }
+                },
+                "severity": 3,
+                "since": 3
+            },
+            "noInput": {
+                "brief": "No Input",
+                "count": 1,
+                "desc": "No valid input signal",
+                "devices": {
+                    "ingest": ""
+                },
+                "severity": 4,
+                "since": 3
+            }
+        },
+        "alertsCount": 2,
+        "alertsSeverity": 3,
+        "description": "Display",
+        "fixtures": {
+            "56520201:1:415": {
+                "counters": {
+                    "hdmi": {
+                        "type": "counter"
+                    },
+                    "hdmi(1)": {
+                        "type": "counter"
+                    },
+                    "reboots": {
+                        "type": "counter"
+                    },
+                    "totalPhy": {
+                        "type": "counter"
+                    }
+                },
+                "currents": {
+                    "12V_I": {
+                        "range": {
+                            "normal": {
+                                "max": 4.999,
+                                "min": 0.999
+                            },
+                            "valid": {
+                                "max": 12.998999999999999,
+                                "min": 0
+                            }
+                        },
+                        "type": "current",
+                        "unit": "A"
+                    },
+                    "1_8_I": {
+                        "range": {
+                            "normal": {
+                                "max": 5.9990000000000006,
+                                "min": 1.999
+                            },
+                            "valid": {
+                                "max": 13.999,
+                                "min": 0
+                            }
+                        },
+                        "type": "current",
+                        "unit": "A"
+                    },
+                    "2_5_I": {
+                        "range": {
+                            "normal": {
+                                "max": 1.999,
+                                "min": 0.099
+                            },
+                            "valid": {
+                                "max": 5.799,
+                                "min": 0
+                            }
+                        },
+                        "type": "current",
+                        "unit": "A"
+                    },
+                    "3_3_I": {
+                        "range": {
+                            "normal": {
+                                "max": 1.999,
+                                "min": 0.499
+                            },
+                            "valid": {
+                                "max": 4.9990000000000006,
+                                "min": 0
+                            }
+                        },
+                        "type": "current",
+                        "unit": "A"
+                    },
+                    "DDR_I": {
+                        "range": {
+                            "normal": {
+                                "max": 3.999,
+                                "min": 0.499
+                            },
+                            "valid": {
+                                "max": 10.999,
+                                "min": 0
+                            }
+                        },
+                        "type": "current",
+                        "unit": "A"
+                    },
+                    "SFP_I": {
+                        "range": {
+                            "normal": {
+                                "max": 5.9990000000000006,
+                                "min": 0
+                            },
+                            "valid": {
+                                "max": 17.997,
+                                "min": 0
+                            }
+                        },
+                        "type": "current",
+                        "unit": "A"
+                    },
+                    "VCCINT_I": {
+                        "range": {
+                            "normal": {
+                                "max": 14.999,
+                                "min": 2.999
+                            },
+                            "valid": {
+                                "max": 38.999,
+                                "min": 0
+                            }
+                        },
+                        "type": "current",
+                        "unit": "A"
+                    }
+                },
+                "fans": {
+                    "FanCtrl(0)": {
+                        "range": {
+                            "normal": {
+                                "max": 5000,
+                                "min": 800
+                            },
+                            "valid": {
+                                "max": 13400,
+                                "min": 0
+                            }
+                        },
+                        "type": "fan",
+                        "unit": "RPM"
+                    },
+                    "FanCtrl(1)": {
+                        "range": {
+                            "normal": {
+                                "max": 5000,
+                                "min": 800
+                            },
+                            "valid": {
+                                "max": 13400,
+                                "min": 0
+                            }
+                        },
+                        "type": "fan",
+                        "unit": "RPM"
+                    },
+                    "FanCtrl(2)": {
+                        "range": {
+                            "normal": {
+                                "max": 5000,
+                                "min": 800
+                            },
+                            "valid": {
+                                "max": 13400,
+                                "min": 0
+                            }
+                        },
+                        "type": "fan",
+                        "unit": "RPM"
+                    },
+                    "FanCtrl(3)": {
+                        "range": {
+                            "normal": {
+                                "max": 5000,
+                                "min": 800
+                            },
+                            "valid": {
+                                "max": 13400,
+                                "min": 0
+                            }
+                        },
+                        "type": "fan",
+                        "unit": "RPM"
+                    }
+                },
+                "maxHeight": 31232,
+                "maxWidth": 32768,
+                "modes": {
+                    "junior": {
+                        "available": true,
+                        "brief": "Jr HDMI/HDMI - 1G",
+                        "license": true,
+                        "mode": "juniorHdmiHdmi",
+                        "priority": 11
+                    },
+                    "st2110": {
+                        "available": true,
+                        "brief": "4K/8K DP/HDMI ST2110 - 10G",
+                        "license": true,
+                        "mode": "st2110DpHdmi",
+                        "priority": 55
+                    },
+                    "standard": {
+                        "available": true,
+                        "brief": "4K/8K HDMI/HDMI - 10G",
+                        "license": true,
+                        "mode": "standardHdmiHdmi",
+                        "priority": 90
+                    }
+                },
+                "name": "HELIOS",
+                "net": {
+                    "vlanPerOutput": true
+                },
+                "ports": {
+                    "1": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "2": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "3": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "4": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "5": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "6": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "7": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "8": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    }
+                },
+                "portsIn": {
+                    "1": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "2": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "3": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    },
+                    "4": {
+                        "currents": {
+                            "SFP Current": {
+                                "range": {
+                                    "normal": {
+                                        "max": 0.044,
+                                        "min": 0.002
+                                    },
+                                    "valid": {
+                                        "max": 0.128,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "current",
+                                "unit": "A"
+                            }
+                        },
+                        "sensors": {
+                            "SFP Rx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            },
+                            "SFP Tx": {
+                                "range": {
+                                    "normal": {
+                                        "max": 2.489,
+                                        "min": -7.9990000000000006
+                                    },
+                                    "valid": {
+                                        "max": 23.465,
+                                        "min": -40
+                                    }
+                                },
+                                "type": "power_fiber",
+                                "unit": "dBm"
+                            }
+                        },
+                        "temps": {
+                            "SFP Temp": {
+                                "range": {
+                                    "normal": {
+                                        "max": 69.9,
+                                        "min": 0
+                                    },
+                                    "valid": {
+                                        "max": 209.70000000000002,
+                                        "min": -139.8
+                                    }
+                                },
+                                "type": "temperature",
+                                "unit": "&deg;C"
+                            }
+                        },
+                        "volts": {
+                            "SFP Voltage": {
+                                "range": {
+                                    "normal": {
+                                        "max": 3.399,
+                                        "min": 3.1990000000000003
+                                    },
+                                    "valid": {
+                                        "max": 3.7989999999999995,
+                                        "min": 0
+                                    }
+                                },
+                                "type": "voltage",
+                                "unit": "V"
+                            }
+                        }
+                    }
+                },
+                "revnet": {
+                    "streams": {
+                        "max": 4
+                    }
+                },
+                "runtime": {
+                    "type": "counter"
+                },
+                "scaler": {
+                    "enabled": true
+                },
+                "shortName": "HELIOS",
+                "temps": {
+                    "CPUTemp": {
+                        "range": {
+                            "normal": {
+                                "max": 79.9,
+                                "min": 0
+                            },
+                            "valid": {
+                                "max": 239.70000000000002,
+                                "min": -159.8
+                            }
+                        },
+                        "type": "temperature",
+                        "unit": "&deg;C"
+                    },
+                    "CaseTemp": {
+                        "range": {
+                            "normal": {
+                                "max": 49.900000000000006,
+                                "min": 0
+                            },
+                            "valid": {
+                                "max": 149.70000000000002,
+                                "min": -99.80000000000001
+                            }
+                        },
+                        "type": "temperature",
+                        "unit": "&deg;C"
+                    }
+                },
+                "testPatterns": {
+                    "aspectRatioTest": {
+                        "name": "Aspect Ratio Test"
+                    },
+                    "black": {
+                        "name": "Black"
+                    },
+                    "blue": {
+                        "name": "Blue"
+                    },
+                    "colorBars": {
+                        "name": "Color Bars"
+                    },
+                    "customColor": {
+                        "name": "Custom Color",
+                        "tintable": true
+                    },
+                    "diagonal": {
+                        "name": "Diagonal",
+                        "tintable": true
+                    },
+                    "diagonalColorBars": {
+                        "name": "Diagonal Color Bars"
+                    },
+                    "diagonalGradient": {
+                        "name": "Diagonal Gradient",
+                        "tintable": true
+                    },
+                    "green": {
+                        "name": "Green"
+                    },
+                    "grid": {
+                        "name": "Grid",
+                        "tintable": true
+                    },
+                    "horizontalGradient": {
+                        "name": "Horizontal Gradient",
+                        "tintable": true
+                    },
+                    "horizontalGraySteps": {
+                        "name": "Horizontal Gray Steps",
+                        "tintable": true
+                    },
+                    "red": {
+                        "name": "Red"
+                    },
+                    "smallGrid": {
+                        "name": "Small Grid",
+                        "tintable": true
+                    },
+                    "verticalGradient": {
+                        "name": "Vertical Gradient",
+                        "tintable": true
+                    },
+                    "verticalGraySteps": {
+                        "name": "Vertical Gray Steps",
+                        "tintable": true
+                    },
+                    "white": {
+                        "name": "White"
+                    }
+                },
+                "uptime": {
+                    "type": "counter"
+                },
+                "video": {
+                    "bpc": {
+                        "10": "10 bits",
+                        "12": "12 bits"
+                    },
+                    "flipXy": false
+                },
+                "volts": {
+                    "PS#1": {
+                        "range": {
+                            "normal": {
+                                "max": 12.999,
+                                "min": 10.999
+                            },
+                            "valid": {
+                                "max": 16.999000000000002,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "PS#2": {
+                        "range": {
+                            "normal": {
+                                "max": 12.999,
+                                "min": 10.999
+                            },
+                            "valid": {
+                                "max": 16.999000000000002,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "PS_MGTRAVCC": {
+                        "range": {
+                            "normal": {
+                                "max": 0.864,
+                                "min": 0.809
+                            },
+                            "valid": {
+                                "max": 0.9739999999999999,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "PS_MGTRAVTT": {
+                        "range": {
+                            "normal": {
+                                "max": 1.849,
+                                "min": 1.749
+                            },
+                            "valid": {
+                                "max": 2.0489999999999995,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCCAUX": {
+                        "range": {
+                            "normal": {
+                                "max": 1.839,
+                                "min": 1.7590000000000001
+                            },
+                            "valid": {
+                                "max": 1.9989999999999997,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCCBRAM": {
+                        "range": {
+                            "normal": {
+                                "max": 0.874,
+                                "min": 0.809
+                            },
+                            "valid": {
+                                "max": 1.004,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCCINT": {
+                        "range": {
+                            "normal": {
+                                "max": 0.874,
+                                "min": 0.809
+                            },
+                            "valid": {
+                                "max": 1.004,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCCO_PSIO0": {
+                        "range": {
+                            "normal": {
+                                "max": 3.349,
+                                "min": 3.249
+                            },
+                            "valid": {
+                                "max": 3.5490000000000004,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCCO_PSIO1": {
+                        "range": {
+                            "normal": {
+                                "max": 3.349,
+                                "min": 3.249
+                            },
+                            "valid": {
+                                "max": 3.5490000000000004,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCCO_PSIO2": {
+                        "range": {
+                            "normal": {
+                                "max": 3.349,
+                                "min": 3.249
+                            },
+                            "valid": {
+                                "max": 3.5490000000000004,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCCO_PSIO3": {
+                        "range": {
+                            "normal": {
+                                "max": 2.529,
+                                "min": 2.469
+                            },
+                            "valid": {
+                                "max": 2.649,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCC_PSAUX": {
+                        "range": {
+                            "normal": {
+                                "max": 1.829,
+                                "min": 1.7690000000000001
+                            },
+                            "valid": {
+                                "max": 1.9489999999999996,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCC_PSINTFP": {
+                        "range": {
+                            "normal": {
+                                "max": 0.874,
+                                "min": 0.809
+                            },
+                            "valid": {
+                                "max": 1.004,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    },
+                    "VCC_PSINTLP": {
+                        "range": {
+                            "normal": {
+                                "max": 0.874,
+                                "min": 0.809
+                            },
+                            "valid": {
+                                "max": 1.004,
+                                "min": 0
+                            }
+                        },
+                        "type": "voltage",
+                        "unit": "V"
+                    }
+                }
+            },
+            "display": {
+                "blackClipping": {
+                    "max": 0.5,
+                    "min": 0
+                },
+                "brightness": {
+                    "max": 100,
+                    "min": 0
+                },
+                "cal": {
+                    "correction": {
+                        "device": "Device",
+                        "perLdm": "Per LDM",
+                        "perPixel": "Per pixel",
+                        "perPixelLuma": "Per pixel luma"
+                    }
+                },
+                "cct": {
+                    "max": 25000,
+                    "min": 1667
+                },
+                "cctDuv": {
+                    "max": 0.03,
+                    "min": -0.03
+                },
+                "gainsShow": {
+                    "default": "Default",
+                    "disabled": "Disabled",
+                    "factory": "Factory",
+                    "user": "User"
+                },
+                "gamma": {
+                    "max": 4,
+                    "min": 1
+                },
+                "gammaOffset": {
+                    "max": 0.1,
+                    "min": 0
+                },
+                "gamut": {
+                    "type": {
+                        "acescg": "ACEScg",
+                        "auto": "Auto",
+                        "custom": "Custom",
+                        "dcip3": "DCI P3",
+                        "disabled": "Disabled",
+                        "luma": "Luma",
+                        "rec2020": "rec2020",
+                        "rec2100": "rec2100",
+                        "rec709": "rec709",
+                        "st2065-1": "ST2065-1",
+                        "widest": "Widest"
+                    }
+                },
+                "latencyFrames": {
+                    "max": 120,
+                    "min": 0
+                },
+                "mesh": {
+                    "mode": {
+                        "corner": "Corner",
+                        "none": "None"
+                    }
+                },
+                "redundancy": {
+                    "mode": {
+                        "failover": "Failover",
+                        "manual": "Manual",
+                        "none": "None",
+                        "seamless": "Seamless",
+                        "single": "SeamlessLoop"
+                    },
+                    "role": {
+                        "backup": "Backup",
+                        "main": "Main",
+                        "offline": "Offline"
+                    }
+                },
+                "seamsShow": {
+                    "default": "Default",
+                    "disabled": "Disabled",
+                    "factory": "Factory",
+                    "user": "User"
+                },
+                "sharpness": {
+                    "max": 2,
+                    "min": 0
+                },
+                "tileFanControl": {
+                    "auto": "Auto",
+                    "full": "Full",
+                    "silent": "Silent"
+                },
+                "tileIdentifyMode": {
+                    "back": "Back",
+                    "frontBack": "Front & Back"
+                }
+            },
+            "sys": {
+                "prefs": {
+                    "previews": {
+                        "blocked": "Blocked",
+                        "disabled": "Disabled",
+                        "enabled": "Allowed",
+                        "lan": "LAN only"
+                    }
+                }
+            }
+        },
+        "info": {
+            "model": "HELIOS",
+            "serial": "0201240730-0045",
+            "uuid": "a24f463e-83f5-4036-892b-8d0c43376cf1",
+            "version": {
+                "app": "v24.11.1.23129",
+                "appFull": "v24.11.1.23129[bea173f927]-stable",
+                "appRevision": "bea173f927fb5964097f12548f37442a27f78fcb",
+                "copyright": "Copyright (C) 2018-2025 Megapixel. All rights reserved.",
+                "engineeringBuild": false,
+                "os": "24.12.0[963569f]",
+                "osName": "MegaOS",
+                "osRevision": "963569f419b398ce666106c566e3aeab870406f3"
+            }
+        },
+        "ipAddress": "10.47.90.50",
+        "ipDns": "17.7.7.7",
+        "ipGateway": "10.47.90.1",
+        "ipSubnet": "255.255.255.128",
+        "macAddress": "8c:6d:c4:00:a8:8d"
+    }
+}

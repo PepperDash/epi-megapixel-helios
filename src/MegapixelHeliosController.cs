@@ -120,9 +120,8 @@ namespace MegapixelHelios
                 TestPatternIsOnFeedback.FireUpdate();
             }
         }
-
-        public BoolFeedback Hdmi1InvalidFeedback { get; set; }
-
+        public BoolFeedback TestPatternIsOnFeedback { get; set; }
+       
         private bool _hdmi1Invalid;
         public bool Hdmi1Invalid
         {
@@ -134,9 +133,34 @@ namespace MegapixelHelios
                 Hdmi1InvalidFeedback.FireUpdate();
             }
         }
+        public BoolFeedback Hdmi1InvalidFeedback { get; set; }
 
-        public BoolFeedback Hdmi2InvalidFeedback { get; set; }
+        private string _hdmi1Resolution;
+        public string Hdmi1Resolution
+        {
+            get { return _hdmi1Resolution; }
+            set
+            {
+                if (_hdmi1Resolution == value) return;
+                _hdmi1Resolution = value;
+                Hdmi1ResolutionFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Hdmi1ResolutionFeedback { get; set; }
 
+        private string _hdmi1Format;
+        public string Hdmi1Format
+        {
+            get { return _hdmi1Format; }
+            set
+            {
+                if (_hdmi1Format == value) return;
+                _hdmi1Format = value;
+                Hdmi1FormatFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Hdmi1FormatFeedback { get; set; }
+        
         private bool _hdmi2Invalid;
         public bool Hdmi2Invalid
         {
@@ -148,8 +172,33 @@ namespace MegapixelHelios
                 Hdmi2InvalidFeedback.FireUpdate();
             }
         }
+        public BoolFeedback Hdmi2InvalidFeedback { get; set; }
 
-        public BoolFeedback Sdi1IsValidFeedback { get; set; }
+        private string _hdmi2Resolution;
+        public string Hdmi2Resolution
+        {
+            get { return _hdmi2Resolution; }
+            set
+            {
+                if (_hdmi2Resolution == value) return;
+                _hdmi2Resolution = value;
+                Hdmi2ResolutionFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Hdmi2ResolutionFeedback { get; set; }
+
+        private string _hdmi2Format;
+        public string Hdmi2Format
+        {
+            get { return _hdmi2Format; }
+            set
+            {
+                if (_hdmi2Format == value) return;
+                _hdmi2Format = value;
+                Hdmi2FormatFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Hdmi2FormatFeedback { get; set; }
 
         private bool _sdi1IsValid;
         public bool Sdi1Invalid
@@ -159,12 +208,37 @@ namespace MegapixelHelios
             {
                 if (_sdi1IsValid == value) return;
                 _sdi1IsValid = value;
-                Sdi1IsValidFeedback.FireUpdate();
+                Sdi1InvalidFeedback.FireUpdate();
             }
         }
+        public BoolFeedback Sdi1InvalidFeedback { get; set; }
 
-        public BoolFeedback Sdi2IsValidFeedback { get; set; }
+        private string _sdi1Resolution;
+        public string Sdi1Resolution
+        {
+            get { return _sdi1Resolution; }
+            set
+            {
+                if (_sdi1Resolution == value) return;
+                _sdi1Resolution = value;
+                Sdi1ResolutionFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Sdi1ResolutionFeedback { get; set; }
 
+        private string _sdi1Format;
+        public string Sdi1Format
+        {
+            get { return _sdi1Format; }
+            set
+            {
+                if (_sdi1Format == value) return;
+                _sdi1Format = value;
+                Sdi1FormatFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Sdi1FormatFeedback { get; set; }
+        
         private bool _sdi2IsValid;
         public bool Sdi2Invalid
         {
@@ -173,11 +247,37 @@ namespace MegapixelHelios
             {
                 if (_sdi2IsValid == value) return;
                 _sdi2IsValid = value;
-                Sdi2IsValidFeedback.FireUpdate();
+                Sdi2InvalidFeedback.FireUpdate();
             }
         }
-        public BoolFeedback TestPatternIsOnFeedback { get; set; }
+        public BoolFeedback Sdi2InvalidFeedback { get; set; }
 
+        private string _sdi2Resolution;
+        public string Sdi2Resolution
+        {
+            get { return _sdi2Resolution; }
+            set
+            {
+                if (_sdi2Resolution == value) return;
+                _sdi2Resolution = value;
+                Sdi2ResolutionFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Sdi2ResolutionFeedback { get; set; }
+
+        private string _sdi2Format;
+        public string Sdi2Format
+        {
+            get { return _sdi2Format; }
+            set
+            {
+                if (_sdi2Format == value) return;
+                _sdi2Format = value;
+                Sdi2FormatFeedback.FireUpdate();
+            }
+        }
+        public StringFeedback Sdi2FormatFeedback { get; set; }
+        
         private int _brightness;
         public int Brightness
         {
@@ -189,7 +289,6 @@ namespace MegapixelHelios
                 BrightnessFeedback.FireUpdate();
             }
         }
-
         public IntFeedback BrightnessFeedback { get; set; }
 
 		private int _currentPresetId;
@@ -203,7 +302,6 @@ namespace MegapixelHelios
 				CurrentPresetIdFeedback.FireUpdate();
 			}
 		}
-
 		public IntFeedback CurrentPresetIdFeedback { get; set; }
 
 		private string _currentPresetName;
@@ -217,7 +315,6 @@ namespace MegapixelHelios
 				CurrentPresetNameFeedback.FireUpdate();
 			}
 		}
-
 		public StringFeedback CurrentInputNameFeedback { get; set; }
 
         private string _currentInputName;
@@ -350,6 +447,37 @@ namespace MegapixelHelios
 
         #endregion
 
+        #region Generic Methods
+
+        /// <summary>
+        /// Reformat the input resolution string to include spaces as needed.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public string ReformatResolutionString(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return "No input";
+
+            // Replace 'x' with ' x ' and 'p' with ' @ '
+            try
+            {
+                if (input.Contains("x"))
+                {
+                    string result = input.Replace("x", " x ").Replace("p", "@");
+                    return result;
+                }
+                else // Resolution string value may contain 'Invalid' which should be passed back as-is.
+                    return input;                             
+            }
+            catch 
+            {
+                return "No input";
+            }
+        }
+
+        #endregion
+
         #region Overrides of Essentials Core TwoWayDisplayBase
 
         public override void ExecuteSwitch(object selector)
@@ -419,8 +547,8 @@ namespace MegapixelHelios
 
             Hdmi1InvalidFeedback = new BoolFeedback(() => Hdmi1Invalid);
             Hdmi2InvalidFeedback = new BoolFeedback(() => Hdmi2Invalid);
-            Sdi1IsValidFeedback = new BoolFeedback(() => Sdi1Invalid);
-            Sdi2IsValidFeedback = new BoolFeedback(() => Sdi2Invalid);
+            Sdi1InvalidFeedback = new BoolFeedback(() => Sdi1Invalid);
+            Sdi2InvalidFeedback = new BoolFeedback(() => Sdi2Invalid);
 
             CurrentInputNameFeedback = new StringFeedback(() => CurrentInputName);
 
@@ -446,6 +574,12 @@ namespace MegapixelHelios
             CooldownTime = 1500; // Default cooldown time is 1.5 seconds
             base.WarmupTime = WarmupTime;
             base.CooldownTime = CooldownTime;
+
+            // Constructor default string value should match device when no input resolution present
+            Hdmi1Resolution = "No input";
+            Hdmi2Resolution = "No input";
+            Sdi1Resolution = "No input";
+            Sdi2Resolution = "No input";
         }
 
         #endregion
@@ -498,6 +632,16 @@ namespace MegapixelHelios
 
             Hdmi1InvalidFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Hdmi1Invalid.JoinNumber]);
             Hdmi2InvalidFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Hdmi2Invalid.JoinNumber]);
+
+            Hdmi1ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi1Resolution.JoinNumber]);
+            Hdmi2ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi2Resolution.JoinNumber]);
+            Sdi1ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi1Resolution.JoinNumber]);
+            Sdi2ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi2Resolution.JoinNumber]);
+
+            Hdmi1FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi1Format.JoinNumber]);
+            Hdmi2FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi2Format.JoinNumber]);
+            Sdi1FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi1Format.JoinNumber]);
+            Sdi2FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi2Format.JoinNumber]);
 
             trilist.SetSigTrueAction(joinMap.HotplugHdmi1.JoinNumber, HotplugHdmi1);
             trilist.SetSigTrueAction(joinMap.HotplugHdmi2.JoinNumber, HotplugHdmi2);
@@ -574,9 +718,18 @@ namespace MegapixelHelios
             CurrentPresetNameFeedback.FireUpdate();
 
             Hdmi1InvalidFeedback.FireUpdate();
+            Hdmi1ResolutionFeedback.FireUpdate();
+            Hdmi1FormatFeedback.FireUpdate();
             Hdmi2InvalidFeedback.FireUpdate();
-            Sdi1IsValidFeedback.FireUpdate();
-            Sdi2IsValidFeedback.FireUpdate();
+            Hdmi2ResolutionFeedback.FireUpdate();
+            Hdmi2FormatFeedback.FireUpdate();
+            Sdi1InvalidFeedback.FireUpdate();
+            Sdi1ResolutionFeedback.FireUpdate();
+            Sdi1FormatFeedback.FireUpdate();
+            Sdi2InvalidFeedback.FireUpdate();
+            Sdi2ResolutionFeedback.FireUpdate();
+            Sdi2FormatFeedback.FireUpdate();
+            
             CurrentInputNameFeedback.FireUpdate();
 
             BrightnessFeedback.FireUpdate();
@@ -721,22 +874,26 @@ namespace MegapixelHelios
                         if (feedback.Dev.Ingest.Inputs.Hdmi1 != null)
                         {
                             Hdmi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi1.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi1.Valid");
+                            Hdmi1Resolution = (string)feedback.Dev.Ingest.Inputs.Hdmi1.Resolution;
+                            Hdmi1Format = (string)feedback.Dev.Ingest.Inputs.Hdmi1.Format;
                         }
                         if (feedback.Dev.Ingest.Inputs.Hdmi2 != null)
                         {
                             Hdmi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi2.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi2.Valid");
+                            Hdmi2Resolution = (string)feedback.Dev.Ingest.Inputs.Hdmi2.Resolution;
+                            Hdmi2Format = (string)feedback.Dev.Ingest.Inputs.Hdmi2.Format;                           
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi1 != null)
                         {
                             Sdi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi1.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi1.Valid");
+                            Sdi1Resolution = (string)feedback.Dev.Ingest.Inputs.Sdi1.Resolution;
+                            Sdi1Format = (string)feedback.Dev.Ingest.Inputs.Sdi1.Format;                            
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi2 != null)
                         {
                             Sdi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi2.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi2.Valid");
+                            Sdi2Resolution = (string)feedback.Dev.Ingest.Inputs.Sdi2.Resolution;
+                            Sdi2Format = (string)feedback.Dev.Ingest.Inputs.Sdi2.Format;
                         }
                     }
                 }
