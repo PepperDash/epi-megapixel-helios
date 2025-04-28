@@ -1074,7 +1074,7 @@ namespace MegapixelHelios
 			var content = JsonConvert.SerializeObject(jsonObject);
 			if (string.IsNullOrEmpty(content))
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, "PowerOn: failed to serialzie request content");
+                Debug.Console(MegapixelHeliosDebug.Notice, "PowerOn: failed to serialize request content");
 				return;
 			}
 
@@ -1126,7 +1126,7 @@ namespace MegapixelHelios
 			var content = JsonConvert.SerializeObject(jsonObject);
 			if (string.IsNullOrEmpty(content))
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, "PowerOff: failed to serialzie request content");
+                Debug.Console(MegapixelHeliosDebug.Notice, "PowerOff: failed to serialize request content");
 				return;
 			}
 
@@ -1196,7 +1196,7 @@ namespace MegapixelHelios
             var content = JsonConvert.SerializeObject(jsonObject);
             if (string.IsNullOrEmpty(content))
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "SetBrightness: failed to serialzie request content");
+                Debug.Console(MegapixelHeliosDebug.Notice, "SetBrightness: failed to serialize request content");
                 return;
             }
 
@@ -1231,7 +1231,7 @@ namespace MegapixelHelios
             var content = JsonConvert.SerializeObject(jsonObject);
             if (string.IsNullOrEmpty(content))
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "TestPatternEnable: failed to serialzie request content");
+                Debug.Console(MegapixelHeliosDebug.Notice, "TestPatternEnable: failed to serialize request content");
                 return;
             }
 
@@ -1333,7 +1333,7 @@ namespace MegapixelHelios
 			var content = JsonConvert.SerializeObject(jsonObject);
 			if (string.IsNullOrEmpty(content))
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, "RecallPresetByName: failed to serialzie request content");
+                Debug.Console(MegapixelHeliosDebug.Notice, "RecallPresetByName: failed to serialize request content");
 				return;
 			}
 
@@ -1366,7 +1366,7 @@ namespace MegapixelHelios
             var content = JsonConvert.SerializeObject(jsonObject);
             if (string.IsNullOrEmpty(content))
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "RecallInputByName: failed to serialzie request content");
+                Debug.Console(MegapixelHeliosDebug.Notice, "RecallInputByName: failed to serialize request content");
                 return;
             }
 
