@@ -510,76 +510,96 @@ namespace MegapixelHelios
 		public MegapixelHeliosController(string key, string name, MegapixelHeliosPropertiesConfig propertiesConfig, IRestfulComms client)
 			: base(key, name)
 		{
-			Debug.Console(MegapixelHeliosDebug.Trace, this, "Constructing new {0} instance", name);
+            try
+            {
+                Debug.Console(MegapixelHeliosDebug.Trace, this, "Constructing new {0} instance", name);
 
-			MegapixelHeliosDebug.ResetDebugLevels();
+                MegapixelHeliosDebug.ResetDebugLevels();
 
 
-			if (propertiesConfig == null || propertiesConfig.Control == null)
-			{
-				Debug.Console(MegapixelHeliosDebug.Trace, this, "Configuration or control object is null, unable to construct new {0} instance.  Check configuration.", name);
-				return;
-			}
+                if (propertiesConfig == null || propertiesConfig.Control == null)
+                {
+                    Debug.Console(MegapixelHeliosDebug.Trace, this, "Configuration or control object is null, unable to construct new {0} instance.  Check configuration.", name);
+                    return;
+                }
 
-			_client = client;
-			if (_client == null)
-			{
-				Debug.Console(MegapixelHeliosDebug.Trace, this, Debug.ErrorLogLevel.Error,
-					"Failed to construct '{1}' using method {0}",
-					propertiesConfig.Control.Method, name);
-				return;
-			}
+                _client = client;
+                if (_client == null)
+                {
+                    Debug.Console(MegapixelHeliosDebug.Trace, this, Debug.ErrorLogLevel.Error,
+                        "Failed to construct '{1}' using method {0}",
+                        propertiesConfig.Control.Method, name);
+                    return;
+                }
 
-			_client.ResponseReceived += OnResponseReceived;   
-            _client.DispatchErrorOnReceived += DispatchErrorOnReceived;
+                _client.ResponseReceived += OnResponseReceived;
+                _client.DispatchErrorOnReceived += DispatchErrorOnReceived;
 
-            BrightnessLevel.High = propertiesConfig.Brightness.High;
-            BrightnessLevel.Medium = propertiesConfig.Brightness.Medium;
-            BrightnessLevel.Low = propertiesConfig.Brightness.Low;
+                BrightnessLevel.High = propertiesConfig.Brightness.High;
+                BrightnessLevel.Medium = propertiesConfig.Brightness.Medium;
+                BrightnessLevel.Low = propertiesConfig.Brightness.Low;
 
-			PowerIsOnFeedback = new BoolFeedback(() => PowerIsOn);
-			CurrentPresetIdFeedback = new IntFeedback(() => CurrentPresetId);
-			CurrentPresetNameFeedback = new StringFeedback(() => CurrentPresetName);
+                PowerIsOnFeedback = new BoolFeedback(() => PowerIsOn);
+                CurrentPresetIdFeedback = new IntFeedback(() => CurrentPresetId);
+                CurrentPresetNameFeedback = new StringFeedback(() => CurrentPresetName);
 
-            TestPatternIsOnFeedback = new BoolFeedback(() => TestPatternIsOn);
-            BrightnessFeedback = new IntFeedback(() => Brightness);
-            IsOnline = new BoolFeedback(() => DeviceIsOnline);
+                TestPatternIsOnFeedback = new BoolFeedback(() => TestPatternIsOn);
+                BrightnessFeedback = new IntFeedback(() => Brightness);
+                IsOnline = new BoolFeedback(() => DeviceIsOnline);
 
-            Hdmi1InvalidFeedback = new BoolFeedback(() => Hdmi1Invalid);
-            Hdmi2InvalidFeedback = new BoolFeedback(() => Hdmi2Invalid);
-            Sdi1InvalidFeedback = new BoolFeedback(() => Sdi1Invalid);
-            Sdi2InvalidFeedback = new BoolFeedback(() => Sdi2Invalid);
+                Hdmi1ResolutionFeedback = new StringFeedback(() => Hdmi1Resolution);
+                Hdmi1InvalidFeedback = new BoolFeedback(() => Hdmi1Invalid);
+                Hdmi1FormatFeedback = new StringFeedback(() => Hdmi1Format);
 
-            CurrentInputNameFeedback = new StringFeedback(() => CurrentInputName);
+                Hdmi2ResolutionFeedback = new StringFeedback(() => Hdmi2Resolution);
+                Hdmi2InvalidFeedback = new BoolFeedback(() => Hdmi2Invalid);
+                Hdmi2FormatFeedback = new StringFeedback(() => Hdmi2Format);
 
-			ResponseCodeFeedback = new IntFeedback(() => ResponseCode);
-			ResponseContentFeedback = new StringFeedback(() => ResponseContent);
-			ResponseErrorFeedback = new StringFeedback(() => ResponseError);
+                Sdi1ResolutionFeedback = new StringFeedback(() => Sdi1Resolution);
+                Sdi1InvalidFeedback = new BoolFeedback(() => Sdi1Invalid);
+                Sdi1FormatFeedback = new StringFeedback(() => Sdi1Format);
 
-            RedundancyRoleIsMainFeedback = new BoolFeedback(() => RedundancyRoleIsMain);
-            RedundancyRoleIsBackupFeedback = new BoolFeedback(() => RedundancyRoleIsBackup);
-            RedundancyRoleIsOfflineFeedback = new BoolFeedback(() => RedundancyRoleIsOffline);
+                Sdi2ResolutionFeedback = new StringFeedback(() => Sdi1Resolution);
+                Sdi2InvalidFeedback = new BoolFeedback(() => Sdi2Invalid);
+                Sdi2FormatFeedback = new StringFeedback(() => Sdi1Format);
 
-            RedundancyStateIsActiveFeedback = new BoolFeedback(() => RedundancyStateIsActive);
-            RedundancyStateIsStandbyFeedback = new BoolFeedback(() => RedundancyStateIsStandby);
-            RedundancyStateIsMixedFeedback = new BoolFeedback(() => RedundancyStateIsMixed);
+                CurrentInputNameFeedback = new StringFeedback(() => CurrentInputName);
 
-            _presets = propertiesConfig.Presets;
+                ResponseCodeFeedback = new IntFeedback(() => ResponseCode);
+                ResponseContentFeedback = new StringFeedback(() => ResponseContent);
+                ResponseErrorFeedback = new StringFeedback(() => ResponseError);
 
-            var pollInterval = propertiesConfig.PollTimeMs > 0 ? propertiesConfig.PollTimeMs : 15000; // Default poll time is 15 seconds
+                RedundancyRoleIsMainFeedback = new BoolFeedback(() => RedundancyRoleIsMain);
+                RedundancyRoleIsBackupFeedback = new BoolFeedback(() => RedundancyRoleIsBackup);
+                RedundancyRoleIsOfflineFeedback = new BoolFeedback(() => RedundancyRoleIsOffline);
 
-            _pollTimer = new CTimer((o) => Poll(), null, pollInterval, pollInterval);
+                RedundancyStateIsActiveFeedback = new BoolFeedback(() => RedundancyStateIsActive);
+                RedundancyStateIsStandbyFeedback = new BoolFeedback(() => RedundancyStateIsStandby);
+                RedundancyStateIsMixedFeedback = new BoolFeedback(() => RedundancyStateIsMixed);
 
-            WarmupTime = 1500; // Default warmup time is 1.5 seconds
-            CooldownTime = 1500; // Default cooldown time is 1.5 seconds
-            base.WarmupTime = WarmupTime;
-            base.CooldownTime = CooldownTime;
+                _presets = propertiesConfig.Presets;
 
-            // Constructor default string value should match device when no input resolution present
-            Hdmi1Resolution = "No input";
-            Hdmi2Resolution = "No input";
-            Sdi1Resolution = "No input";
-            Sdi2Resolution = "No input";
+                var pollInterval = propertiesConfig.PollTimeMs > 0 ? propertiesConfig.PollTimeMs : 15000; // Default poll time is 15 seconds
+
+                _pollTimer = new CTimer((o) => Poll(), null, pollInterval, pollInterval);
+
+                WarmupTime = 1500; // Default warmup time is 1.5 seconds
+                CooldownTime = 1500; // Default cooldown time is 1.5 seconds
+                base.WarmupTime = WarmupTime;
+                base.CooldownTime = CooldownTime;
+
+
+                // Constructor default string value should match device when no input resolution present
+                Hdmi1Resolution = "No input";
+                Hdmi2Resolution = "No input";
+                Sdi1Resolution = "No input";
+                Sdi2Resolution = "No input";
+            }
+            catch (Exception ex)
+            {
+                Debug.Console(0, this, "Caught an exception in the constructor {0}", ex);
+                throw;
+            }
         }
 
         #endregion
