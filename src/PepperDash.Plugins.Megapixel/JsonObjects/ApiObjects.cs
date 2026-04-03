@@ -3,7 +3,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace MegapixelHelios.JsonObjects
+namespace PepperDash.Plugins.Megapixel.JsonObjects
 {
 	public class RootDevObject
 	{

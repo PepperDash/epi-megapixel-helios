@@ -1,7 +1,7 @@
 ﻿using System;
 using PepperDash.Core;
 
-namespace MegapixelHelios.GenericClient
+namespace PepperDash.Plugins.Megapixel.GenericClient
 {
 	public interface IRestfulComms : IKeyed
 	{

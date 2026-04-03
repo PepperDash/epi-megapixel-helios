@@ -10,8 +10,9 @@ using Newtonsoft.Json.Linq;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using RequestType = Crestron.SimplSharp.Net.Https.RequestType;
+using PepperDash.Plugins.Megapixel;
 
-namespace MegapixelHelios.GenericClient
+namespace PepperDash.Plugins.Megapixel.GenericClient
 {
 	/// <summary>
 	/// Http client

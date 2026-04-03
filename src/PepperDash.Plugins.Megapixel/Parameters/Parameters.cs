@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Crestron.SimplSharp;
 
-namespace MegapixelHelios.Parameters
+namespace PepperDash.Plugins.Megapixel.Parameters
 {
     public class TestPatterns
     {

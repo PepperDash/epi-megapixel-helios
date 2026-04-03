@@ -1,5 +1,4 @@
-﻿
-namespace MegapixelHelios
+﻿namespace PepperDash.Plugins.Megapixel
 {
 	public static class MegapixelHeliosDebug
 	{

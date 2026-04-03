@@ -10,13 +10,22 @@ Minimum Helios firmware version = `24.11.0.23030`
 
 Provided under MIT license
 
+## Overview
+
+PepperDash Essentials plugin for the Megapixel Helios LED display controller. Provides power control, brightness, input selection, preset recall, test patterns, HDMI hotplug, and redundancy management via the Helios REST API.
+
+- Supports HTTP and HTTPS connections with automatic self-signed certificate trust
+- Basic and Digest authentication
+- Configurable polling interval
+- SIMPL bridge integration via `eiscApiAdvanced`
+
 ## Configuration Object
 
 ### Device
 
 MinimumEssentialsFrameworkVersion = `1.16.0`
 
-Type: `megapixelhelios`
+Type: `megapixelHelios`
 
 ```json
 {
@@ -37,6 +46,7 @@ Type: `megapixelhelios`
 			"autoReconnectIntervalMs": 10000
 			}
 		},
+		"pollTimeMs": 15000,
 		"brightness":{
 		"high": 60,
 		"medium": 40,
@@ -52,7 +62,18 @@ Type: `megapixelhelios`
 }
 ```
 
-The `port` object is only needed when overriding the default HTTP `80` or HTTPS `443`.
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| control.method | string | - | `http` or `https` |
+| control.tcpSshProperties.address | string | - | Device IP address |
+| control.tcpSshProperties.port | int | 443/80 | Only needed when overriding the default HTTP `80` or HTTPS `443` |
+| control.tcpSshProperties.username | string | - | Authentication username |
+| control.tcpSshProperties.password | string | - | Authentication password |
+| pollTimeMs | long | 15000 | Polling interval in milliseconds |
+| brightness.high | ushort | - | Brightness level for "high" preset (0-100) |
+| brightness.medium | ushort | - | Brightness level for "medium" preset (0-100) |
+| brightness.low | ushort | - | Brightness level for "low" preset (0-100) |
+| presets | array | - | List of preset objects with `label`, `presetName`, and/or `presetId` |
 
 ### Bridge
 
@@ -120,17 +141,36 @@ The `port` object is only needed when overriding the default HTTP `80` or HTTPS 
 | 10          | 1         | Input select by `inputName`   | Serial | ToFromSIMPL  |
 | 21          | 1         | Preset select by `presetName` | Serial | ToFromSimpl  |
 
-## POINT OF CLARIFICATION ##
+## POINT OF CLARIFICATION
 
 1. The API document (see `docs` folder) tracks both `role` and `state` objects.
 2. The `role` API call refers to the long-term role assigned to the device (main vs backup), not typically changed.
 3. The `state` API call refers to both the requested and reported state of the device.
 4. The device is capable of detecting loss of video from the primary or `main` controller and automatically switches `state` as needed.
-5. The device will report current state as either `active`, `standby`, or `mixed`. 
+5. The device will report current state as either `active`, `standby`, or `mixed`.
 6. The various `state` definitions reported above cannot be requested.
 7. The only valid `state` the device accepts is `main` or `backup`.
 8. The `state` request of `main` vs `backup` should be sent to override the automatic switch reported.
 9. Hotplug requests utilize manufacturer private API which may change with firmware.
+
+## API Endpoints
+
+| Method | HTTP | Endpoint | Description |
+| ------ | ---- | -------- | ----------- |
+| Poll | GET | /api/v1/public | Poll device public API |
+| PollPrivateApi | GET | /api/v1/data | Poll device private API |
+| PowerOn | PATCH | /api/v1/public | Set blackout to false |
+| PowerOff | PATCH | /api/v1/public | Set blackout to true |
+| SetBrightness | PATCH | /api/v1/public | Set brightness level (0-100) |
+| TestPatternOn/Off | PATCH | /api/v1/public | Enable/disable test pattern |
+| RecallPresetById | POST | /api/v1/presets/{id}/apply | Recall preset by numeric ID |
+| RecallPresetByName | POST | /api/v1/presets/apply | Recall preset by name |
+| RecallInputByName | PATCH | /api/v1/public | Select input by name |
+| GetPresetsList | GET | /api/v1/presets/list | Query available presets |
+| GetRedundancyState | GET | /api/v1/public?dev.display.redundancy | Query redundancy status |
+| SetRedundancyRole* | PATCH | /api/v1/public | Set redundancy role |
+| SetRedundancyState* | PATCH | /api/v1/public | Set redundancy state |
+| HotplugHdmi1/2 | PATCH | /api/v1/data | Force HDMI hotplug (private API) |
 
 ## DEVJSON Commands
 
@@ -140,6 +180,7 @@ Public Methods that can be used with `devjson` to test controls.
 devjson:1 {"deviceKey":"display-1","methodName":"PowerOn"                    ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"PowerOff"                   ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"Poll"                       ,"params":[       ]}
+devjson:1 {"deviceKey":"display-1","methodName":"PollPrivateApi"              ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"GetRedundancyState"         ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToMain"    ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"SetRedundancyRoleToBackup"  ,"params":[       ]}

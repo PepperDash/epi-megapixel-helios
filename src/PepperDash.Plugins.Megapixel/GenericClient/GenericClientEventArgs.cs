@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Crestron.SimplSharp;
 
-namespace MegapixelHelios.GenericClient
+namespace PepperDash.Plugins.Megapixel.GenericClient
 {
 	/// <summary>
 	/// Cleint event args

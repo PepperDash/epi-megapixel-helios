@@ -2,7 +2,7 @@
 using PepperDash.Essentials.Core;
 using System.Collections.Generic;
 
-namespace MegapixelHelios
+namespace PepperDash.Plugins.Megapixel
 {
     /// <summary>
     /// Plugin device configuration object

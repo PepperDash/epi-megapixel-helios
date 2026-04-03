@@ -1,25 +1,24 @@
 ﻿
-using System;
-using System.Collections.Generic;
+using Crestron.SimplSharp;
 using Crestron.SimplSharpPro.DeviceSupport;
-using MegapixelHelios.GenericClient;
-using MegapixelHelios.JsonObjects;
-using MegapixelHelios.Parameters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PepperDash.Core;
+using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
-using Feedback = PepperDash.Essentials.Core.Feedback;
-using Crestron.SimplSharp;
-using Crestron.SimplSharpPro.CrestronThread;
 using PepperDash.Essentials.Devices.Common.Displays;
+using PepperDash.Plugins.Megapixel.GenericClient;
+using PepperDash.Plugins.Megapixel.JsonObjects;
+using PepperDash.Plugins.Megapixel.Parameters;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using PepperDash.Core.Logging;
+using Feedback = PepperDash.Essentials.Core.Feedback;
 
-namespace MegapixelHelios
-{    
+namespace PepperDash.Plugins.Megapixel
+{
     /// <summary>
 	/// Plugin device template for third party devices that use IBasicCommunication
 	/// </summary>
@@ -43,7 +42,7 @@ namespace MegapixelHelios
                 IsOnline.FireUpdate();
             }
         }
-        
+
         private bool _powerIsOn;
 		public bool PowerIsOn
 		{
@@ -336,7 +335,6 @@ namespace MegapixelHelios
 
 			MegapixelHeliosDebug.ResetDebugLevels();
 
-
 			if (propertiesConfig == null || propertiesConfig.Control == null)
 			{
 				Debug.Console(MegapixelHeliosDebug.Trace, this, "Configuration or control object is null, unable to construct new {0} instance.  Check configuration.", name);
@@ -346,15 +344,28 @@ namespace MegapixelHelios
             var method = propertiesConfig.Control.Method.ToString().ToLower();
             var address = propertiesConfig.Control.TcpSshProperties.Address;
             var port = propertiesConfig.Control.TcpSshProperties.Port == 0 ? (method == "https" ? 443 : 80) : propertiesConfig.Control.TcpSshProperties.Port;
+            var username = propertiesConfig.Control.TcpSshProperties.Username ?? "";
+            var password = propertiesConfig.Control.TcpSshProperties.Password ?? "";
 
-            _client = new HttpClient
+            var baseUri = new Uri(string.Format("{0}://{1}:{2}", method, address, port));
+
+            var credentialCache = new System.Net.CredentialCache();
+            if (!string.IsNullOrEmpty(username))
             {
-                BaseAddress = new Uri(
-                    string.Format(
-                        "{0}://{1}:{2}",
-                        method,
-                        address,
-                        port)),
+                var credential = new System.Net.NetworkCredential(username, password);
+                credentialCache.Add(baseUri, "Basic", credential);
+                credentialCache.Add(baseUri, "Digest", credential);
+            }
+
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
+                Credentials = credentialCache
+            };
+
+            _client = new HttpClient(handler)
+            {
+                BaseAddress = baseUri,
             };
 
 			if (_client == null)
@@ -382,7 +393,7 @@ namespace MegapixelHelios
             Sdi1IsValidFeedback = new BoolFeedback(() => Sdi1Invalid);
             Sdi2IsValidFeedback = new BoolFeedback(() => Sdi2Invalid);
 
-            CurrentInputNameFeedback = new StringFeedback(() => CurrentInputName);               
+            CurrentInputNameFeedback = new StringFeedback(() => CurrentInputName);
 
             RedundancyRoleIsMainFeedback = new BoolFeedback(() => RedundancyRoleIsMain);
             RedundancyRoleIsBackupFeedback = new BoolFeedback(() => RedundancyRoleIsBackup);
@@ -599,12 +610,10 @@ namespace MegapixelHelios
 		private void OnResponseReceived(object sender, GenericClientResponseEventArgs args)
 		{
 			try
-			{
-
+            {
 				var jToken = IsValidJson(args.ContentString);
 				if (jToken == null)
 				{
-					Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: IsValidJson failed, passing ContentString as string");
 					return;
 				}
 
@@ -617,7 +626,7 @@ namespace MegapixelHelios
                         //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Blackout");
                         PowerIsOn = !(bool)feedback.Dev.Display.Blackout;
                     }
-                    
+
                     if (feedback.Dev.Display.Brightness != null)
                     {
                         //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Brightness");
@@ -695,23 +704,23 @@ namespace MegapixelHelios
         {
             try
             {
-                var requestMessage = new HttpRequestMessage(new HttpMethod(method), path)
+                using (var requestMessage = new HttpRequestMessage(new HttpMethod(method), path)
                 {
-                    Content = new StringContent(content)
-                };
+                    Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json"),
+                })
+                using (var response = await _client.SendAsync(requestMessage))
+                {
+                    if (response == null)
+                    {
+                        DeviceIsOnline = false;
+                        IsOnline.FireUpdate();
+                        return;
+                    }
 
-                var response = await _client.SendAsync(requestMessage);
-                if (response == null)
-                {
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                    return;
-                }
-
-                using (response)
-                {
                     var contentString = await response.Content.ReadAsStringAsync();
                     var code = (int)response.StatusCode;
+
+                    this.LogDebug("Processing response of length:{0} with status code: {1} from path: {2}", contentString.Length, code, path);
                     OnResponseReceived(this, new GenericClientResponseEventArgs { Code = code, ContentString = contentString });
                 }
             }
@@ -734,7 +743,7 @@ namespace MegapixelHelios
 		/// <remarks>
 		/// Poll method is used by the communication monitor.  Update the poll method as needed for the plugin being developed.
 		/// </remarks>
-		public void Poll() => DispatchRequest("GET", "/api/v1/public", string.Empty).ContinueWith(task =>
+		public void Poll() => PollAsync().ContinueWith(task =>
                                        {
                                            if (task.IsFaulted)
                                            {
@@ -743,6 +752,8 @@ namespace MegapixelHelios
                                                IsOnline.FireUpdate();
                                            }
                                        });
+
+        public Task PollAsync() => DispatchRequest("GET", "/api/v1/public", string.Empty);
 
         /// <summary>
         /// Polls the device private API
@@ -826,7 +837,7 @@ namespace MegapixelHelios
         /// Manufacturer public API paths will not change. Private API paths will change with firmware releases.
         /// </remarks>
         public void HotplugHdmi2()
-        {            
+        {
             var payload = new
             {
                 dev = new
@@ -877,7 +888,6 @@ namespace MegapixelHelios
                     IsOnline.FireUpdate();
                 }
             });
-
         }
 
         /// <summary>
@@ -904,16 +914,19 @@ namespace MegapixelHelios
                 }
             };
 
-            var _ = DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content)).ContinueWith(task =>
-            {
-                if (task.IsFaulted)
+            var _ = Task.Run(async () => {
+                try
                 {
-                    this.LogError(task.Exception.Flatten().InnerException, "PollPrivateApi request failed");
+                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                    await Task.Delay(3000);
+                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "SetRedundancyRoleToMain request failed");
                     DeviceIsOnline = false;
                     IsOnline.FireUpdate();
                 }
-
-                GetRedundancyState();
             });
         }
 
@@ -941,16 +954,19 @@ namespace MegapixelHelios
                 }
             };
 
-            var _ = DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content)).ContinueWith(task =>
-            {
-                if (task.IsFaulted)
+            var _ = Task.Run(async () => {
+                try
                 {
-                    this.LogError(task.Exception.Flatten().InnerException, "PollPrivateApi request failed");
+                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                    await Task.Delay(3000);
+                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "SetRedundancyRoleToBackup request failed");
                     DeviceIsOnline = false;
                     IsOnline.FireUpdate();
                 }
-
-                GetRedundancyState();
             });
         }
 
@@ -978,13 +994,19 @@ namespace MegapixelHelios
                 }
             };
 
-            CrestronInvoke.BeginInvoke((o) =>
-            {
-                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
-
-                Thread.Sleep(3000);
-
-                GetRedundancyState();
+            var _ = Task.Run(async () => {
+                try
+                {
+                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                    await Task.Delay(3000);
+                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "SetRedundancyRoleToOffline request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
             });
         }
 
@@ -998,9 +1020,9 @@ namespace MegapixelHelios
         /// </remarks>
         public void SetRedundancyStateToMain()
         {
-            var content = new RootDevObject 
+            var content = new RootDevObject
             {
-                Dev = new DevObject 
+                Dev = new DevObject
                 {
                     Display = new DisplayObject
                     {
@@ -1012,13 +1034,19 @@ namespace MegapixelHelios
                 }
             };
 
-            CrestronInvoke.BeginInvoke((o) =>
-            {
-                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
-
-                Thread.Sleep(3000);
-
-                GetRedundancyState();
+            var _ = Task.Run(async () => {
+                try
+                {
+                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                    await Task.Delay(3000);
+                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "SetRedundancyStateToMain request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
             });
         }
 
@@ -1046,13 +1074,19 @@ namespace MegapixelHelios
                 }
             };
 
-            CrestronInvoke.BeginInvoke((o) =>
-            {
-                _client.SendRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
-
-                Thread.Sleep(3000);
-
-                GetRedundancyState();
+            var _ = Task.Run(async () => {
+                try
+                {
+                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                    await Task.Delay(3000);
+                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "SetRedundancyStateToBackup request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
             });
         }
 
@@ -1078,26 +1112,27 @@ namespace MegapixelHelios
 			};
 
 			var content = JsonConvert.SerializeObject(jsonObject);
-			if (string.IsNullOrEmpty(content))
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, "PowerOn: failed to serialzie request content");
-				return;
-			}
 
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "PowerOn: content-'{0}'", content);
-
-            CrestronInvoke.BeginInvoke((o) =>
+            var _ = Task.Run(async () =>
             {
-                _client.SendRequest("PATCH", "/api/v1/public", content);
-                Thread.Sleep(2000);
-                Poll();
+                try
+                {
+                    await DispatchRequest("PATCH", "/api/v1/public", content);
+                    await Task.Delay(2000);
+                    await PollAsync();
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "PowerOn request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
             });
 
             if (!PowerIsOnFeedback.BoolValue && !_IsWarmingUp && !_IsCoolingDown)
             {
                 _IsWarmingUp = true;
                 IsWarmingUpFeedback.FireUpdate();
-                // Fake power-up cycle
 
                 if (WarmupTimer != null)
                 {
@@ -1108,8 +1143,7 @@ namespace MegapixelHelios
                 WarmupTimer = new CTimer(o =>
                 {
                     Debug.Console(MegapixelHeliosDebug.Verbose, this, "Warmup timer ending.");
-                    _IsWarmingUp = false;
-                    PowerIsOn = true;
+                    _IsWarmingUp = false
                     IsWarmingUpFeedback.FireUpdate();
                 }, WarmupTime);
             }
@@ -1136,31 +1170,31 @@ namespace MegapixelHelios
 				}
 			};
 
-			var content = JsonConvert.SerializeObject(jsonObject);
-			if (string.IsNullOrEmpty(content))
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, "PowerOff: failed to serialzie request content");
-				return;
-			}
+            var content = JsonConvert.SerializeObject(jsonObject);
 
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, "PowerOff: content-'{0}'", content);
-
-            CrestronInvoke.BeginInvoke((o) =>
+            var _ = Task.Run(async () =>
             {
-                _client.SendRequest("PATCH", "/api/v1/public", content);
-                Thread.Sleep(2000);
-                Poll();
+                try
+                {
+                    await DispatchRequest("PATCH", "/api/v1/public", content);
+                    await Task.Delay(2000);
+                    await PollAsync();
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "PowerOff request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
             });
 
             _IsCoolingDown = true;
-            PowerIsOn = false;
             IsCoolingDownFeedback.FireUpdate();
-            // Fake cool-down cycle
 
             if (CooldownTimer != null)
             {
-                WarmupTimer.Stop();
-                WarmupTimer.Dispose();
+                CooldownTimer.Stop();
+                CooldownTimer.Dispose();
             }
 
             CooldownTimer = new CTimer(o =>
@@ -1214,14 +1248,19 @@ namespace MegapixelHelios
             };
 
             var content = JsonConvert.SerializeObject(jsonObject);
-            if (string.IsNullOrEmpty(content))
+            var _ = Task.Run(async () =>
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "SetBrightness: failed to serialzie request content");
-                return;
-            }
-
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "SetBrightness: content-'{0}'", content);
-            _client.SendRequest("PATCH", "/api/v1/public", content);
+                try
+                {
+                    await DispatchRequest("PATCH", "/api/v1/public", content);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "SetBrightness request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
+            });
         }
 
         /// <summary>
@@ -1249,19 +1288,20 @@ namespace MegapixelHelios
             };
 
             var content = JsonConvert.SerializeObject(jsonObject);
-            if (string.IsNullOrEmpty(content))
+            var _ = Task.Run(async () =>
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "TestPatternEnable: failed to serialzie request content");
-                return;
-            }
-
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "TestPatternEnable: content-'{0}'", content);
-
-            CrestronInvoke.BeginInvoke((o) =>
-            {
-                _client.SendRequest("PATCH", "/api/v1/public", content);
-                Thread.Sleep(2000);
-                Poll();
+                try
+                {
+                    await DispatchRequest("PATCH", "/api/v1/public", content);
+                    await Task.Delay(2000);
+                    await PollAsync();
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "TestPatternOn request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
             });
         }
 
@@ -1290,24 +1330,25 @@ namespace MegapixelHelios
             };
 
             var content = JsonConvert.SerializeObject(jsonObject);
-            if (string.IsNullOrEmpty(content))
+            var _ = Task.Run(async () =>
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "TestPatternEnable: failed to serialzie request content");
-                return;
-            }
-
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "TestPatternEnable: content-'{0}'", content);
-
-            CrestronInvoke.BeginInvoke((o) =>
-            {
-                _client.SendRequest("PATCH", "/api/v1/public", content);
-                Thread.Sleep(2000);
-                Poll();
+                try
+                {
+                    await DispatchRequest("PATCH", "/api/v1/public", content);
+                    await Task.Delay(2000);
+                    await PollAsync();
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "TestPatternOff request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
             });
         }
 
 		/// <summary>
-		/// Queries device for preset list 
+		/// Queries device for preset list
 		/// </summary>
 		/// <remarks>
 		/// requestType: GET
@@ -1315,8 +1356,20 @@ namespace MegapixelHelios
 		/// </remarks>
 		public void GetPresetsList()
 		{
-			_client.SendRequest("GET", "/api/v1/presets/list", string.Empty);
-		}
+            var _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await DispatchRequest("GET", "/api/v1/presets/list", string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "GetPresetsList request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
+            });
+        }
 
 		/// <summary>
 		/// Recalls preset using device configured presetId
@@ -1331,8 +1384,20 @@ namespace MegapixelHelios
 		{
 			if (id == 0) return;
 
-			_client.SendRequest("POST", string.Format("/api/v1/presets/{0}/apply", id), string.Empty);
-		}
+            var _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await DispatchRequest("POST", string.Format("/api/v1/presets/{0}/apply", id), string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "RecallPresetById request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
+            });
+        }
 
 		/// <summary>
 		/// Recalls preset using device configured presetName
@@ -1351,15 +1416,20 @@ namespace MegapixelHelios
 			};
 
 			var content = JsonConvert.SerializeObject(jsonObject);
-			if (string.IsNullOrEmpty(content))
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, "RecallPresetByName: failed to serialzie request content");
-				return;
-			}
-
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, "RecallPresetByName: content-'{0}'", content);
-			_client.SendRequest("POST", "/api/v1/presets/apply", content);
-		}
+            var _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await DispatchRequest("POST", "/api/v1/presets/apply", content);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "RecallPresetByName request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
+            });
+        }
 
         /// <summary>
         /// Recalls input using device configured input name
@@ -1371,7 +1441,7 @@ namespace MegapixelHelios
         /// </remarks>
         /// <param name="name"></param>
         public void RecallInputByName(string name)
-        {  
+        {
             var jsonObject = new RootDevObject
             {
                 Dev = new DevObject
@@ -1384,19 +1454,20 @@ namespace MegapixelHelios
             };
 
             var content = JsonConvert.SerializeObject(jsonObject);
-            if (string.IsNullOrEmpty(content))
+            var _ = Task.Run(async () =>
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "RecallInputByName: failed to serialzie request content");
-                return;
-            }
-
-            Debug.Console(MegapixelHeliosDebug.Verbose, this, "RecallInputByName: content-'{0}'", content);
-            
-            CrestronInvoke.BeginInvoke((o) =>
-            {
-                _client.SendRequest("PATCH", "/api/v1/public", content);
-                Thread.Sleep(3000);
-                Poll();
+                try
+                {
+                    await DispatchRequest("PATCH", "/api/v1/public", content);
+                    await Task.Delay(3000);
+                    await PollAsync();
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(ex, "RecallInputByName request failed");
+                    DeviceIsOnline = false;
+                    IsOnline.FireUpdate();
+                }
             });
         }
 
