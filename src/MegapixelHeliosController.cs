@@ -399,6 +399,7 @@ namespace MegapixelHelios
 				Debug.Console(MegapixelHeliosDebug.Trace, this, Debug.ErrorLogLevel.Error,
 					"Failed to construct '{1}' using method {0}",
 					propertiesConfig.Control.Method, name);
+
 				return;
 			}
 
@@ -409,7 +410,6 @@ namespace MegapixelHelios
             BrightnessLevel.Medium = propertiesConfig.Brightness.Medium;
             BrightnessLevel.Low = propertiesConfig.Brightness.Low;
 
-			PowerIsOnFeedback = new BoolFeedback(() => PowerIsOn);
 			CurrentPresetIdFeedback = new IntFeedback(() => CurrentPresetId);
 			CurrentPresetNameFeedback = new StringFeedback(() => CurrentPresetName);
 
@@ -435,6 +435,16 @@ namespace MegapixelHelios
             RedundancyStateIsActiveFeedback = new BoolFeedback(() => RedundancyStateIsActive);
             RedundancyStateIsStandbyFeedback = new BoolFeedback(() => RedundancyStateIsStandby);
             RedundancyStateIsMixedFeedback = new BoolFeedback(() => RedundancyStateIsMixed);
+
+            IsOnline.OutputChange += (sender, args) => Debug.Console(0, this, "Is online is on updated: {0}", args.BoolValue);
+            PowerIsOnFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Power is on updated: {0}", args.BoolValue);
+            CurrentInputNameFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Current input name is updated: {0}", args.StringValue);
+            RedundancyRoleIsMainFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy role main updated: {0}", args.BoolValue);
+            RedundancyRoleIsBackupFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy role backup updated: {0}", args.BoolValue);
+            RedundancyRoleIsOfflineFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy role offline updated: {0}", args.BoolValue);
+            RedundancyStateIsActiveFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy state active updated: {0}", args.BoolValue);
+            RedundancyStateIsStandbyFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy state standby updated: {0}", args.BoolValue);
+            RedundancyStateIsMixedFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy state mixed updated: {0}", args.BoolValue);
 
             _presets = propertiesConfig.Presets;
 
@@ -645,17 +655,11 @@ namespace MegapixelHelios
 				ResponseCode = args.Code;
 
                 // if ResponseCode is not 200, IsOnline is false
-                if (ResponseCode != 200)
+                DeviceIsOnline = ResponseCode <= 300;
+                IsOnline.FireUpdate();
+                if (!DeviceIsOnline)
                 {
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                    Debug.Console(MegapixelHeliosDebug.Notice, this, "OnResponseReceived: ResponseCode != 200, Code received: {0}", ResponseCode);  
                     return;
-                }
-
-                if(ResponseCode == 200)
-                {
-                    DeviceIsOnline = true;
                 }
 
 				if (string.IsNullOrEmpty(args.ContentString))
@@ -708,6 +712,7 @@ namespace MegapixelHelios
                         TestPatternIsOn = (bool)feedback.Dev.Ingest.TestPattern.Enabled;
                         //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.TestPattern");
                     }
+
                     if (feedback.Dev.Ingest.Input != null)
                     {
                         CurrentInputName = (string)feedback.Dev.Ingest.Input;
@@ -716,6 +721,7 @@ namespace MegapixelHelios
                     {
                         Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Input = Null");
                     }
+
                     if (feedback.Dev.Ingest.Inputs != null)
                     {
                         if (feedback.Dev.Ingest.Inputs.Hdmi1 != null)
@@ -1092,6 +1098,13 @@ namespace MegapixelHelios
                 _IsWarmingUp = true;
                 IsWarmingUpFeedback.FireUpdate();
                 // Fake power-up cycle
+
+                if (WarmupTimer != null)
+                {
+                    WarmupTimer.Stop();
+                    WarmupTimer.Dispose();
+                }
+
                 WarmupTimer = new CTimer(o =>
                 {
                     Debug.Console(MegapixelHeliosDebug.Verbose, this, "Warmup timer ending.");
@@ -1143,6 +1156,13 @@ namespace MegapixelHelios
             PowerIsOn = false;
             IsCoolingDownFeedback.FireUpdate();
             // Fake cool-down cycle
+
+            if (CooldownTimer != null)
+            {
+                WarmupTimer.Stop();
+                WarmupTimer.Dispose();
+            }
+
             CooldownTimer = new CTimer(o =>
             {
                 Debug.Console(MegapixelHeliosDebug.Verbose, this, "Cooldown timer ending.");

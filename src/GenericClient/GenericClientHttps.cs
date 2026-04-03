@@ -4,6 +4,7 @@ using System.Text;
 using Crestron.SimplSharp;
 using Crestron.SimplSharp.Net.Http;
 using Crestron.SimplSharp.Net.Https;
+using Crestron.SimplSharp.CrestronIO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PepperDash.Core;
@@ -15,12 +16,12 @@ namespace MegapixelHelios.GenericClient
 	/// <summary>
 	/// Http client
 	/// </summary>
-	public class GenericClientHttps : IRestfulComms
+	public class GenericClientHttps : IKeyed, IRestfulComms
 	{
 		private static readonly string Separator = new String('-', 50);
 
+        private readonly object @lock = new object();
 		private readonly HttpsClient _client;
-		private readonly CrestronQueue<Action> _requestQueue = new CrestronQueue<Action>(20);
 
         public bool DispatchError { get; private set; }
 		public string Host { get; private set; }
@@ -28,6 +29,7 @@ namespace MegapixelHelios.GenericClient
 		public string Username { get; private set; }
 		public string Password { get; private set; }
 		public string AuthorizationBase64 { get; set; }
+
         /// <summary>
         /// Client response event
         /// </summary>
@@ -80,7 +82,7 @@ Password = {5}
 			{
 				UserName = Username,
 				Password = Password,
-				KeepAlive = false,
+				KeepAlive = true,
 				HostVerification = false,
 				PeerVerification = false
 			};
@@ -138,136 +140,58 @@ content: {2}
 requestType: {3}
 {0}", Separator, request.Url, request.ContentString, request.RequestType);
 
-			if (_client.ProcessBusy)
-				_requestQueue.Enqueue(() => RequestDispatch(request));
-			else
-				RequestDispatch(request);
-		}
+            CMonitor.Enter(@lock);
+            try
+            {
+                var response = _client.Dispatch(request);
+                var json = "";
 
-		// dispatches the recieved request
-		private void RequestDispatch(HttpsClientRequest request)
-		{
-			_client.DispatchAsync(request, (response, error) =>
-			{
-				if (response == null)
-				{
-					Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
-{0}
->>>>> RequestDispatch
-error: {1}
-{0}", Separator, error);
-                    DispatchError = true;
-					DispatchErrorOnReceived(this, new GenericClientDispatchErrorOnReceivedEventArgs(DispatchError));
-					return;
-				}
+                using (var sr = new StreamReader(response.ContentStream))
+                {
+                    json = sr.ReadToEnd();
+                }
 
-                DispatchError = false;
-				OnResponseRecieved(new GenericClientResponseEventArgs(response.Code, response.ContentString));
-			});
-		}
+                Debug.Console(1, "Received a response with length: {0} code: {1}", json.Length, response.Code);
 
-		// client response event handler
-		private void OnResponseRecieved(GenericClientResponseEventArgs args)
-		{
+                var handler = ResponseReceived;
+                if (handler == null) return;
+                handler(this, new GenericClientResponseEventArgs { Code = response.Code, ContentString = json });
 
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, @"
-{0}
->>>>> OnResponseReceived: 
-args.Code = {1}
-args.ContentString = {2}
-{0}", Separator, args.Code, args.ContentString);
+                var errorHandler = DispatchErrorOnReceived;
+                if (handler == null) return;
+                errorHandler(this, new GenericClientDispatchErrorOnReceivedEventArgs { errorState = false });
+            }
+            catch (HttpsException ex)
+            {
+                Debug.Console(1, this, "Caught an exception dispatching a request: {0}", ex);
 
-			CheckRequestQueue();
+                var handler = ResponseReceived;
+                if (handler == null) return;
+                handler(this, new GenericClientResponseEventArgs { Code = ex.Response.Code, ContentString = string.Empty });
 
+                var errorHandler = DispatchErrorOnReceived;
+                if (handler == null) return;
+                errorHandler(this, new GenericClientDispatchErrorOnReceivedEventArgs { errorState = true });
+            }
+            catch (Exception ex)
+            {
+                Debug.Console(1, this, "Caught an exception dispatching a request: {0}", ex);
 
-			if (args.Code != 200)
-				ProcessErrorResponse(args);
-			else
-				ProcessSuccessResponse(args);
-		}
+                var handler = ResponseReceived;
+                if (handler == null) return;
+                handler(this, new GenericClientResponseEventArgs { Code = 500, ContentString = string.Empty });
 
-		private void ProcessSuccessResponse(GenericClientResponseEventArgs args)
-		{
-			var jToken = IsValidJson(args.ContentString);
-			if (jToken == null)
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessSuccessResponse: IsValidJson obj is null");
-				return;
-			}
-
-			// pass the response to the consuming class
-			var handler = ResponseReceived;
-			if (handler == null) return;
-
-			handler(this, args);
-		}
-
-		private void ProcessErrorResponse(GenericClientResponseEventArgs args)
-		{
-			var jToken = IsValidJson(args.ContentString);
-			if (jToken == null)
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "ProcessErrorResponse: IsValidJson obj is null");
-				return;
-			}
-
-			var errorArray = jToken.SelectToken("errors");
-			if (errorArray == null) return;
-
-			// pass the response to the consuming class
-			var handler = ResponseReceived;
-			if (handler == null) return;
-
-			handler(this, args);
+                var errorHandler = DispatchErrorOnReceived;
+                if (handler == null) return;
+                errorHandler(this, new GenericClientDispatchErrorOnReceivedEventArgs { errorState = true });
+            }
+            finally
+            {
+                CMonitor.Exit(@lock);
+            };
 		}
 
 		#endregion
-
-		private JToken IsValidJson(string contentString)
-		{
-			if (string.IsNullOrEmpty(contentString)) return null;
-
-			contentString = contentString.Trim();
-			if ((!contentString.StartsWith("{") || !contentString.EndsWith("}")) &&
-				(!contentString.StartsWith("[") || !contentString.EndsWith("]"))) return null;
-
-			try
-			{
-				var jToken = JToken.Parse(contentString);
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
-
-				return jToken;
-			}
-			catch (JsonReaderException jex)
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson JsonReaderException.Message: {0}", jex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson JsonReaderException.StackTrace: {0}", jex.StackTrace);
-				if (jex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson JsonReaderException.InnerException: {0}", jex.InnerException);
-
-				return null;
-			}
-			catch (Exception ex)
-			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson Exception.Message: {0}", ex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Exception.StackTrace: {0}", ex.StackTrace);
-				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Exception.InnerException: {0}", ex.InnerException);
-
-				return null;
-			}
-		}
-
-		// Checks request queue and issues next request
-		private void CheckRequestQueue()
-		{
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, "CheckRequestQueue: _requestQueue.Count = {0}", _requestQueue.Count);
-			var nextRequest = _requestQueue.TryToDequeue();
-			Debug.Console(MegapixelHeliosDebug.Verbose, this, "CheckRequestQueue: _requestQueue.TryToDequeue was {0}",
-				(nextRequest == null) ? "unsuccessful" : "successful");
-			if (nextRequest != null)
-			{
-				nextRequest();
-			}
-		}
 
 		// encodes username and password, returning a Base64 encoded string
 		private string EncodeBase64(string username, string password)
