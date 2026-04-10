@@ -28,7 +28,7 @@ namespace PepperDash.Plugins.Megapixel
         #region Fields, Properties, Feedbacks, Lists, CTimer
         private List<MegaPixelHeliosPresetConfig> _presets;
         private static readonly string Separator = new string('-', 50);
-        private CTimer _pollTimer;
+        private readonly CTimer _pollTimer;
 
         private bool _DeviceIsOnline;
         public BoolFeedback IsOnline { get; private set; }
@@ -1143,7 +1143,7 @@ namespace PepperDash.Plugins.Megapixel
                 WarmupTimer = new CTimer(o =>
                 {
                     Debug.Console(MegapixelHeliosDebug.Verbose, this, "Warmup timer ending.");
-                    _IsWarmingUp = false
+                    _IsWarmingUp = false;
                     IsWarmingUpFeedback.FireUpdate();
                 }, WarmupTime);
             }
