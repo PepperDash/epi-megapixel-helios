@@ -199,3 +199,117 @@ devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi2"               ,"p
 ```
 
 
+<!-- START Minimum Essentials Framework Versions -->
+### Minimum Essentials Framework Versions
+
+- 1.16.0
+<!-- END Minimum Essentials Framework Versions -->
+<!-- START Config Example -->
+### Config Example
+
+```json
+{
+    "key": "GeneratedKey",
+    "uid": 1,
+    "name": "GeneratedName",
+    "type": "megapixelHelios",
+    "group": "Group",
+    "properties": {
+        "control": "SampleValue",
+        "PollTimeMs": 0,
+        "brightness": {
+            "high": "SampleValue",
+            "medium": "SampleValue",
+            "low": "SampleValue"
+        },
+        "presets": [
+            {
+                "label": "SampleString",
+                "PresetName": "SampleString",
+                "PreseId": "SampleValue"
+            }
+        ]
+    }
+}
+```
+<!-- END Config Example -->
+<!-- START Supported Types -->
+### Supported Types
+
+- megapixelHelios
+<!-- END Supported Types -->
+<!-- START Join Maps -->
+
+<!-- END Join Maps -->
+<!-- START Interfaces Implemented -->
+### Interfaces Implemented
+
+- IBridgeAdvanced
+- IOnline
+- IHasPowerControlWithFeedback
+- IHasFeedback
+- IKeyed
+- IRestfulComms
+<!-- END Interfaces Implemented -->
+<!-- START Base Classes -->
+### Base Classes
+
+- TwoWayDisplayBase
+- JoinMapBaseAdvanced
+- EventArgs
+<!-- END Base Classes -->
+<!-- START Public Methods -->
+### Public Methods
+
+- public void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+- public void Poll()
+- public Task PollAsync()
+- public void PollPrivateApi()
+- public void HotplugHdmi1()
+- public void HotplugHdmi2()
+- public void GetRedundancyState()
+- public void SetRedundancyRoleToMain()
+- public void SetRedundancyRoleToBackup()
+- public void SetRedundancyRoleToOffline()
+- public void SetRedundancyStateToMain()
+- public void SetRedundancyStateToBackup()
+- public void SetBrightness(ushort brightness)
+- public void TestPatternOn()
+- public void TestPatternOff()
+- public void GetPresetsList()
+- public void RecallPresetById(uint id)
+- public void RecallPresetByName(string name)
+- public void RecallInputByName(string name)
+- public void SendRequest(string requestType, string path, string content)
+- public void SendRequest(RequestType requestType, string path, string content)
+- public void SendRequest(string requestType, string path, string content)
+- public void SendRequest(RequestType requestType, string path, string content)
+<!-- END Public Methods -->
+<!-- START Bool Feedbacks -->
+### Bool Feedbacks
+
+- IsOnline
+- Hdmi1InvalidFeedback
+- Hdmi2InvalidFeedback
+- Sdi1IsValidFeedback
+- Sdi2IsValidFeedback
+- TestPatternIsOnFeedback
+- RedundancyRoleIsMainFeedback
+- RedundancyRoleIsBackupFeedback
+- RedundancyRoleIsOfflineFeedback
+- RedundancyStateIsActiveFeedback
+- RedundancyStateIsMixedFeedback
+- RedundancyStateIsStandbyFeedback
+<!-- END Bool Feedbacks -->
+<!-- START Int Feedbacks -->
+### Int Feedbacks
+
+- BrightnessFeedback
+- CurrentPresetIdFeedback
+<!-- END Int Feedbacks -->
+<!-- START String Feedbacks -->
+### String Feedbacks
+
+- CurrentInputNameFeedback
+- CurrentPresetNameFeedback
+<!-- END String Feedbacks -->
