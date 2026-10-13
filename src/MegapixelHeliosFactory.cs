@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Config;
@@ -45,6 +46,19 @@ namespace PepperDash.Essentials.Plugins
                 propertiesConfig.Control.Method != eControlMethod.Https)
             {
                 Debug.LogError("[{Key}] Factory: control method {Method} is not supported; use HTTP or HTTPS", dc.Key, propertiesConfig.Control.Method);
+                return null;
+            }
+
+            var tcpSshProperties = propertiesConfig.Control.TcpSshProperties;
+            if (tcpSshProperties == null || string.IsNullOrEmpty(tcpSshProperties.Address))
+            {
+                Debug.LogError("[{Key}] Factory: control.tcpSshProperties.address is missing", dc.Key);
+                return null;
+            }
+
+            if (Uri.CheckHostName(tcpSshProperties.Address) == UriHostNameType.Unknown)
+            {
+                Debug.LogError("[{Key}] Factory: control.tcpSshProperties.address '{Address}' is not a valid host name or IP address", dc.Key, tcpSshProperties.Address);
                 return null;
             }
 

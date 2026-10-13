@@ -383,9 +383,17 @@ namespace PepperDash.Essentials.Plugins
 				return;
 			}
 
-            BrightnessLevel.High = propertiesConfig.Brightness.High;
-            BrightnessLevel.Medium = propertiesConfig.Brightness.Medium;
-            BrightnessLevel.Low = propertiesConfig.Brightness.Low;
+            if (propertiesConfig.Brightness != null)
+            {
+                BrightnessLevel.High = propertiesConfig.Brightness.High;
+                BrightnessLevel.Medium = propertiesConfig.Brightness.Medium;
+                BrightnessLevel.Low = propertiesConfig.Brightness.Low;
+            }
+            else
+            {
+                this.LogWarning("No brightness levels configured; using defaults High {High}, Medium {Medium}, Low {Low}",
+                    BrightnessLevel.High, BrightnessLevel.Medium, BrightnessLevel.Low);
+            }
 
 			CurrentPresetIdFeedback = new IntFeedback(() => CurrentPresetId);
 			CurrentPresetNameFeedback = new StringFeedback(() => CurrentPresetName);
