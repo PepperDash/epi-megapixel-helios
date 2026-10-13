@@ -35,6 +35,19 @@ namespace PepperDash.Essentials.Plugins
 				return null;
 			}
 
+            if (propertiesConfig.Control == null)
+            {
+                Debug.LogError("[{Key}] Factory: control configuration is missing", dc.Key);
+                return null;
+            }
+
+            if (propertiesConfig.Control.Method != eControlMethod.Http &&
+                propertiesConfig.Control.Method != eControlMethod.Https)
+            {
+                Debug.LogError("[{Key}] Factory: control method {Method} is not supported; use HTTP or HTTPS", dc.Key, propertiesConfig.Control.Method);
+                return null;
+            }
+
             return new MegapixelHeliosDevice(dc.Key, dc.Name, propertiesConfig);
         }
 	}
