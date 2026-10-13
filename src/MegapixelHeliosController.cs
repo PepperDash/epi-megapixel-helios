@@ -8,7 +8,6 @@ using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
 using PepperDash.Essentials.Devices.Common.Displays;
-using PepperDash.Plugins.Megapixel.GenericClient;
 using PepperDash.Plugins.Megapixel.JsonObjects;
 using PepperDash.Plugins.Megapixel.Parameters;
 using System;
@@ -327,7 +326,6 @@ namespace PepperDash.Plugins.Megapixel
 		/// <param name="key">device key</param>
 		/// <param name="name">device name</param>
 		/// <param name="propertiesConfig">properties configuration object</param>
-		/// <param name="client">IRestfulComms client</param>
 		public MegapixelHeliosController(string key, string name, MegapixelHeliosPropertiesConfig propertiesConfig)
 			: base(key, name)
 		{
@@ -601,23 +599,17 @@ namespace PepperDash.Plugins.Megapixel
 			}
 		}
 
-        private void DispatchErrorOnReceived(object sender, GenericClientDispatchErrorOnReceivedEventArgs args)
-        {
-            if (args.errorState)
-                DeviceIsOnline = false;
-        }
-
-		private void OnResponseReceived(object sender, GenericClientResponseEventArgs args)
+		private void OnResponseReceived(string contentString)
 		{
 			try
             {
-				var jToken = IsValidJson(args.ContentString);
+				var jToken = IsValidJson(contentString);
 				if (jToken == null)
 				{
 					return;
 				}
 
-                var feedback = JsonConvert.DeserializeObject<RootDevObject>(args.ContentString);
+                var feedback = JsonConvert.DeserializeObject<RootDevObject>(contentString);
                 //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Begin parsing deserialized JSON objects");
                 if (feedback.Dev.Display != null)
                 {
@@ -721,7 +713,7 @@ namespace PepperDash.Plugins.Megapixel
                     var code = (int)response.StatusCode;
 
                     this.LogDebug("Processing response of length:{0} with status code: {1} from path: {2}", contentString.Length, code, path);
-                    OnResponseReceived(this, new GenericClientResponseEventArgs { Code = code, ContentString = contentString });
+                    OnResponseReceived(contentString);
                 }
             }
             catch (Exception ex)
