@@ -43,6 +43,19 @@ namespace PepperDash.Essentials.Plugins
             }
         }
 
+        private int _responseCode;
+        public IntFeedback ResponseCodeFeedback { get; private set; }
+        public int ResponseCode
+        {
+            get { return _responseCode; }
+            set
+            {
+                if (_responseCode == value) return;
+                _responseCode = value;
+                ResponseCodeFeedback.FireUpdate();
+            }
+        }
+
         private bool _powerIsOn;
 		public bool PowerIsOn
 		{
@@ -380,6 +393,7 @@ namespace PepperDash.Essentials.Plugins
             TestPatternIsOnFeedback = new BoolFeedback(() => TestPatternIsOn);
             BrightnessFeedback = new IntFeedback(() => Brightness);
             IsOnline = new BoolFeedback(() => DeviceIsOnline);
+            ResponseCodeFeedback = new IntFeedback(() => ResponseCode);
 
             Hdmi1InvalidFeedback = new BoolFeedback(() => Hdmi1Invalid);
             Hdmi2InvalidFeedback = new BoolFeedback(() => Hdmi2Invalid);
@@ -499,6 +513,7 @@ namespace PepperDash.Essentials.Plugins
 			PowerIsOnFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.PowerOff.JoinNumber]);
 
             IsOnline.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
+            ResponseCodeFeedback.LinkInputSig(trilist.UShortInput[joinMap.ResponseCode.JoinNumber]);
 
             TestPatternIsOnFeedback.LinkInputSig(trilist.BooleanInput[joinMap.TestPatternOn.JoinNumber]);
             TestPatternIsOnFeedback.LinkComplementInputSig(trilist.BooleanInput[joinMap.TestPatternOff.JoinNumber]);
@@ -521,6 +536,7 @@ namespace PepperDash.Essentials.Plugins
         private void UpdateFeedbacks()
         {
             IsOnline.FireUpdate();
+            ResponseCodeFeedback.FireUpdate();
 
             PowerIsOnFeedback.FireUpdate();
             CurrentPresetIdFeedback.FireUpdate();
@@ -672,13 +688,27 @@ namespace PepperDash.Essentials.Plugins
 
                     var contentString = await response.Content.ReadAsStringAsync();
                     var code = (int)response.StatusCode;
+                    var previousCode = ResponseCode;
+                    ResponseCode = code;
 
                     this.LogDebug("Processing response of length:{Length} with status code: {StatusCode} from path: {Path}", contentString.Length, code, path);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        if (code != previousCode)
+                            this.LogWarning("{Method} {Path} returned HTTP {StatusCode}; device marked offline", method, path, code);
+                        DeviceIsOnline = false;
+                        return;
+                    }
+
+                    DeviceIsOnline = true;
                     OnResponseReceived(contentString);
                 }
             }
             catch (Exception ex)
             {
+                DeviceIsOnline = false;
+
                 var failures = System.Threading.Interlocked.Increment(ref _consecutiveRequestFailures);
                 if (failures <= RequestFailureLogLimit)
                     this.LogError(ex, "{Method} {Path} request failed", method, path);
@@ -698,15 +728,7 @@ namespace PepperDash.Essentials.Plugins
 		/// <remarks>
 		/// Poll method is used by the communication monitor.  Update the poll method as needed for the plugin being developed.
 		/// </remarks>
-		public void Poll() => PollAsync().ContinueWith(task =>
-                                       {
-                                           if (task.IsFaulted)
-                                           {
-                                               this.LogError(task.Exception.Flatten().InnerException, "Poll request failed");
-                                               DeviceIsOnline = false;
-                                               IsOnline.FireUpdate();
-                                           }
-                                       });
+		public void Poll() => PollAsync();
 
         public Task PollAsync() => DispatchRequest("GET", "/api/v1/public", string.Empty);
 
@@ -721,15 +743,7 @@ namespace PepperDash.Essentials.Plugins
         /// <remarks>
         /// Manufacturer public API paths will not change. Private API paths will change with firmware releases.
         /// </remarks>
-        public void PollPrivateApi() => DispatchRequest("GET", "/api/v1/data", string.Empty).ContinueWith(task =>
-        {
-            if (task.IsFaulted)
-            {
-                this.LogError(task.Exception.Flatten().InnerException, "PollPrivateApi request failed");
-                DeviceIsOnline = false;
-                IsOnline.FireUpdate();
-            }
-        });
+        public void PollPrivateApi() => _ = DispatchRequest("GET", "/api/v1/data", string.Empty);
 
         /// <summary>
         /// Force hotplug on Hdmi1
@@ -767,15 +781,7 @@ namespace PepperDash.Essentials.Plugins
                 }
             };
 
-            var _ = DispatchRequest("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload)).ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    this.LogError(task.Exception.Flatten().InnerException, "PollPrivateApi request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
-            });
+            var _ = DispatchRequest("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload));
         }
 
         /// <summary>
@@ -813,15 +819,7 @@ namespace PepperDash.Essentials.Plugins
                 }
             };
 
-            var _ = DispatchRequest("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload)).ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    this.LogError(task.Exception.Flatten().InnerException, "PollPrivateApi request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
-            });
+            var _ = DispatchRequest("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload));
         }
 
         /// <summary>
@@ -834,15 +832,7 @@ namespace PepperDash.Essentials.Plugins
         /// </remarks>
         public void GetRedundancyState()
         {
-            var _ = DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty).ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    this.LogError(task.Exception.Flatten().InnerException, "PollPrivateApi request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
-            });
+            var _ = DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
         }
 
         /// <summary>
@@ -870,18 +860,9 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
-                    await Task.Delay(3000);
-                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "SetRedundancyRoleToMain request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await Task.Delay(3000);
+                await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
         }
 
@@ -910,18 +891,9 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
-                    await Task.Delay(3000);
-                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "SetRedundancyRoleToBackup request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await Task.Delay(3000);
+                await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
         }
 
@@ -950,18 +922,9 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
-                    await Task.Delay(3000);
-                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "SetRedundancyRoleToOffline request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await Task.Delay(3000);
+                await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
         }
 
@@ -990,18 +953,9 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
-                    await Task.Delay(3000);
-                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "SetRedundancyStateToMain request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await Task.Delay(3000);
+                await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
         }
 
@@ -1030,18 +984,9 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
-                    await Task.Delay(3000);
-                    await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "SetRedundancyStateToBackup request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await Task.Delay(3000);
+                await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
         }
 
@@ -1070,18 +1015,9 @@ namespace PepperDash.Essentials.Plugins
 
             var _ = Task.Run(async () =>
             {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", content);
-                    await Task.Delay(2000);
-                    await PollAsync();
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "PowerOn request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await Task.Delay(2000);
+                await PollAsync();
             });
 
             if (!PowerIsOnFeedback.BoolValue && !_IsWarmingUp && !_IsCoolingDown)
@@ -1131,18 +1067,9 @@ namespace PepperDash.Essentials.Plugins
 
             var _ = Task.Run(async () =>
             {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", content);
-                    await Task.Delay(2000);
-                    await PollAsync();
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "PowerOff request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await Task.Delay(2000);
+                await PollAsync();
             });
 
             _IsCoolingDown = true;
@@ -1209,16 +1136,7 @@ namespace PepperDash.Essentials.Plugins
             var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", content);
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "SetBrightness request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", content);
             });
         }
 
@@ -1249,18 +1167,9 @@ namespace PepperDash.Essentials.Plugins
             var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", content);
-                    await Task.Delay(2000);
-                    await PollAsync();
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "TestPatternOn request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await Task.Delay(2000);
+                await PollAsync();
             });
         }
 
@@ -1291,18 +1200,9 @@ namespace PepperDash.Essentials.Plugins
             var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", content);
-                    await Task.Delay(2000);
-                    await PollAsync();
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "TestPatternOff request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await Task.Delay(2000);
+                await PollAsync();
             });
         }
 
@@ -1317,16 +1217,7 @@ namespace PepperDash.Essentials.Plugins
 		{
             var _ = Task.Run(async () =>
             {
-                try
-                {
-                    await DispatchRequest("GET", "/api/v1/presets/list", string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "GetPresetsList request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("GET", "/api/v1/presets/list", string.Empty);
             });
         }
 
@@ -1345,16 +1236,7 @@ namespace PepperDash.Essentials.Plugins
 
             var _ = Task.Run(async () =>
             {
-                try
-                {
-                    await DispatchRequest("POST", string.Format("/api/v1/presets/{0}/apply", id), string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "RecallPresetById request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("POST", string.Format("/api/v1/presets/{0}/apply", id), string.Empty);
             });
         }
 
@@ -1377,16 +1259,7 @@ namespace PepperDash.Essentials.Plugins
 			var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                try
-                {
-                    await DispatchRequest("POST", "/api/v1/presets/apply", content);
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "RecallPresetByName request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("POST", "/api/v1/presets/apply", content);
             });
         }
 
@@ -1415,18 +1288,9 @@ namespace PepperDash.Essentials.Plugins
             var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                try
-                {
-                    await DispatchRequest("PATCH", "/api/v1/public", content);
-                    await Task.Delay(3000);
-                    await PollAsync();
-                }
-                catch (Exception ex)
-                {
-                    this.LogError(ex, "RecallInputByName request failed");
-                    DeviceIsOnline = false;
-                    IsOnline.FireUpdate();
-                }
+                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await Task.Delay(3000);
+                await PollAsync();
             });
         }
 

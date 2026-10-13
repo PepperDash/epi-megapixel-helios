@@ -44,7 +44,7 @@ Otherwise both load and register the `megapixelHelios` type twice.
 - `IsOnline` (digital join 50) never reports true, and an unreachable device is not reported offline.
 - `ResponseCode` (analog join 3) and `ResponseContent` (serial join 3) are not updated.
 
-These will be addressed in the Essentials v3 release.
+`IsOnline` and `ResponseCode` are fixed in 3.0.0. `ResponseContent` remains unsupported (see the Join Map note).
 
 ## Configuration Object
 
@@ -164,9 +164,13 @@ Type: `megapixelHelios`
 | Join Number | Join Span | Description                   | Type   | Capabilities |
 | ----------- | --------- | ----------------------------- | ------ | ------------ |
 | 1           | 1         | Device Name                   | Serial | ToSIMPL      |
-| 3           | 1         | Response Content              | Serial | ToSIMPL      |
+| 3           | 1         | Response Content (**not supported**, see note) | Serial | ToSIMPL      |
 | 10          | 1         | Input select by `inputName`   | Serial | ToFromSIMPL  |
 | 21          | 1         | Preset select by `presetName` | Serial | ToFromSimpl  |
+
+> **Serial join 3 (`ResponseContent`) does not work in SIMPL.** The join is still defined in the join map,
+> but the plugin never populates it, so it will not update. It was dropped in the 4-Series rework,
+> which stopped sending the full JSON response to SIMPL on every poll.
 
 ## POINT OF CLARIFICATION
 
