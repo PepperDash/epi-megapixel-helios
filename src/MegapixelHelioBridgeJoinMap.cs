@@ -1,6 +1,6 @@
 ﻿using PepperDash.Essentials.Core;
 
-namespace PepperDash.Plugins.Megapixel
+namespace PepperDash.Essentials.Plugins
 {
 	/// <summary>
 	/// Plugin device Bridge Join Map

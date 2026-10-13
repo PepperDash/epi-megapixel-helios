@@ -3,7 +3,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace PepperDash.Plugins.Megapixel.JsonObjects
+namespace PepperDash.Essentials.Plugins
 {
 	public class RootDevObject
 	{

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Crestron.SimplSharp;
 
-namespace PepperDash.Plugins.Megapixel.Parameters
+namespace PepperDash.Essentials.Plugins
 {
     public class TestPatterns
     {

@@ -8,15 +8,13 @@ using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
 using PepperDash.Essentials.Devices.Common.Displays;
-using PepperDash.Plugins.Megapixel.JsonObjects;
-using PepperDash.Plugins.Megapixel.Parameters;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Feedback = PepperDash.Essentials.Core.Feedback;
 
-namespace PepperDash.Plugins.Megapixel
+namespace PepperDash.Essentials.Plugins
 {
     /// <summary>
 	/// Plugin device template for third party devices that use IBasicCommunication

@@ -3,7 +3,7 @@ using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Config;
 
-namespace PepperDash.Plugins.Megapixel
+namespace PepperDash.Essentials.Plugins
 {
 	/// <summary>
 	/// Plugin device factory for devices that use IBasicCommunication
