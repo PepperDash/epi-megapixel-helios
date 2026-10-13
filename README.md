@@ -1,6 +1,12 @@
+![PepperDash Essentials Plugin Logo](/images/essentials-plugin-blue.png)
+
+![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v2.43.0-blue)
+![.NET](https://img.shields.io/badge/.NET%20Framework-4.7.2-512BD4)
+![Crestron](https://img.shields.io/badge/Crestron-4--Series-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-green)
 ![4Series-Tested](https://img.shields.io/badge/4_Series-Tested-teal.svg)
 
-![PepperDash Essentials Pluign Logo](/images/essentials-plugin-blue.png)
+![PepperDash Essentials Plugin Logo](/images/essentials-plugin-blue.png)
 
 # Megapixel Helios (c) 2024
 
@@ -19,11 +25,33 @@ PepperDash Essentials plugin for the Megapixel Helios LED display controller. Pr
 - Configurable polling interval
 - SIMPL bridge integration via `eiscApiAdvanced`
 
+## 2.0.0 Release Notes
+
+> **Not yet tested on hardware.** This release has been built and reviewed but has not been
+> validated against a Helios processor.
+
+### Upgrading from 1.x or a 4-Series prerelease
+
+The plugin assembly is now `PepperDash.Essentials.Plugins.Megapixel.Helios`. Before loading 2.0.0,
+remove any older plugin file from the processor's plugins folder:
+
+- `PepperDash.Essentials.Plugin.Megapixel.Helios*` (1.x releases)
+- `PepperDash.Plugins.Megapixel*` (`2.0.0-4series-migration` prereleases)
+
+Otherwise both load and register the `megapixelHelios` type twice.
+
+### Known issues
+
+- `IsOnline` (digital join 50) never reports true, and an unreachable device is not reported offline.
+- `ResponseCode` (analog join 3) and `ResponseContent` (serial join 3) are not updated.
+
+These will be addressed in the Essentials v3 release.
+
 ## Configuration Object
 
 ### Device
 
-MinimumEssentialsFrameworkVersion = `1.16.0`
+MinimumEssentialsFrameworkVersion = `2.43.0`
 
 Type: `megapixelHelios`
 
