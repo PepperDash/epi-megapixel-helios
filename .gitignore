@@ -40,7 +40,7 @@ bld/
 Generated\ Files/
 
 # Crestron files
-simpl/p02-businessLogic/SPlsWork/
+simpl/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
