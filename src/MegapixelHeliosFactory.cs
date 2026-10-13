@@ -15,7 +15,7 @@ namespace PepperDash.Essentials.Plugins
 		/// </summary>
 		public MegapixelHeliosFactory()
 		{
-			MinimumEssentialsFrameworkVersion = "1.16.0";
+			MinimumEssentialsFrameworkVersion = "2.43.0";
 
 			TypeNames = new List<string>() { "megapixelHelios" };
 		}
