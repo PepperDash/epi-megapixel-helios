@@ -1,11 +1,9 @@
 ![PepperDash Essentials Plugin Logo](/images/essentials-plugin-blue.png)
 
-![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v2.43.0-blue)
-![.NET](https://img.shields.io/badge/.NET%20Framework-4.7.2-512BD4)
+![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v3.0.0-blue)
+![.NET](https://img.shields.io/badge/.NET%20-8.0-512BD4)
 ![Crestron](https://img.shields.io/badge/Crestron-4--Series-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![4Series-Tested](https://img.shields.io/badge/4_Series-Tested-teal.svg)
-
 
 # Megapixel Helios (c) 2024
 
@@ -24,33 +22,45 @@ PepperDash Essentials plugin for the Megapixel Helios LED display controller. Pr
 - Configurable polling interval
 - SIMPL bridge integration via `eiscApiAdvanced`
 
-## 2.0.0 Release Notes
+## 3.0.0 Release Notes
 
 > **Not yet tested on hardware.** This release has been built and reviewed but has not been
 > validated against a Helios processor.
 
-### Upgrading from 1.x or a 4-Series prerelease
+### Requirements
 
-The plugin assembly is now `PepperDash.Essentials.Plugins.Megapixel.Helios`. Before loading 2.0.0,
-remove any older plugin file from the processor's plugins folder:
+PepperDash Essentials **3.0.0 or later** (.NET 8) on a Crestron 4-Series processor. For Essentials 2.x,
+use plugin 2.x.
 
+### Upgrading
+
+Remove any older plugin file from the processor's plugins folder before loading 3.0.0:
+
+- `PepperDash.Essentials.Plugins.Megapixel.Helios*` (2.x releases)
 - `PepperDash.Essentials.Plugin.Megapixel.Helios*` (1.x releases)
 - `PepperDash.Plugins.Megapixel*` (`2.0.0-4series-migration` prereleases)
 
-Otherwise both load and register the `megapixelHelios` type twice.
+Otherwise more than one copy loads and registers the `megapixelHelios` type.
 
-### Known issues
+### What's new
 
-- `IsOnline` (digital join 50) never reports true, and an unreachable device is not reported offline.
-- `ResponseCode` (analog join 3) and `ResponseContent` (serial join 3) are not updated.
+- HDMI/SDI input resolution and format on serial joins 31–34 and 41–44.
+- `IsOnline` (digital join 50) tracks the device again: online on a successful response, offline on
+  an error response or a failed request.
+- `ResponseCode` (analog join 3) is updated again.
+- A missing or invalid `control.tcpSshProperties.address` is reported by the factory with a specific
+  error; a missing `brightness` block falls back to the default levels (75/50/20).
+- Repeated request failures are logged up to five times, then suppressed until the device responds.
 
-These will be addressed in the Essentials v3 release.
+### Known limitations
+
+- `ResponseContent` (serial join 3) is not supported (see the Join Map note).
 
 ## Configuration Object
 
 ### Device
 
-MinimumEssentialsFrameworkVersion = `2.43.0`
+MinimumEssentialsFrameworkVersion = `3.0.0`
 
 Type: `megapixelHelios`
 
@@ -164,9 +174,21 @@ Type: `megapixelHelios`
 | Join Number | Join Span | Description                   | Type   | Capabilities |
 | ----------- | --------- | ----------------------------- | ------ | ------------ |
 | 1           | 1         | Device Name                   | Serial | ToSIMPL      |
-| 3           | 1         | Response Content              | Serial | ToSIMPL      |
+| 3           | 1         | Response Content (**not supported**, see note) | Serial | ToSIMPL      |
 | 10          | 1         | Input select by `inputName`   | Serial | ToFromSIMPL  |
 | 21          | 1         | Preset select by `presetName` | Serial | ToFromSimpl  |
+| 31          | 1         | HDMI 1 resolution             | Serial | ToSIMPL      |
+| 32          | 1         | HDMI 2 resolution             | Serial | ToSIMPL      |
+| 33          | 1         | SDI 1 resolution              | Serial | ToSIMPL      |
+| 34          | 1         | SDI 2 resolution              | Serial | ToSIMPL      |
+| 41          | 1         | HDMI 1 format                 | Serial | ToSIMPL      |
+| 42          | 1         | HDMI 2 format                 | Serial | ToSIMPL      |
+| 43          | 1         | SDI 1 format                  | Serial | ToSIMPL      |
+| 44          | 1         | SDI 2 format                  | Serial | ToSIMPL      |
+
+> **Serial join 3 (`ResponseContent`) does not work in SIMPL.** The join is still defined in the join map,
+> but the plugin never populates it, so it will not update. It was dropped in the 4-Series rework,
+> which stopped sending the full JSON response to SIMPL on every poll.
 
 ## POINT OF CLARIFICATION
 
