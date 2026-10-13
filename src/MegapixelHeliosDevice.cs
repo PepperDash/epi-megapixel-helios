@@ -340,7 +340,7 @@ namespace PepperDash.Essentials.Plugins
 		/// <param name="key">device key</param>
 		/// <param name="name">device name</param>
 		/// <param name="propertiesConfig">properties configuration object</param>
-		public MegapixelHeliosDevice(string key, string name, MegapixelHeliosConfig propertiesConfig)
+		public MegapixelHeliosDevice(string key, string name, MegapixelHeliosPropertiesConfig propertiesConfig)
 			: base(key, name)
 		{
 			if (propertiesConfig == null || propertiesConfig.Control == null)

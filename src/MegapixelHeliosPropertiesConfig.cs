@@ -8,7 +8,7 @@ namespace PepperDash.Essentials.Plugins
     /// Plugin device configuration object
     /// </summary>
     [ConfigSnippet("\"properties\":{}")]
-    public class MegapixelHeliosConfig
+    public class MegapixelHeliosPropertiesConfig
     {
         /// <summary>
         /// JSON control object
@@ -38,7 +38,7 @@ namespace PepperDash.Essentials.Plugins
         /// <summary>
         /// Constuctor
         /// </summary>
-        public MegapixelHeliosConfig()
+        public MegapixelHeliosPropertiesConfig()
         {
             Presets = new List<MegapixelHeliosPresetConfig>();
         }
