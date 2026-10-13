@@ -167,6 +167,14 @@ Type: `megapixelHelios`
 | 3           | 1         | Response Content (**not supported**, see note) | Serial | ToSIMPL      |
 | 10          | 1         | Input select by `inputName`   | Serial | ToFromSIMPL  |
 | 21          | 1         | Preset select by `presetName` | Serial | ToFromSimpl  |
+| 31          | 1         | HDMI 1 resolution             | Serial | ToSIMPL      |
+| 32          | 1         | HDMI 2 resolution             | Serial | ToSIMPL      |
+| 33          | 1         | SDI 1 resolution              | Serial | ToSIMPL      |
+| 34          | 1         | SDI 2 resolution              | Serial | ToSIMPL      |
+| 41          | 1         | HDMI 1 format                 | Serial | ToSIMPL      |
+| 42          | 1         | HDMI 2 format                 | Serial | ToSIMPL      |
+| 43          | 1         | SDI 1 format                  | Serial | ToSIMPL      |
+| 44          | 1         | SDI 2 format                  | Serial | ToSIMPL      |
 
 > **Serial join 3 (`ResponseContent`) does not work in SIMPL.** The join is still defined in the join map,
 > but the plugin never populates it, so it will not update. It was dropped in the 4-Series rework,

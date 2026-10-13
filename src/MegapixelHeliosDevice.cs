@@ -117,31 +117,143 @@ namespace PepperDash.Essentials.Plugins
             }
         }
 
-        public BoolFeedback Sdi1IsValidFeedback { get; set; }
+        public BoolFeedback Sdi1InvalidFeedback { get; set; }
 
-        private bool _sdi1IsValid;
+        private bool _sdi1Invalid;
         public bool Sdi1Invalid
         {
-            get { return _sdi1IsValid; }
+            get { return _sdi1Invalid; }
             set
             {
-                if (_sdi1IsValid == value) return;
-                _sdi1IsValid = value;
-                Sdi1IsValidFeedback.FireUpdate();
+                if (_sdi1Invalid == value) return;
+                _sdi1Invalid = value;
+                Sdi1InvalidFeedback.FireUpdate();
             }
         }
 
-        public BoolFeedback Sdi2IsValidFeedback { get; set; }
+        public BoolFeedback Sdi2InvalidFeedback { get; set; }
 
-        private bool _sdi2IsValid;
+        private bool _sdi2Invalid;
         public bool Sdi2Invalid
         {
-            get { return _sdi2IsValid; }
+            get { return _sdi2Invalid; }
             set
             {
-                if (_sdi2IsValid == value) return;
-                _sdi2IsValid = value;
-                Sdi2IsValidFeedback.FireUpdate();
+                if (_sdi2Invalid == value) return;
+                _sdi2Invalid = value;
+                Sdi2InvalidFeedback.FireUpdate();
+            }
+        }
+
+        public StringFeedback Hdmi1ResolutionFeedback { get; set; }
+
+        private string _hdmi1Resolution;
+        public string Hdmi1Resolution
+        {
+            get { return _hdmi1Resolution; }
+            set
+            {
+                if (_hdmi1Resolution == value) return;
+                _hdmi1Resolution = value;
+                Hdmi1ResolutionFeedback.FireUpdate();
+            }
+        }
+
+        public StringFeedback Hdmi2ResolutionFeedback { get; set; }
+
+        private string _hdmi2Resolution;
+        public string Hdmi2Resolution
+        {
+            get { return _hdmi2Resolution; }
+            set
+            {
+                if (_hdmi2Resolution == value) return;
+                _hdmi2Resolution = value;
+                Hdmi2ResolutionFeedback.FireUpdate();
+            }
+        }
+
+        public StringFeedback Sdi1ResolutionFeedback { get; set; }
+
+        private string _sdi1Resolution;
+        public string Sdi1Resolution
+        {
+            get { return _sdi1Resolution; }
+            set
+            {
+                if (_sdi1Resolution == value) return;
+                _sdi1Resolution = value;
+                Sdi1ResolutionFeedback.FireUpdate();
+            }
+        }
+
+        public StringFeedback Sdi2ResolutionFeedback { get; set; }
+
+        private string _sdi2Resolution;
+        public string Sdi2Resolution
+        {
+            get { return _sdi2Resolution; }
+            set
+            {
+                if (_sdi2Resolution == value) return;
+                _sdi2Resolution = value;
+                Sdi2ResolutionFeedback.FireUpdate();
+            }
+        }
+
+        public StringFeedback Hdmi1FormatFeedback { get; set; }
+
+        private string _hdmi1Format;
+        public string Hdmi1Format
+        {
+            get { return _hdmi1Format; }
+            set
+            {
+                if (_hdmi1Format == value) return;
+                _hdmi1Format = value;
+                Hdmi1FormatFeedback.FireUpdate();
+            }
+        }
+
+        public StringFeedback Hdmi2FormatFeedback { get; set; }
+
+        private string _hdmi2Format;
+        public string Hdmi2Format
+        {
+            get { return _hdmi2Format; }
+            set
+            {
+                if (_hdmi2Format == value) return;
+                _hdmi2Format = value;
+                Hdmi2FormatFeedback.FireUpdate();
+            }
+        }
+
+        public StringFeedback Sdi1FormatFeedback { get; set; }
+
+        private string _sdi1Format;
+        public string Sdi1Format
+        {
+            get { return _sdi1Format; }
+            set
+            {
+                if (_sdi1Format == value) return;
+                _sdi1Format = value;
+                Sdi1FormatFeedback.FireUpdate();
+            }
+        }
+
+        public StringFeedback Sdi2FormatFeedback { get; set; }
+
+        private string _sdi2Format;
+        public string Sdi2Format
+        {
+            get { return _sdi2Format; }
+            set
+            {
+                if (_sdi2Format == value) return;
+                _sdi2Format = value;
+                Sdi2FormatFeedback.FireUpdate();
             }
         }
         public BoolFeedback TestPatternIsOnFeedback { get; set; }
@@ -405,8 +517,23 @@ namespace PepperDash.Essentials.Plugins
 
             Hdmi1InvalidFeedback = new BoolFeedback(() => Hdmi1Invalid);
             Hdmi2InvalidFeedback = new BoolFeedback(() => Hdmi2Invalid);
-            Sdi1IsValidFeedback = new BoolFeedback(() => Sdi1Invalid);
-            Sdi2IsValidFeedback = new BoolFeedback(() => Sdi2Invalid);
+            Sdi1InvalidFeedback = new BoolFeedback(() => Sdi1Invalid);
+            Sdi2InvalidFeedback = new BoolFeedback(() => Sdi2Invalid);
+
+            Hdmi1ResolutionFeedback = new StringFeedback(() => Hdmi1Resolution);
+            Hdmi2ResolutionFeedback = new StringFeedback(() => Hdmi2Resolution);
+            Sdi1ResolutionFeedback = new StringFeedback(() => Sdi1Resolution);
+            Sdi2ResolutionFeedback = new StringFeedback(() => Sdi2Resolution);
+            Hdmi1FormatFeedback = new StringFeedback(() => Hdmi1Format);
+            Hdmi2FormatFeedback = new StringFeedback(() => Hdmi2Format);
+            Sdi1FormatFeedback = new StringFeedback(() => Sdi1Format);
+            Sdi2FormatFeedback = new StringFeedback(() => Sdi2Format);
+
+            // Matches what the device reports when an input has no signal
+            Hdmi1Resolution = "No input";
+            Hdmi2Resolution = "No input";
+            Sdi1Resolution = "No input";
+            Sdi2Resolution = "No input";
 
             CurrentInputNameFeedback = new StringFeedback(() => CurrentInputName);
 
@@ -490,6 +617,15 @@ namespace PepperDash.Essentials.Plugins
             Hdmi1InvalidFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Hdmi1Invalid.JoinNumber]);
             Hdmi2InvalidFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Hdmi2Invalid.JoinNumber]);
 
+            Hdmi1ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi1Resolution.JoinNumber]);
+            Hdmi2ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi2Resolution.JoinNumber]);
+            Sdi1ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi1Resolution.JoinNumber]);
+            Sdi2ResolutionFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi2Resolution.JoinNumber]);
+            Hdmi1FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi1Format.JoinNumber]);
+            Hdmi2FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Hdmi2Format.JoinNumber]);
+            Sdi1FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi1Format.JoinNumber]);
+            Sdi2FormatFeedback.LinkInputSig(trilist.StringInput[joinMap.Sdi2Format.JoinNumber]);
+
             trilist.SetSigTrueAction(joinMap.HotplugHdmi1.JoinNumber, HotplugHdmi1);
             trilist.SetSigTrueAction(joinMap.HotplugHdmi2.JoinNumber, HotplugHdmi2);
 
@@ -552,8 +688,16 @@ namespace PepperDash.Essentials.Plugins
 
             Hdmi1InvalidFeedback.FireUpdate();
             Hdmi2InvalidFeedback.FireUpdate();
-            Sdi1IsValidFeedback.FireUpdate();
-            Sdi2IsValidFeedback.FireUpdate();
+            Sdi1InvalidFeedback.FireUpdate();
+            Sdi2InvalidFeedback.FireUpdate();
+            Hdmi1ResolutionFeedback.FireUpdate();
+            Hdmi2ResolutionFeedback.FireUpdate();
+            Sdi1ResolutionFeedback.FireUpdate();
+            Sdi2ResolutionFeedback.FireUpdate();
+            Hdmi1FormatFeedback.FireUpdate();
+            Hdmi2FormatFeedback.FireUpdate();
+            Sdi1FormatFeedback.FireUpdate();
+            Sdi2FormatFeedback.FireUpdate();
             CurrentInputNameFeedback.FireUpdate();
 
             BrightnessFeedback.FireUpdate();
@@ -646,18 +790,26 @@ namespace PepperDash.Essentials.Plugins
                         if (feedback.Dev.Ingest.Inputs.Hdmi1 != null)
                         {
                             Hdmi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi1.Valid;
+                            Hdmi1Resolution = feedback.Dev.Ingest.Inputs.Hdmi1.Resolution;
+                            Hdmi1Format = feedback.Dev.Ingest.Inputs.Hdmi1.Format;
                         }
                         if (feedback.Dev.Ingest.Inputs.Hdmi2 != null)
                         {
                             Hdmi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi2.Valid;
+                            Hdmi2Resolution = feedback.Dev.Ingest.Inputs.Hdmi2.Resolution;
+                            Hdmi2Format = feedback.Dev.Ingest.Inputs.Hdmi2.Format;
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi1 != null)
                         {
                             Sdi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi1.Valid;
+                            Sdi1Resolution = feedback.Dev.Ingest.Inputs.Sdi1.Resolution;
+                            Sdi1Format = feedback.Dev.Ingest.Inputs.Sdi1.Format;
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi2 != null)
                         {
                             Sdi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi2.Valid;
+                            Sdi2Resolution = feedback.Dev.Ingest.Inputs.Sdi2.Resolution;
+                            Sdi2Format = feedback.Dev.Ingest.Inputs.Sdi2.Format;
                         }
                     }
                 }
