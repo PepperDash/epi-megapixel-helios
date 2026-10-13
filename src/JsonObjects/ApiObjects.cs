@@ -95,11 +95,11 @@ namespace PepperDash.Essentials.Plugins
     {
         [JsonProperty("state", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(StringEnumConverter))]
-        public eRedundancyState State { get; set; }
+        public eRedundancyState? State { get; set; }
 
         [JsonProperty("role", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(StringEnumConverter))]
-        public eRedundancyRole Role { get; set; }
+        public eRedundancyRole? Role { get; set; }
     }
 
     public enum eRedundancyState
