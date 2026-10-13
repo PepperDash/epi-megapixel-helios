@@ -248,3 +248,170 @@ devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi2"               ,"p
 ```
 
 
+<!-- START Minimum Essentials Framework Versions -->
+### Minimum Essentials Framework Versions
+
+- 3.0.0
+<!-- END Minimum Essentials Framework Versions -->
+<!-- START Config Example -->
+### Config Example
+
+```json
+{
+    "key": "GeneratedKey",
+    "uid": 1,
+    "name": "GeneratedName",
+    "type": "megapixelHelios",
+    "group": "Group",
+    "properties": {
+        "control": "SampleValue",
+        "PollTimeMs": 0,
+        "brightness": {
+            "high": "SampleValue",
+            "medium": "SampleValue",
+            "low": "SampleValue"
+        },
+        "presets": [
+            {
+                "label": "SampleString",
+                "PresetName": "SampleString",
+                "PreseId": "SampleValue"
+            }
+        ]
+    }
+}
+```
+<!-- END Config Example -->
+<!-- START Supported Types -->
+### Supported Types
+
+- megapixelHelios
+<!-- END Supported Types -->
+<!-- START Join Maps -->
+### Join Maps
+
+#### Digitals
+
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 1 | R | Power Off (blackout) set & get |
+| 2 | R | Power On (blackout) set & get |
+| 3 | R | Poll device public API |
+| 4 | R | Set redundancy role to main. Feedback is true if role is currently set to main. |
+| 5 | R | Set redundancy role to backup. Feedback is true if role is currently set to backup. |
+| 6 | R | Set redundancy role to offline. Feedback is true if role is currently set to offline. |
+| 7 | R | Set redundancy state to main. |
+| 7 | R | Feedback is true if state is currently set to active. |
+| 8 | R | Set redundancy state to backup. |
+| 8 | R | Feedback is true if state is currently set to standby. |
+| 9 | R | Feedback is true if state is currently set to mixed. |
+| 31 | R | Test Pattern On set & get |
+| 32 | R | Test Pattern Off set & get |
+| 33 | R | Set Brightness High |
+| 34 | R | Set Brightness Medium |
+| 35 | R | Set Brightness Low |
+| 41 | R | Force hotplug of Hdmi1. |
+| 42 | R | Force hotplug of Hdmi2. |
+| 41 | R | Hdmi1 input content is invalid. |
+| 42 | R | Hdmi2 input content is invalid. |
+| 50 | R | Is Online |
+
+#### Analogs
+
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 3 | R | Response code feedback |
+| 21 | R | Preset set & get by ID |
+| 33 | R | Set Brightness |
+
+#### Serials
+
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 1 | R | Device Name |
+| 3 | R | Response content feedback |
+| 10 | R | Input set & get by name |
+| 21 | R | Preset set & get by name |
+| 31 | R | Hdmi 1 Resolution |
+| 32 | R | Hdmi 2 Resolution |
+| 33 | R | Sdi 1 Resolution |
+| 34 | R | Sdi 2 Resolution |
+| 41 | R | Hdmi 1 Format |
+| 42 | R | Hdmi 2 Format |
+| 43 | R | Sdi 1 Format |
+| 44 | R | Sdi 2 Format |
+<!-- END Join Maps -->
+<!-- START Interfaces Implemented -->
+### Interfaces Implemented
+
+- IBridgeAdvanced
+- IOnline
+- IHasPowerControlWithFeedback
+- IHasFeedback
+<!-- END Interfaces Implemented -->
+<!-- START Base Classes -->
+### Base Classes
+
+- JoinMapBaseAdvanced
+- TwoWayDisplayBase
+<!-- END Base Classes -->
+<!-- START Public Methods -->
+### Public Methods
+
+- public void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+- public void Poll()
+- public Task PollAsync()
+- public void PollPrivateApi()
+- public void HotplugHdmi1()
+- public void HotplugHdmi2()
+- public void GetRedundancyState()
+- public void SetRedundancyRoleToMain()
+- public void SetRedundancyRoleToBackup()
+- public void SetRedundancyRoleToOffline()
+- public void SetRedundancyStateToMain()
+- public void SetRedundancyStateToBackup()
+- public void SetBrightness(ushort brightness)
+- public void TestPatternOn()
+- public void TestPatternOff()
+- public void GetPresetsList()
+- public void RecallPresetById(uint id)
+- public void RecallPresetByName(string name)
+- public void RecallInputByName(string name)
+<!-- END Public Methods -->
+<!-- START Bool Feedbacks -->
+### Bool Feedbacks
+
+- IsOnline
+- Hdmi1InvalidFeedback
+- Hdmi2InvalidFeedback
+- Sdi1InvalidFeedback
+- Sdi2InvalidFeedback
+- TestPatternIsOnFeedback
+- RedundancyRoleIsMainFeedback
+- RedundancyRoleIsBackupFeedback
+- RedundancyRoleIsOfflineFeedback
+- RedundancyStateIsActiveFeedback
+- RedundancyStateIsMixedFeedback
+- RedundancyStateIsStandbyFeedback
+<!-- END Bool Feedbacks -->
+<!-- START Int Feedbacks -->
+### Int Feedbacks
+
+- ResponseCodeFeedback
+- BrightnessFeedback
+- CurrentPresetIdFeedback
+<!-- END Int Feedbacks -->
+<!-- START String Feedbacks -->
+### String Feedbacks
+
+- Hdmi1ResolutionFeedback
+- Hdmi2ResolutionFeedback
+- Sdi1ResolutionFeedback
+- Sdi2ResolutionFeedback
+- Hdmi1FormatFeedback
+- Hdmi2FormatFeedback
+- Sdi1FormatFeedback
+- Sdi2FormatFeedback
+- CurrentInputNameFeedback
+- CurrentPresetNameFeedback
+<!-- END String Feedbacks -->
