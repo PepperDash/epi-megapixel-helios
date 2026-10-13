@@ -19,11 +19,11 @@ namespace PepperDash.Essentials.Plugins
     /// <summary>
 	/// Plugin device template for third party devices that use IBasicCommunication
 	/// </summary>
-	public class MegapixelHeliosController : TwoWayDisplayBase, IBridgeAdvanced, IOnline, IHasPowerControlWithFeedback, IHasFeedback
+	public class MegapixelHeliosDevice : TwoWayDisplayBase, IBridgeAdvanced, IOnline, IHasPowerControlWithFeedback, IHasFeedback
 	{
 
         #region Fields, Properties, Feedbacks, Lists, CTimer
-        private List<MegaPixelHeliosPresetConfig> _presets;
+        private List<MegapixelHeliosPresetConfig> _presets;
         private static readonly string Separator = new string('-', 50);
         private readonly CTimer _pollTimer;
 
@@ -324,7 +324,7 @@ namespace PepperDash.Essentials.Plugins
 		/// <param name="key">device key</param>
 		/// <param name="name">device name</param>
 		/// <param name="propertiesConfig">properties configuration object</param>
-		public MegapixelHeliosController(string key, string name, MegapixelHeliosPropertiesConfig propertiesConfig)
+		public MegapixelHeliosDevice(string key, string name, MegapixelHeliosConfig propertiesConfig)
 			: base(key, name)
 		{
 			Debug.Console(MegapixelHeliosDebug.Trace, this, "Constructing new {0} instance", name);
