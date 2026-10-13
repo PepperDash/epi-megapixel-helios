@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Feedback = PepperDash.Essentials.Core.Feedback;
 
 namespace PepperDash.Essentials.Plugins
 {
@@ -515,19 +514,6 @@ namespace PepperDash.Essentials.Plugins
 				UpdateFeedbacks();
 			};
 		}
-
-        public override FeedbackCollection<Feedback> Feedbacks
-        {
-            get
-            {
-                var list = base.Feedbacks;
-                list.AddRange(new List<Feedback>
-                {
-
-                });
-                return list;
-            }
-        }
 		#endregion
 
         #region Feedbacks and Responses
