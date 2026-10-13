@@ -6,7 +6,6 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![4Series-Tested](https://img.shields.io/badge/4_Series-Tested-teal.svg)
 
-![PepperDash Essentials Plugin Logo](/images/essentials-plugin-blue.png)
 
 # Megapixel Helios (c) 2024
 
