@@ -1109,12 +1109,14 @@ namespace PepperDash.Essentials.Plugins
                     WarmupTimer.Dispose();
                 }
 
-                WarmupTimer = new CTimer(o =>
+                WarmupTimer = new System.Timers.Timer(WarmupTime) { AutoReset = false };
+                WarmupTimer.Elapsed += (s, e) =>
                 {
                     this.LogVerbose("Warmup timer ending.");
                     _IsWarmingUp = false;
                     IsWarmingUpFeedback.FireUpdate();
-                }, WarmupTime);
+                };
+                WarmupTimer.Start();
             }
 		}
 
@@ -1166,12 +1168,14 @@ namespace PepperDash.Essentials.Plugins
                 CooldownTimer.Dispose();
             }
 
-            CooldownTimer = new CTimer(o =>
+            CooldownTimer = new System.Timers.Timer(CooldownTime) { AutoReset = false };
+            CooldownTimer.Elapsed += (s, e) =>
             {
                 this.LogVerbose("Cooldown timer ending.");
                 _IsCoolingDown = false;
                 IsCoolingDownFeedback.FireUpdate();
-            }, CooldownTime);
+            };
+            CooldownTimer.Start();
 		}
 
         /// <summary>

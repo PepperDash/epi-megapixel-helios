@@ -8,7 +8,7 @@
     <Copyright>Copyright © 2026</Copyright>
     <RepositoryUrl>https://github.com/PepperDash/epi-megapixel-helios.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Crestron; 4series; net472</PackageTags>
+    <PackageTags>Crestron; 4series; net8</PackageTags>
     <PackageOutputPath>../output</PackageOutputPath>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
