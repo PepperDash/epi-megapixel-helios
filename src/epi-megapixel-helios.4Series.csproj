@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+	<ProjectType>ProgramLibrary</ProjectType>
+    <AssemblyName>PepperDash.Essentials.Plugins.Megapixel.Helios</AssemblyName>
+    <RootNamespace>PepperDash.Essentials.Plugins</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="PepperDashEssentials" Version="2.43.0">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+</Project>

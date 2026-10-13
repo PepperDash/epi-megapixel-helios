@@ -2,13 +2,13 @@
 using PepperDash.Essentials.Core;
 using System.Collections.Generic;
 
-namespace MegapixelHelios
+namespace PepperDash.Essentials.Plugins
 {
     /// <summary>
     /// Plugin device configuration object
     /// </summary>
     [ConfigSnippet("\"properties\":{}")]
-    public class MegapixelHeliosPropertiesConfig
+    public class MegapixelHeliosConfig
     {
         /// <summary>
         /// JSON control object
@@ -38,22 +38,22 @@ namespace MegapixelHelios
         /// <summary>
         /// Constuctor
         /// </summary>
-        public MegapixelHeliosPropertiesConfig()
+        public MegapixelHeliosConfig()
         {
-            Presets = new List<MegaPixelHeliosPresetConfig>();
+            Presets = new List<MegapixelHeliosPresetConfig>();
         }
 
         [JsonProperty("brightness")]
         public BrightnessConfigObject Brightness { get; set; }
 
         [JsonProperty("presets")]
-        public List<MegaPixelHeliosPresetConfig> Presets { get; set; }
+        public List<MegapixelHeliosPresetConfig> Presets { get; set; }
     }
 
     /// <summary>
     /// Preset configuration object
     /// </summary>
-    public class MegaPixelHeliosPresetConfig
+    public class MegapixelHeliosPresetConfig
     {
         [JsonProperty("label")]
         public string Label { get; set; }
