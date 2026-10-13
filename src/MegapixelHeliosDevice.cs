@@ -27,6 +27,10 @@ namespace PepperDash.Essentials.Plugins
         private static readonly string Separator = new string('-', 50);
         private readonly CTimer _pollTimer;
 
+        // Request failures are logged up to this many in a row, then suppressed until the device responds again
+        private const int RequestFailureLogLimit = 5;
+        private int _consecutiveRequestFailures;
+
         private bool _DeviceIsOnline;
         public BoolFeedback IsOnline { get; private set; }
         public bool DeviceIsOnline
@@ -180,7 +184,7 @@ namespace PepperDash.Essentials.Plugins
             {
                 if (_currentInputName == value) return;
                 _currentInputName = value;
-                Debug.Console(MegapixelHeliosDebug.Notice, this, "Current Input change. Input: {0}", _currentInputName);
+                this.LogInformation("Current Input change. Input: {CurrentInput}", _currentInputName);
                 CurrentInputNameFeedback.FireUpdate();
             }
         }
@@ -309,7 +313,7 @@ namespace PepperDash.Essentials.Plugins
             if (selector is Action)
                 (selector as Action).Invoke();
             else
-                Debug.Console(1, this, "WARNING: ExecuteSwitch cannot handle type {0}", selector.GetType());
+                this.LogWarning("ExecuteSwitch cannot handle type {SelectorType}", selector.GetType());
         }
 
         #endregion
@@ -327,13 +331,9 @@ namespace PepperDash.Essentials.Plugins
 		public MegapixelHeliosDevice(string key, string name, MegapixelHeliosConfig propertiesConfig)
 			: base(key, name)
 		{
-			Debug.Console(MegapixelHeliosDebug.Trace, this, "Constructing new {0} instance", name);
-
-			MegapixelHeliosDebug.ResetDebugLevels();
-
 			if (propertiesConfig == null || propertiesConfig.Control == null)
 			{
-				Debug.Console(MegapixelHeliosDebug.Trace, this, "Configuration or control object is null, unable to construct new {0} instance.  Check configuration.", name);
+				this.LogError("Configuration or control object is null, unable to construct new {Name} instance.  Check configuration.", name);
 				return;
 			}
 
@@ -366,9 +366,7 @@ namespace PepperDash.Essentials.Plugins
 
 			if (_client == null)
 			{
-				Debug.Console(MegapixelHeliosDebug.Trace, this, Debug.ErrorLogLevel.Error,
-					"Failed to construct '{1}' using method {0}",
-					propertiesConfig.Control.Method, name);
+				this.LogError("Failed to construct '{Name}' using method {Method}", name, propertiesConfig.Control.Method);
 
 				return;
 			}
@@ -399,15 +397,14 @@ namespace PepperDash.Essentials.Plugins
             RedundancyStateIsStandbyFeedback = new BoolFeedback(() => RedundancyStateIsStandby);
             RedundancyStateIsMixedFeedback = new BoolFeedback(() => RedundancyStateIsMixed);
 
-            IsOnline.OutputChange += (sender, args) => Debug.Console(0, this, "Is online is on updated: {0}", args.BoolValue);
-            PowerIsOnFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Power is on updated: {0}", args.BoolValue);
-            CurrentInputNameFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Current input name is updated: {0}", args.StringValue);
-            RedundancyRoleIsMainFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy role main updated: {0}", args.BoolValue);
-            RedundancyRoleIsBackupFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy role backup updated: {0}", args.BoolValue);
-            RedundancyRoleIsOfflineFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy role offline updated: {0}", args.BoolValue);
-            RedundancyStateIsActiveFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy state active updated: {0}", args.BoolValue);
-            RedundancyStateIsStandbyFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy state standby updated: {0}", args.BoolValue);
-            RedundancyStateIsMixedFeedback.OutputChange += (sender, args) => Debug.Console(0, this, "Redundancy state mixed updated: {0}", args.BoolValue);
+            IsOnline.OutputChange += (sender, args) => this.LogInformation("Is online is on updated: {IsOnline}", args.BoolValue);
+            PowerIsOnFeedback.OutputChange += (sender, args) => this.LogInformation("Power is on updated: {PowerIsOn}", args.BoolValue);
+            RedundancyRoleIsMainFeedback.OutputChange += (sender, args) => this.LogDebug("Redundancy role main updated: {RedundancyRoleIsMain}", args.BoolValue);
+            RedundancyRoleIsBackupFeedback.OutputChange += (sender, args) => this.LogDebug("Redundancy role backup updated: {RedundancyRoleIsBackup}", args.BoolValue);
+            RedundancyRoleIsOfflineFeedback.OutputChange += (sender, args) => this.LogDebug("Redundancy role offline updated: {RedundancyRoleIsOffline}", args.BoolValue);
+            RedundancyStateIsActiveFeedback.OutputChange += (sender, args) => this.LogDebug("Redundancy state active updated: {RedundancyStateIsActive}", args.BoolValue);
+            RedundancyStateIsStandbyFeedback.OutputChange += (sender, args) => this.LogDebug("Redundancy state standby updated: {RedundancyStateIsStandby}", args.BoolValue);
+            RedundancyStateIsMixedFeedback.OutputChange += (sender, args) => this.LogDebug("Redundancy state mixed updated: {RedundancyStateIsMixed}", args.BoolValue);
 
             _presets = propertiesConfig.Presets;
 
@@ -449,8 +446,8 @@ namespace PepperDash.Essentials.Plugins
 				joinMap.SetCustomJoinData(customJoins);
 			}
 
-			Debug.Console(MegapixelHeliosDebug.Notice, "Linking to Trilist '{0}'", trilist.ID.ToString("X"));
-			Debug.Console(MegapixelHeliosDebug.Notice, "Linking to Bridge Type {0}", GetType().Name);
+			this.LogInformation("Linking to Trilist '{TrilistId}'", trilist.ID.ToString("X"));
+			this.LogInformation("Linking to Bridge Type {BridgeType}", GetType().Name);
 
 			// links to bridge
 			trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
@@ -574,25 +571,16 @@ namespace PepperDash.Essentials.Plugins
 			try
 			{
 				var jToken = JToken.Parse(contentString);
-				//Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson: obj {0}", jToken == null ? "is null" : "is not null");
 				return jToken;
 			}
 			catch (JsonReaderException jex)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson Exception Message: {0}", jex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Stack Trace: {0}", jex.StackTrace);
-				if (jex.InnerException != null)
-					Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Inner Exception: {0}", jex.InnerException);
-
+				this.LogWarning(jex, "Device response is not valid JSON");
 				return null;
 			}
 			catch (Exception ex)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, "IsValidJson Exception Message: {0}", ex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Stack Trace: {0}", ex.StackTrace);
-				if (ex.InnerException != null)
-					Debug.Console(MegapixelHeliosDebug.Verbose, this, "IsValidJson Inner Exception: {0}", ex.InnerException);
-
+				this.LogError(ex, "Unexpected error validating device response");
 				return null;
 			}
 		}
@@ -608,18 +596,15 @@ namespace PepperDash.Essentials.Plugins
 				}
 
                 var feedback = JsonConvert.DeserializeObject<RootDevObject>(contentString);
-                //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Begin parsing deserialized JSON objects");
                 if (feedback.Dev.Display != null)
                 {
                     if (feedback.Dev.Display.Blackout != null)
                     {
-                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Blackout");
                         PowerIsOn = !(bool)feedback.Dev.Display.Blackout;
                     }
 
                     if (feedback.Dev.Display.Brightness != null)
                     {
-                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Brightness");
                         Brightness = (int)feedback.Dev.Display.Brightness;
                     }
 
@@ -631,7 +616,6 @@ namespace PepperDash.Essentials.Plugins
                         RedundancyStateIsActive = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.active);
                         RedundancyStateIsMixed = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.mixed);
                         RedundancyStateIsStandby = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.standby);
-                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Display.Redundancy");
                     }
                 }
 
@@ -640,16 +624,11 @@ namespace PepperDash.Essentials.Plugins
                     if (feedback.Dev.Ingest.TestPattern != null)
                     {
                         TestPatternIsOn = (bool)feedback.Dev.Ingest.TestPattern.Enabled;
-                        //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.TestPattern");
                     }
 
                     if (feedback.Dev.Ingest.Input != null)
                     {
                         CurrentInputName = (string)feedback.Dev.Ingest.Input;
-                    }
-                    else
-                    {
-                        Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Input = Null");
                     }
 
                     if (feedback.Dev.Ingest.Inputs != null)
@@ -657,31 +636,25 @@ namespace PepperDash.Essentials.Plugins
                         if (feedback.Dev.Ingest.Inputs.Hdmi1 != null)
                         {
                             Hdmi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi1.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi1.Valid");
                         }
                         if (feedback.Dev.Ingest.Inputs.Hdmi2 != null)
                         {
                             Hdmi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Hdmi2.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Hdmi2.Valid");
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi1 != null)
                         {
                             Sdi1Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi1.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi1.Valid");
                         }
                         if (feedback.Dev.Ingest.Inputs.Sdi2 != null)
                         {
                             Sdi2Invalid = !(bool)feedback.Dev.Ingest.Inputs.Sdi2.Valid;
-                            //Debug.Console(MegapixelHeliosDebug.Notice, "OnResponseReceived: Parse deserialized JSON object: Dev.Ingest.Inputs.Sdi2.Valid");
                         }
                     }
                 }
 			}
 			catch (Exception ex)
 			{
-				Debug.Console(MegapixelHeliosDebug.Notice, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Exception Message: {0}", ex.Message);
-				Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Stack Trace: {0}", ex.StackTrace);
-				if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "OnResponseReceived Inner Exception {0}", ex.InnerException);
+				this.LogError(ex, "Error processing device response");
 			}
         }
 
@@ -707,18 +680,24 @@ namespace PepperDash.Essentials.Plugins
                         return;
                     }
 
+                    var previousFailures = System.Threading.Interlocked.Exchange(ref _consecutiveRequestFailures, 0);
+                    if (previousFailures >= RequestFailureLogLimit)
+                        this.LogInformation("Device responding again after {FailedRequestCount} failed requests", previousFailures);
+
                     var contentString = await response.Content.ReadAsStringAsync();
                     var code = (int)response.StatusCode;
 
-                    this.LogDebug("Processing response of length:{0} with status code: {1} from path: {2}", contentString.Length, code, path);
+                    this.LogDebug("Processing response of length:{Length} with status code: {StatusCode} from path: {Path}", contentString.Length, code, path);
                     OnResponseReceived(contentString);
                 }
             }
             catch (Exception ex)
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, this, Debug.ErrorLogLevel.Error, "DispatchRequest Exception Message: {0}", ex.Message);
-                Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "DispatchRequest Stack Trace: {0}", ex.StackTrace);
-                if (ex.InnerException != null) Debug.Console(MegapixelHeliosDebug.Verbose, this, Debug.ErrorLogLevel.Error, "DispatchRequest Inner Exception {0}", ex.InnerException);
+                var failures = System.Threading.Interlocked.Increment(ref _consecutiveRequestFailures);
+                if (failures <= RequestFailureLogLimit)
+                    this.LogError(ex, "{Method} {Path} request failed", method, path);
+                if (failures == RequestFailureLogLimit)
+                    this.LogWarning("Request failures continuing; suppressing further request errors until the device responds");
             }
         }
 
@@ -1132,7 +1111,7 @@ namespace PepperDash.Essentials.Plugins
 
                 WarmupTimer = new CTimer(o =>
                 {
-                    Debug.Console(MegapixelHeliosDebug.Verbose, this, "Warmup timer ending.");
+                    this.LogVerbose("Warmup timer ending.");
                     _IsWarmingUp = false;
                     IsWarmingUpFeedback.FireUpdate();
                 }, WarmupTime);
@@ -1189,7 +1168,7 @@ namespace PepperDash.Essentials.Plugins
 
             CooldownTimer = new CTimer(o =>
             {
-                Debug.Console(MegapixelHeliosDebug.Verbose, this, "Cooldown timer ending.");
+                this.LogVerbose("Cooldown timer ending.");
                 _IsCoolingDown = false;
                 IsCoolingDownFeedback.FireUpdate();
             }, CooldownTime);
@@ -1222,7 +1201,7 @@ namespace PepperDash.Essentials.Plugins
         {
             if (brightness <= 0 || brightness >= 100)
             {
-                Debug.Console(MegapixelHeliosDebug.Notice, "SetBrightness: Value sent {0} out of range", brightness);
+                this.LogError("SetBrightness: Value sent {Brightness} out of range", brightness);
                 return;
             }
 
