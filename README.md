@@ -52,9 +52,25 @@ Otherwise more than one copy loads and registers the `megapixelHelios` type.
   error; a missing `brightness` block falls back to the default levels (75/50/20).
 - Repeated request failures are logged up to five times, then suppressed until the device responds.
 
+### Unreleased (feature/v3-migration)
+
+- **Mobile Control messenger** at `/device/{key}`:
+  - State: `isOnline`, `powerIsOn`, `currentInput`, `inputs`, `testPatternIsOn`, `brightness`, `brightnessLevel`, `brightnessLevels`, `redundancy { role, state, desired, mode }`.
+  - Actions: `/fullStatus`, `/powerOn`, `/powerOff`, `/selectInput {input}`, `/testPattern {on}`, `/brightness {level}` (`high`, `medium`, `low` or a percent), `/setActiveController {controller}` (`main` or `backup`).
+  - The core power, display and communication monitor messengers are registered too.
+- **Inputs are routing input ports.**
+  - Configure them with `inputs` (default HDMI 1, HDMI 2, SDI 1, SDI 2 as `hdmiIn1`, `hdmiIn2`, `sdiIn1`, `sdiIn2`).
+  - A tie line from a decoder lands on the port, and routing to the processor selects that input.
+- **`ICommunicationMonitor`**: OK while the processor answers; warning after `warningTimeoutMs` (3 minutes) and error after `errorTimeoutMs` (5 minutes) without a response.
+- **`commandDelayAfterPowerOnMs`**: commands sent within this window after a power on are delayed, not dropped. Polls and power commands are not held.
+- **Brightness levels are per processor.** They used to be static, so the last processor configured set the levels for every processor in the system.
+- **Bug fix:** a test pattern PATCH no longer also sends `"input": null` and `"type": null`.
+- **Mock:** the new `mockMegapixelHelios` type has the same ports, messenger and interfaces and keeps its state in memory, for bench testing. Add `"mockRedundancyRole": "backup"` for the backup processor of a pair.
+
 ### Known limitations
 
 - `ResponseContent` (serial join 3) is not supported (see the Join Map note).
+- The active controller override uses the redundancy *state* commands (`state: main|backup`), as the bridge's SetRedundancyStateToMain/ToBackup joins do. This has not yet been verified against a redundant pair.
 
 ## Configuration Object
 
@@ -90,13 +106,29 @@ Type: `megapixelHelios`
 		"low": 20
 		},
 		"presets":[
-		{ "name": "HDMI1", "presetName": "HDMI1" },
-		{ "name": "HDMI2", "presetName": "HDMI2" },
-		{ "name": "SDI1" , "presetName": "SDI1"  },
-		{ "name": "SDI2" , "presetName": "SDI2"  }
-		]
+		{ "label": "HDMI1", "presetName": "HDMI1" },
+		{ "label": "HDMI2", "presetName": "HDMI2" },
+		{ "label": "SDI1" , "presetName": "SDI1"  },
+		{ "label": "SDI2" , "presetName": "SDI2"  }
+		],
+		"inputs": [
+		{ "key": "hdmiIn1", "name": "HDMI 1", "ingestName": "hdmi1" },
+		{ "key": "hdmiIn2", "name": "HDMI 2", "ingestName": "hdmi2" },
+		{ "key": "sdiIn1",  "name": "SDI 1",  "ingestName": "sdi1"  },
+		{ "key": "sdiIn2",  "name": "SDI 2",  "ingestName": "sdi2"  }
+		],
+		"commandDelayAfterPowerOnMs": 5000,
+		"warningTimeoutMs": 180000,
+		"errorTimeoutMs": 300000
 	}
 }
+```
+
+Mock, for bench testing (no `control` block needed):
+
+```json
+{ "key": "display-1-backup", "name": "Helios Backup", "group": "display", "type": "mockMegapixelHelios",
+  "properties": { "mockRedundancyRole": "backup", "brightness": { "high": 60, "medium": 40, "low": 20 } } }
 ```
 
 | Property | Type | Default | Description |
@@ -111,6 +143,10 @@ Type: `megapixelHelios`
 | brightness.medium | ushort | - | Brightness level for "medium" preset (0-100) |
 | brightness.low | ushort | - | Brightness level for "low" preset (0-100) |
 | presets | array | - | List of preset objects with `label`, `presetName`, and/or `presetId` |
+| inputs | array | HDMI 1, HDMI 2, SDI 1, SDI 2 | Each `{ key, name, ingestName, connectionType? }`: a routing input port `key`, the `name` a panel shows, the `dev.ingest.input` value |
+| commandDelayAfterPowerOnMs | int | 0 | Hold other commands this long after a power on |
+| warningTimeoutMs / errorTimeoutMs | long | 180000 / 300000 | Communication monitor: no response for this long is a warning / error |
+| mockRedundancyRole | string | `main` | `mockMegapixelHelios` only: `main` or `backup` |
 
 ### Bridge
 

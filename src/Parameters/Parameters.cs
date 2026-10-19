@@ -13,17 +13,5 @@ namespace PepperDash.Essentials.Plugins
        };
     }
 
-    public static class BrightnessLevel
-    {
-        public static ushort High { get; set; }
-        public static ushort Medium { get; set; }
-        public static ushort Low { get; set; }
-
-        static BrightnessLevel()
-        {
-            High = 75;
-            Medium = 50;
-            Low = 20;
-        }
-    }
+    // Brightness levels are per processor now: see HeliosBrightnessLevels.
 }

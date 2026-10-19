@@ -7,22 +7,57 @@ using PepperDash.Core;
 using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
+using PepperDash.Essentials.Core.DeviceTypeInterfaces;
 using PepperDash.Essentials.Devices.Common.Displays;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace PepperDash.Essentials.Plugins
 {
     /// <summary>
-	/// Plugin device template for third party devices that use IBasicCommunication
+	/// Megapixel Helios LED processor, controlled over its REST API.
 	/// </summary>
-	public class MegapixelHeliosDevice : TwoWayDisplayBase, IBridgeAdvanced, IOnline, IHasPowerControlWithFeedback, IHasFeedback
+	public class MegapixelHeliosDevice : TwoWayDisplayBase, IBridgeAdvanced, IOnline, IHasPowerControlWithFeedback, IHasFeedback,
+        ICommunicationMonitor, IMegapixelHelios
 	{
 
         #region Fields, Properties, Feedbacks, Lists, CTimer
         private List<MegapixelHeliosPresetConfig> _presets;
+        private readonly List<MegapixelHeliosInputConfig> _inputs;
+        private readonly HeliosBrightnessLevels _brightnessLevels = new HeliosBrightnessLevels();
+        private readonly int _commandDelayAfterPowerOnMs;
+        private DateTime _commandsHeldUntil = DateTime.MinValue;
+        private readonly HeliosResponseMonitor _monitor;
+
+        /// <summary>Reports the processor OK while it answers, then warning and error once it stops.</summary>
+        public StatusMonitorBase CommunicationMonitor => _monitor;
+
+        /// <inheritdoc />
+        public IReadOnlyList<MegapixelHeliosInputConfig> Inputs => _inputs;
+
+        /// <inheritdoc />
+        public HeliosBrightnessLevels BrightnessLevels => _brightnessLevels;
+
+        private string _redundancyDesired = string.Empty;
+        private string _redundancyMode = string.Empty;
+
+        /// <inheritdoc />
+        public StringFeedback RedundancyRoleFeedback { get; private set; }
+        /// <inheritdoc />
+        public StringFeedback RedundancyStateFeedback { get; private set; }
+        /// <inheritdoc />
+        public StringFeedback RedundancyDesiredFeedback { get; private set; }
+        /// <inheritdoc />
+        public StringFeedback RedundancyModeFeedback { get; private set; }
+
+        private string RedundancyRoleName =>
+            RedundancyRoleIsMain ? "main" : RedundancyRoleIsBackup ? "backup" : RedundancyRoleIsOffline ? "offline" : string.Empty;
+
+        private string RedundancyStateName =>
+            RedundancyStateIsActive ? "active" : RedundancyStateIsStandby ? "standby" : RedundancyStateIsMixed ? "mixed" : string.Empty;
         private static readonly string Separator = new string('-', 50);
         private readonly CTimer _pollTimer;
 
@@ -495,17 +530,33 @@ namespace PepperDash.Essentials.Plugins
 				return;
 			}
 
+            // Each processor keeps its own levels: a static set would let the last processor configured decide
+            // them for every processor in the system.
             if (propertiesConfig.Brightness != null)
             {
-                BrightnessLevel.High = propertiesConfig.Brightness.High;
-                BrightnessLevel.Medium = propertiesConfig.Brightness.Medium;
-                BrightnessLevel.Low = propertiesConfig.Brightness.Low;
+                _brightnessLevels.High = propertiesConfig.Brightness.High;
+                _brightnessLevels.Medium = propertiesConfig.Brightness.Medium;
+                _brightnessLevels.Low = propertiesConfig.Brightness.Low;
             }
             else
             {
                 this.LogWarning("No brightness levels configured; using defaults High {High}, Medium {Medium}, Low {Low}",
-                    BrightnessLevel.High, BrightnessLevel.Medium, BrightnessLevel.Low);
+                    _brightnessLevels.High, _brightnessLevels.Medium, _brightnessLevels.Low);
             }
+
+            _commandDelayAfterPowerOnMs = Math.Max(0, propertiesConfig.CommandDelayAfterPowerOnMs);
+
+            // Each input is a routing input port, so a tie line from a decoder lands on it and routing to the
+            // processor selects it.
+            _inputs = propertiesConfig.InputsOrDefault();
+            foreach (var input in _inputs.Where(i => !string.IsNullOrEmpty(i.Key)))
+            {
+                var ingestName = input.IngestName;
+                InputPorts.Add(new RoutingInputPort(input.Key, eRoutingSignalType.AudioVideo, ConnectionTypeFor(input),
+                    new Action(() => RecallInputByName(ingestName)), this));
+            }
+
+            _monitor = new HeliosResponseMonitor(this, propertiesConfig.WarningTimeoutMs, propertiesConfig.ErrorTimeoutMs);
 
 			CurrentPresetIdFeedback = new IntFeedback(() => CurrentPresetId);
 			CurrentPresetNameFeedback = new StringFeedback(() => CurrentPresetName);
@@ -545,6 +596,11 @@ namespace PepperDash.Essentials.Plugins
             RedundancyStateIsStandbyFeedback = new BoolFeedback(() => RedundancyStateIsStandby);
             RedundancyStateIsMixedFeedback = new BoolFeedback(() => RedundancyStateIsMixed);
 
+            RedundancyRoleFeedback = new StringFeedback("redundancyRole", () => RedundancyRoleName);
+            RedundancyStateFeedback = new StringFeedback("redundancyState", () => RedundancyStateName);
+            RedundancyDesiredFeedback = new StringFeedback("redundancyDesired", () => _redundancyDesired);
+            RedundancyModeFeedback = new StringFeedback("redundancyMode", () => _redundancyMode);
+
             IsOnline.OutputChange += (sender, args) => this.LogInformation("Is online is on updated: {IsOnline}", args.BoolValue);
             PowerIsOnFeedback.OutputChange += (sender, args) => this.LogInformation("Power is on updated: {PowerIsOn}", args.BoolValue);
             RedundancyRoleIsMainFeedback.OutputChange += (sender, args) => this.LogDebug("Redundancy role main updated: {RedundancyRoleIsMain}", args.BoolValue);
@@ -564,6 +620,39 @@ namespace PepperDash.Essentials.Plugins
             CooldownTime = 1500; // Default cooldown time is 1.5 seconds
             base.WarmupTime = WarmupTime;
             base.CooldownTime = CooldownTime;
+        }
+
+        private static eRoutingPortConnectionType ConnectionTypeFor(MegapixelHeliosInputConfig input)
+        {
+            if (!string.IsNullOrEmpty(input.ConnectionType)
+                && Enum.TryParse<eRoutingPortConnectionType>(input.ConnectionType, true, out var parsed))
+                return parsed;
+
+            var name = (input.IngestName ?? input.Key ?? string.Empty).ToLowerInvariant();
+            if (name.Contains("sdi")) return eRoutingPortConnectionType.Sdi;
+            if (name.Contains("dp") || name.Contains("displayport")) return eRoutingPortConnectionType.DisplayPort;
+            return eRoutingPortConnectionType.Hdmi;
+        }
+
+        /// <inheritdoc />
+        protected override bool CustomActivate()
+        {
+            _monitor?.Start();
+            return base.CustomActivate();
+        }
+
+        /// <summary>
+        /// The core messengers (power, display, communication monitor) plus <see cref="MegapixelHeliosMessenger"/>
+        /// for input, test pattern, brightness and redundancy.
+        /// </summary>
+        protected override void CreateMobileControlMessengers()
+        {
+            base.CreateMobileControlMessengers();
+
+            var mc = DeviceManager.AllDevices.OfType<IMobileControl>().FirstOrDefault();
+            if (mc == null) return;
+
+            mc.AddDeviceMessenger(new MegapixelHeliosMessenger($"{Key}-helios", $"/device/{Key}", this));
         }
 
         #endregion
@@ -629,9 +718,9 @@ namespace PepperDash.Essentials.Plugins
             trilist.SetSigTrueAction(joinMap.HotplugHdmi1.JoinNumber, HotplugHdmi1);
             trilist.SetSigTrueAction(joinMap.HotplugHdmi2.JoinNumber, HotplugHdmi2);
 
-            trilist.SetSigTrueAction(joinMap.BrightnessHigh.JoinNumber, () => SetBrightness(BrightnessLevel.High));
-            trilist.SetSigTrueAction(joinMap.BrightnessMedium.JoinNumber, () => SetBrightness(BrightnessLevel.Medium));
-            trilist.SetSigTrueAction(joinMap.BrightnessLow.JoinNumber, () => SetBrightness(BrightnessLevel.Low));
+            trilist.SetSigTrueAction(joinMap.BrightnessHigh.JoinNumber, () => SetBrightness(_brightnessLevels.High));
+            trilist.SetSigTrueAction(joinMap.BrightnessMedium.JoinNumber, () => SetBrightness(_brightnessLevels.Medium));
+            trilist.SetSigTrueAction(joinMap.BrightnessLow.JoinNumber, () => SetBrightness(_brightnessLevels.Low));
 
             trilist.SetUShortSigAction(joinMap.Brightness.JoinNumber, a => SetBrightness(a));
 
@@ -770,6 +859,16 @@ namespace PepperDash.Essentials.Plugins
                         RedundancyStateIsActive = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.active);
                         RedundancyStateIsMixed = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.mixed);
                         RedundancyStateIsStandby = (bool)(feedback.Dev.Display.Redundancy.State == eRedundancyState.standby);
+
+                        if (feedback.Dev.Display.Redundancy.Desired != null)
+                            _redundancyDesired = feedback.Dev.Display.Redundancy.Desired;
+                        if (feedback.Dev.Display.Redundancy.Mode != null)
+                            _redundancyMode = feedback.Dev.Display.Redundancy.Mode;
+
+                        RedundancyRoleFeedback.FireUpdate();
+                        RedundancyStateFeedback.FireUpdate();
+                        RedundancyDesiredFeedback.FireUpdate();
+                        RedundancyModeFeedback.FireUpdate();
                     }
                 }
 
@@ -825,6 +924,22 @@ namespace PepperDash.Essentials.Plugins
         #region Requests
 
 
+        /// <summary>
+        /// Send a command, waiting first for the hold after a power on (see <c>commandDelayAfterPowerOnMs</c>).
+        /// Polls and power commands go straight to <see cref="DispatchRequest"/>.
+        /// </summary>
+        private async Task SendCommandAsync(string method, string path, string content)
+        {
+            var wait = _commandsHeldUntil - DateTime.UtcNow;
+            if (wait > TimeSpan.Zero)
+            {
+                this.LogDebug("Holding {Method} {Path} for {Ms} ms after power on", method, path, (int)wait.TotalMilliseconds);
+                await Task.Delay(wait);
+            }
+
+            await DispatchRequest(method, path, content);
+        }
+
         private async Task DispatchRequest(string method, string path, string content)
         {
             try
@@ -839,6 +954,7 @@ namespace PepperDash.Essentials.Plugins
                     {
                         DeviceIsOnline = false;
                         IsOnline.FireUpdate();
+                        _monitor?.ReportNoResponse();
                         return;
                     }
 
@@ -858,16 +974,19 @@ namespace PepperDash.Essentials.Plugins
                         if (code != previousCode)
                             this.LogWarning("{Method} {Path} returned HTTP {StatusCode}; device marked offline", method, path, code);
                         DeviceIsOnline = false;
+                        _monitor?.ReportNoResponse();
                         return;
                     }
 
                     DeviceIsOnline = true;
+                    _monitor?.ReportResponse();
                     OnResponseReceived(contentString);
                 }
             }
             catch (Exception ex)
             {
                 DeviceIsOnline = false;
+                _monitor?.ReportNoResponse();
 
                 var failures = System.Threading.Interlocked.Increment(ref _consecutiveRequestFailures);
                 if (failures <= RequestFailureLogLimit)
@@ -941,7 +1060,7 @@ namespace PepperDash.Essentials.Plugins
                 }
             };
 
-            var _ = DispatchRequest("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload));
+            var _ = SendCommandAsync("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload));
         }
 
         /// <summary>
@@ -979,7 +1098,7 @@ namespace PepperDash.Essentials.Plugins
                 }
             };
 
-            var _ = DispatchRequest("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload));
+            var _ = SendCommandAsync("PATCH", "/api/v1/data", JsonConvert.SerializeObject(payload));
         }
 
         /// <summary>
@@ -1020,7 +1139,7 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await SendCommandAsync("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
                 await Task.Delay(3000);
                 await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
@@ -1051,7 +1170,7 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await SendCommandAsync("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
                 await Task.Delay(3000);
                 await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
@@ -1082,7 +1201,7 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await SendCommandAsync("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
                 await Task.Delay(3000);
                 await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
@@ -1113,7 +1232,7 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await SendCommandAsync("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
                 await Task.Delay(3000);
                 await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
@@ -1144,7 +1263,7 @@ namespace PepperDash.Essentials.Plugins
             };
 
             var _ = Task.Run(async () => {
-                await DispatchRequest("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
+                await SendCommandAsync("PATCH", "/api/v1/public", JsonConvert.SerializeObject(content));
                 await Task.Delay(3000);
                 await DispatchRequest("GET", "/api/v1/public?dev.display.redundancy", string.Empty);
             });
@@ -1172,6 +1291,10 @@ namespace PepperDash.Essentials.Plugins
 			};
 
 			var content = JsonConvert.SerializeObject(jsonObject);
+
+            // Commands sent right after a power on are ignored by the processor, so hold them back for a while.
+            if (_commandDelayAfterPowerOnMs > 0)
+                _commandsHeldUntil = DateTime.UtcNow.AddMilliseconds(_commandDelayAfterPowerOnMs);
 
             var _ = Task.Run(async () =>
             {
@@ -1296,7 +1419,7 @@ namespace PepperDash.Essentials.Plugins
             var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await SendCommandAsync("PATCH", "/api/v1/public", content);
             });
         }
 
@@ -1327,7 +1450,7 @@ namespace PepperDash.Essentials.Plugins
             var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await SendCommandAsync("PATCH", "/api/v1/public", content);
                 await Task.Delay(2000);
                 await PollAsync();
             });
@@ -1360,7 +1483,7 @@ namespace PepperDash.Essentials.Plugins
             var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await SendCommandAsync("PATCH", "/api/v1/public", content);
                 await Task.Delay(2000);
                 await PollAsync();
             });
@@ -1396,7 +1519,7 @@ namespace PepperDash.Essentials.Plugins
 
             var _ = Task.Run(async () =>
             {
-                await DispatchRequest("POST", string.Format("/api/v1/presets/{0}/apply", id), string.Empty);
+                await SendCommandAsync("POST", string.Format("/api/v1/presets/{0}/apply", id), string.Empty);
             });
         }
 
@@ -1419,7 +1542,7 @@ namespace PepperDash.Essentials.Plugins
 			var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                await DispatchRequest("POST", "/api/v1/presets/apply", content);
+                await SendCommandAsync("POST", "/api/v1/presets/apply", content);
             });
         }
 
@@ -1448,10 +1571,46 @@ namespace PepperDash.Essentials.Plugins
             var content = JsonConvert.SerializeObject(jsonObject);
             var _ = Task.Run(async () =>
             {
-                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await SendCommandAsync("PATCH", "/api/v1/public", content);
                 await Task.Delay(3000);
                 await PollAsync();
             });
+        }
+
+        /// <inheritdoc />
+        public void SelectInput(string input)
+        {
+            var match = _inputs.FirstOrDefault(i =>
+                string.Equals(i.Key, input, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(i.IngestName, input, StringComparison.OrdinalIgnoreCase));
+
+            if (match == null)
+            {
+                this.LogWarning("SelectInput: no input '{Input}' configured", input);
+                return;
+            }
+
+            RecallInputByName(match.IngestName);
+        }
+
+        /// <inheritdoc />
+        /// <remarks>Uses the redundancy state commands (<c>state: main|backup</c>), as the SIMPL bridge's
+        /// SetRedundancyStateToMain / ToBackup joins do.</remarks>
+        public void SetActiveController(string mainOrBackup)
+        {
+            switch ((mainOrBackup ?? string.Empty).ToLowerInvariant())
+            {
+                case "main":
+                case "primary":
+                    SetRedundancyStateToMain();
+                    break;
+                case "backup":
+                    SetRedundancyStateToBackup();
+                    break;
+                default:
+                    this.LogWarning("SetActiveController: '{Controller}' is not main or backup", mainOrBackup);
+                    break;
+            }
         }
 
         #endregion

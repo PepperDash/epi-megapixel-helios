@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="PepperDashEssentials" Version="3.0.0-rc.12">
+	  <PackageReference Include="PepperDashEssentials" Version="3.0.0-rc.16">
 		  <ExcludeAssets>runtime</ExcludeAssets>
 	  </PackageReference>
   </ItemGroup>
