@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Config;
@@ -15,7 +16,7 @@ namespace PepperDash.Essentials.Plugins
 		/// </summary>
 		public MegapixelHeliosFactory()
 		{
-			MinimumEssentialsFrameworkVersion = "2.43.0";
+			MinimumEssentialsFrameworkVersion = "3.0.0";
 
 			TypeNames = new List<string>() { "megapixelHelios" };
 		}
@@ -28,7 +29,7 @@ namespace PepperDash.Essentials.Plugins
 			Debug.LogDebug("[{Key}] Factory Attempting to create new device from type: {Type}", dc.Key, dc.Type);
 
 			// get the plugin device properties configuration object & check for null
-			var propertiesConfig = dc.Properties.ToObject<MegapixelHeliosConfig>();
+			var propertiesConfig = dc.Properties.ToObject<MegapixelHeliosPropertiesConfig>();
 			if (propertiesConfig == null)
 			{
 				Debug.LogError("[{Key}] Factory: failed to read properties config for {Name}", dc.Key, dc.Name);
@@ -45,6 +46,19 @@ namespace PepperDash.Essentials.Plugins
                 propertiesConfig.Control.Method != eControlMethod.Https)
             {
                 Debug.LogError("[{Key}] Factory: control method {Method} is not supported; use HTTP or HTTPS", dc.Key, propertiesConfig.Control.Method);
+                return null;
+            }
+
+            var tcpSshProperties = propertiesConfig.Control.TcpSshProperties;
+            if (tcpSshProperties == null || string.IsNullOrEmpty(tcpSshProperties.Address))
+            {
+                Debug.LogError("[{Key}] Factory: control.tcpSshProperties.address is missing", dc.Key);
+                return null;
+            }
+
+            if (Uri.CheckHostName(tcpSshProperties.Address) == UriHostNameType.Unknown)
+            {
+                Debug.LogError("[{Key}] Factory: control.tcpSshProperties.address '{Address}' is not a valid host name or IP address", dc.Key, tcpSshProperties.Address);
                 return null;
             }
 

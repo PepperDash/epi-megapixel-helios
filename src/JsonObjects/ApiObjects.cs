@@ -33,7 +33,8 @@ namespace PepperDash.Essentials.Plugins
 
     public class IngestObject
     {        
-        [JsonProperty("input")]
+        // Ignored when null: a PATCH that sets only the test pattern must not also send "input": null.
+        [JsonProperty("input", NullValueHandling = NullValueHandling.Ignore)]
         public string Input { get; set; }
         [JsonProperty("inputs", NullValueHandling = NullValueHandling.Ignore)]
         public InputsObject Inputs { get; set; }
@@ -45,7 +46,8 @@ namespace PepperDash.Essentials.Plugins
     {
         [JsonProperty("enabled")]
         public bool Enabled { get; set; }
-        [JsonProperty("type")]
+        // Ignored when null: turning the test pattern on or off must not reset its type.
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public string Type { get; set; }
     }
 
@@ -69,26 +71,50 @@ namespace PepperDash.Essentials.Plugins
 
     public class Hdmi1Object
     {
-        [JsonProperty("valid")]
+        [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
+
+        [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
+        public string Resolution { get; set; }
+
+        [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
+        public string Format { get; set; }
     }
 
     public class Hdmi2Object
     {
-        [JsonProperty("valid")]
+        [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
+
+        [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
+        public string Resolution { get; set; }
+
+        [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
+        public string Format { get; set; }
     }
 
     public class Sdi1Object
     {
-        [JsonProperty("valid")]
+        [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
+
+        [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
+        public string Resolution { get; set; }
+
+        [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
+        public string Format { get; set; }
     }
 
     public class Sdi2Object
     {
-        [JsonProperty("valid")]
+        [JsonProperty("valid", NullValueHandling = NullValueHandling.Ignore)]
         public bool Valid { get; set; }
+
+        [JsonProperty("resolution", NullValueHandling = NullValueHandling.Ignore)]
+        public string Resolution { get; set; }
+
+        [JsonProperty("format", NullValueHandling = NullValueHandling.Ignore)]
+        public string Format { get; set; }
     }
 
     public class RedundancyObject
@@ -100,6 +126,15 @@ namespace PepperDash.Essentials.Plugins
         [JsonProperty("role", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(StringEnumConverter))]
         public eRedundancyRole? Role { get; set; }
+        /// <summary>The processor the pair prefers to run on ("main" or "backup"). Read only here.</summary>
+        [JsonProperty("desired", NullValueHandling = NullValueHandling.Ignore)]
+        public string Desired { get; set; }
+        /// <summary>The pair's redundancy mode ("failover", "manual", "seamless", ...). Read only here.</summary>
+        [JsonProperty("mode", NullValueHandling = NullValueHandling.Ignore)]
+        public string Mode { get; set; }
+        /// <summary>Human readable status, e.g. "Fail over - Main (Active)". Read only here.</summary>
+        [JsonProperty("info", NullValueHandling = NullValueHandling.Ignore)]
+        public string Info { get; set; }
     }
 
     public enum eRedundancyState
