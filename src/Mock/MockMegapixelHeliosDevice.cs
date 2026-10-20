@@ -56,8 +56,9 @@ namespace PepperDash.Essentials.Plugins
                     new Action(() => SetInput(ingestName)), this));
             }
 
-            CommunicationMonitor = new MockCommunicationMonitor(this);
-            IsOnline = new BoolFeedback("isOnline", () => true);
+            _monitor = new MockCommunicationMonitor(this);
+            CommunicationMonitor = _monitor;
+            IsOnline = new BoolFeedback("isOnline", () => _monitor.Status == MonitorStatus.IsOk);
             CurrentInputNameFeedback = new StringFeedback("currentInputName", () => _currentInput);
             TestPatternIsOnFeedback = new BoolFeedback("testPatternIsOn", () => _testPatternIsOn);
             BrightnessFeedback = new IntFeedback("brightness", () => _brightness);
@@ -70,8 +71,41 @@ namespace PepperDash.Essentials.Plugins
             CooldownTime = 1500;
         }
 
+        private readonly MockCommunicationMonitor _monitor;
+
         public StatusMonitorBase CommunicationMonitor { get; }
         public BoolFeedback IsOnline { get; }
+
+        /// <summary>
+        /// Bench control, from the console:
+        /// <c>devjson {"deviceKey":"vwp-01","methodName":"SetIsOnline","params":[false]}</c>.
+        /// Offline reports the communication monitor in error; online reports it OK.
+        /// </summary>
+        public void SetIsOnline(bool online) => SetCommStatus(online ? "ok" : "error");
+
+        /// <summary>
+        /// Bench control, from the console:
+        /// <c>devjson {"deviceKey":"vwp-01","methodName":"SetCommStatus","params":["warning"]}</c>.
+        /// Takes ok / warning / error / unknown (or the MonitorStatus names). Only "ok" is online.
+        /// </summary>
+        public void SetCommStatus(string status)
+        {
+            MonitorStatus parsed;
+            switch ((status ?? string.Empty).Trim().ToLowerInvariant())
+            {
+                case "ok": case "isok": case "online": parsed = MonitorStatus.IsOk; break;
+                case "warning": case "inwarning": parsed = MonitorStatus.InWarning; break;
+                case "error": case "inerror": case "offline": parsed = MonitorStatus.InError; break;
+                case "unknown": case "statusunknown": parsed = MonitorStatus.StatusUnknown; break;
+                default:
+                    this.LogWarning("SetCommStatus: '{Status}' is not ok, warning, error or unknown", status);
+                    return;
+            }
+
+            this.LogInformation("MOCK comm status {Status}", parsed);
+            _monitor.SetStatus(parsed);
+            IsOnline.FireUpdate();
+        }
         public IReadOnlyList<MegapixelHeliosInputConfig> Inputs => _inputs;
         public StringFeedback CurrentInputNameFeedback { get; }
         public BoolFeedback TestPatternIsOnFeedback { get; }
