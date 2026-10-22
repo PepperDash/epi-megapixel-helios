@@ -518,9 +518,16 @@ namespace PepperDash.Essentials.Plugins
                 Credentials = credentialCache
             };
 
+            // HttpClient's own default is 100 s, which leaves a hung processor looking online for that long while
+            // requests pile up. A timeout fails the request like any other error (offline, comm monitor told).
+            var requestTimeoutMs = propertiesConfig.RequestTimeoutMs > 0
+                ? propertiesConfig.RequestTimeoutMs
+                : MegapixelHeliosPropertiesConfig.DefaultRequestTimeoutMs;
+
             _client = new HttpClient(handler)
             {
                 BaseAddress = baseUri,
+                Timeout = TimeSpan.FromMilliseconds(requestTimeoutMs),
             };
 
 			if (_client == null)
