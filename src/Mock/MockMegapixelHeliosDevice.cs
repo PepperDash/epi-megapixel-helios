@@ -14,12 +14,16 @@ namespace PepperDash.Essentials.Plugins
     /// Mobile Control messenger and interfaces as <see cref="MegapixelHeliosDevice"/> and keeps its state in
     /// memory, so a config can swap <c>mockMegapixelHelios</c> for <c>megapixelHelios</c> with the same key and
     /// tie lines. Every command is logged at Information level, which is how a bench test sees it arrive.
+    /// Two mocks with the same <c>mockPairKey</c> share their redundancy state, like a real pair (see
+    /// <see cref="MockHeliosRedundancyPair"/>).
     /// </summary>
     public class MockMegapixelHeliosDevice : TwoWayDisplayBase, IOnline, ICommunicationMonitor, IMegapixelHelios
     {
         private readonly List<MegapixelHeliosInputConfig> _inputs;
         private readonly HeliosBrightnessLevels _brightnessLevels = new HeliosBrightnessLevels();
-        private readonly string _role;
+        private readonly MockHeliosRedundancyPair _pair;
+        private string _role;
+        private string _stateOverride;
 
         private bool _powerIsOn;
         private bool _warming;
@@ -27,10 +31,9 @@ namespace PepperDash.Essentials.Plugins
         private string _currentInput;
         private bool _testPatternIsOn;
         private int _brightness;
-        private string _state;
-        private string _desired = "main";
 
-        public MockMegapixelHeliosDevice(string key, string name, MegapixelHeliosPropertiesConfig props, string redundancyRole)
+        public MockMegapixelHeliosDevice(string key, string name, MegapixelHeliosPropertiesConfig props, string redundancyRole,
+            string pairKey = null)
             : base(key, name)
         {
             props = props ?? new MegapixelHeliosPropertiesConfig();
@@ -43,8 +46,9 @@ namespace PepperDash.Essentials.Plugins
             }
 
             _brightness = _brightnessLevels.High;
-            _role = string.IsNullOrEmpty(redundancyRole) ? "main" : redundancyRole.ToLowerInvariant();
-            _state = _role == "main" ? "active" : "standby";
+            _role = NormalizeRole(redundancyRole) ?? "main";
+            if (!string.IsNullOrEmpty(redundancyRole) && NormalizeRole(redundancyRole) == null)
+                this.LogWarning("MOCK mockRedundancyRole '{Role}' is not main, backup or offline; using main", redundancyRole);
 
             _inputs = props.InputsOrDefault();
             _currentInput = _inputs.FirstOrDefault()?.IngestName ?? string.Empty;
@@ -58,14 +62,23 @@ namespace PepperDash.Essentials.Plugins
 
             _monitor = new MockCommunicationMonitor(this);
             CommunicationMonitor = _monitor;
+
+            int pairMembers;
+            _pair = MockHeliosRedundancyPair.Join(pairKey, this, out pairMembers);
+            if (pairMembers > 2)
+                this.LogWarning("MOCK pair '{PairKey}' now has {Count} units; a Helios pair has two", pairKey, pairMembers);
+
             IsOnline = new BoolFeedback("isOnline", () => _monitor.Status == MonitorStatus.IsOk);
             CurrentInputNameFeedback = new StringFeedback("currentInputName", () => _currentInput);
             TestPatternIsOnFeedback = new BoolFeedback("testPatternIsOn", () => _testPatternIsOn);
             BrightnessFeedback = new IntFeedback("brightness", () => _brightness);
             RedundancyRoleFeedback = new StringFeedback("redundancyRole", () => _role);
-            RedundancyStateFeedback = new StringFeedback("redundancyState", () => _state);
-            RedundancyDesiredFeedback = new StringFeedback("redundancyDesired", () => _desired);
-            RedundancyModeFeedback = new StringFeedback("redundancyMode", () => "failover");
+            RedundancyStateFeedback = new StringFeedback("redundancyState", () => _pair.StateFor(this));
+            RedundancyDesiredFeedback = new StringFeedback("redundancyDesired", () => _pair.Desired);
+            RedundancyModeFeedback = new StringFeedback("redundancyMode", () => _pair.Mode);
+
+            // The partner's state can depend on this unit: refresh the pair now it has joined.
+            _pair.NotifyMembers();
 
             WarmupTime = 1500;
             CooldownTime = 1500;
@@ -105,6 +118,99 @@ namespace PepperDash.Essentials.Plugins
             this.LogInformation("MOCK comm status {Status}", parsed);
             _monitor.SetStatus(parsed);
             IsOnline.FireUpdate();
+
+            // A unit in error is out of the pair, so its partner fails over.
+            _pair.NotifyMembers();
+        }
+
+        /// <summary>
+        /// Bench control, from the console:
+        /// <c>devjson {"deviceKey":"vwp-01","methodName":"SetMockRedundancyRole","params":["offline"]}</c>.
+        /// Sets this unit's role: main, backup or offline. The pair's states follow.
+        /// </summary>
+        public void SetMockRedundancyRole(string role)
+        {
+            var normalized = NormalizeRole(role);
+            if (normalized == null)
+            {
+                this.LogWarning("MOCK SetMockRedundancyRole: '{Role}' is not main, backup or offline", role);
+                return;
+            }
+
+            this.LogInformation("MOCK redundancy role {Role}", normalized);
+            _role = normalized;
+            _pair.NotifyMembers();
+        }
+
+        /// <summary>
+        /// Bench control, from the console:
+        /// <c>devjson {"deviceKey":"vwp-01","methodName":"SetMockRedundancyState","params":["mixed"]}</c>.
+        /// <list type="bullet">
+        /// <item><c>mixed</c>: the whole pair reports mixed (neither unit active), as the emulator's <c>mixed on</c>.</item>
+        /// <item><c>active</c> / <c>standby</c>: this unit alone reports that state, whatever the pair says.</item>
+        /// <item><c>auto</c> (or <c>normal</c>, <c>off</c>): clears both, so the states are computed again.</item>
+        /// </list>
+        /// </summary>
+        public void SetMockRedundancyState(string state)
+        {
+            var value = (state ?? string.Empty).Trim().ToLowerInvariant();
+            switch (value)
+            {
+                case "mixed":
+                    this.LogInformation("MOCK redundancy pair {PairKey} mixed", _pair.Key);
+                    _pair.SetMixed(true);
+                    break;
+                case "active":
+                case "standby":
+                    this.LogInformation("MOCK redundancy state forced {State}", value);
+                    _stateOverride = value;
+                    _pair.NotifyMembers();
+                    break;
+                case "auto":
+                case "normal":
+                case "off":
+                case "":
+                    this.LogInformation("MOCK redundancy state automatic (pair {PairKey})", _pair.Key);
+                    _stateOverride = null;
+                    _pair.SetMixed(false);
+                    break;
+                default:
+                    this.LogWarning("MOCK SetMockRedundancyState: '{State}' is not mixed, active, standby or auto", state);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Bench control, from the console:
+        /// <c>devjson {"deviceKey":"vwp-01","methodName":"GetMockRedundancyStatus","params":[]}</c>.
+        /// Logs the pair, e.g. <c>pair-1: vwp-01 (main, standby) + vwp-02 (backup, active)  desired=backup ...</c>.
+        /// </summary>
+        public void GetMockRedundancyStatus()
+        {
+            this.LogInformation("MOCK redundancy {PairStatus}", _pair.Describe());
+        }
+
+        internal string MockRole => _role;
+        internal string MockStateOverride => _stateOverride;
+        internal bool MockIsLive => _monitor.Status != MonitorStatus.InError;
+
+        internal void FireRedundancyFeedbacks()
+        {
+            RedundancyRoleFeedback?.FireUpdate();
+            RedundancyStateFeedback?.FireUpdate();
+            RedundancyDesiredFeedback?.FireUpdate();
+            RedundancyModeFeedback?.FireUpdate();
+        }
+
+        private static string NormalizeRole(string role)
+        {
+            switch ((role ?? string.Empty).Trim().ToLowerInvariant())
+            {
+                case "main": case "primary": return "main";
+                case "backup": return "backup";
+                case "offline": return "offline";
+                default: return null;
+            }
         }
         public IReadOnlyList<MegapixelHeliosInputConfig> Inputs => _inputs;
         public StringFeedback CurrentInputNameFeedback { get; }
@@ -234,11 +340,9 @@ namespace PepperDash.Essentials.Plugins
                 return;
             }
 
-            this.LogInformation("MOCK active controller {Controller}", desired);
-            _desired = desired;
-            _state = desired == _role ? "active" : "standby";
-            RedundancyDesiredFeedback.FireUpdate();
-            RedundancyStateFeedback.FireUpdate();
+            // Sets the pair's desired controller, so either unit moves both.
+            this.LogInformation("MOCK active controller {Controller} (pair {PairKey})", desired, _pair.Key);
+            _pair.SetDesired(desired);
         }
     }
 }
