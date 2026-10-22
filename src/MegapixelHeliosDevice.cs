@@ -1420,6 +1420,9 @@ namespace PepperDash.Essentials.Plugins
             var _ = Task.Run(async () =>
             {
                 await SendCommandAsync("PATCH", "/api/v1/public", content);
+                // Read it back, as the other commands do, so the feedback doesn't wait for the next poll.
+                await Task.Delay(2000);
+                await PollAsync();
             });
         }
 
