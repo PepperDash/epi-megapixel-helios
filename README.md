@@ -62,7 +62,7 @@ Otherwise more than one copy loads and registers the `megapixelHelios` type.
   - Configure them with `inputs` (default HDMI 1, HDMI 2, SDI 1, SDI 2 as `hdmiIn1`, `hdmiIn2`, `sdiIn1`, `sdiIn2`).
   - A tie line from a decoder lands on the port, and routing to the processor selects that input.
 - **`ICommunicationMonitor`**: OK while the processor answers; warning after `warningTimeoutMs` (3 minutes) and error after `errorTimeoutMs` (5 minutes) without a response.
-- **`commandDelayAfterPowerOnMs`**: commands sent within this window after a power on are delayed, not dropped. Polls and power commands are not held.
+- **`commandDelayAfterPowerOnMs`**: commands sent within this window after a power on are delayed, not dropped, and are sent one at a time in the order they were issued once the hold ends. Polls and power commands are not held.
 - **Brightness levels are per processor.** They used to be static, so the last processor configured set the levels for every processor in the system.
 - **Bug fix:** a test pattern PATCH no longer also sends `"input": null` and `"type": null`.
 - **Mock:** the new `mockMegapixelHelios` type has the same ports, messenger and interfaces and keeps its state in memory, for bench testing. Add `"mockRedundancyRole": "backup"` for the backup processor of a pair.

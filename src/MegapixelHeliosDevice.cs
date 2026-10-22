@@ -30,6 +30,10 @@ namespace PepperDash.Essentials.Plugins
         private readonly HeliosBrightnessLevels _brightnessLevels = new HeliosBrightnessLevels();
         private readonly int _commandDelayAfterPowerOnMs;
         private DateTime _commandsHeldUntil = DateTime.MinValue;
+        // Commands held after a power on wait in this queue, see SendCommandAsync. Guarded by _heldCommandsLock.
+        private readonly object _heldCommandsLock = new object();
+        private Task _heldCommandsTail = Task.CompletedTask;
+        private int _heldCommandCount;
         private readonly HeliosResponseMonitor _monitor;
 
         /// <summary>Reports the processor OK while it answers, then warning and error once it stops.</summary>
@@ -928,16 +932,66 @@ namespace PepperDash.Essentials.Plugins
         /// Send a command, waiting first for the hold after a power on (see <c>commandDelayAfterPowerOnMs</c>).
         /// Polls and power commands go straight to <see cref="DispatchRequest"/>.
         /// </summary>
-        private async Task SendCommandAsync(string method, string path, string content)
+        /// <remarks>
+        /// Commands issued during the hold go into a FIFO and are sent one at a time, in the order they were
+        /// issued, once the hold ends; each waits for the previous one's reply. Order matters because the
+        /// processor applies whatever arrives last: if held commands were released together (each on its own
+        /// timer, as before), a route's input issued at power on could land after a technician's later choice
+        /// and silently override it. A command issued while the queue is still draining joins the queue too, so
+        /// it can't overtake the held ones. A PowerOn during the hold re-arms it, which delays every command still
+        /// queued, not only the newer ones, so the order is kept.
+        /// </remarks>
+        private Task SendCommandAsync(string method, string path, string content)
         {
-            var wait = _commandsHeldUntil - DateTime.UtcNow;
-            if (wait > TimeSpan.Zero)
+            lock (_heldCommandsLock)
             {
-                this.LogDebug("Holding {Method} {Path} for {Ms} ms after power on", method, path, (int)wait.TotalMilliseconds);
-                await Task.Delay(wait);
-            }
+                var wait = _commandsHeldUntil - DateTime.UtcNow;
+                if (wait <= TimeSpan.Zero && _heldCommandCount == 0)
+                    return DispatchRequest(method, path, content);
 
-            await DispatchRequest(method, path, content);
+                _heldCommandCount++;
+                this.LogDebug("Holding {Method} {Path} after power on ({Queued} queued, hold ends in {Ms} ms)",
+                    method, path, _heldCommandCount, Math.Max(0, (int)wait.TotalMilliseconds));
+
+                _heldCommandsTail = SendHeldCommandAsync(_heldCommandsTail, method, path, content);
+                return _heldCommandsTail;
+            }
+        }
+
+        private async Task SendHeldCommandAsync(Task previous, string method, string path, string content)
+        {
+            try
+            {
+                // Leave the caller's lock before waiting or sending.
+                await Task.Yield();
+
+                try
+                {
+                    await previous;
+                }
+                catch (Exception ex)
+                {
+                    this.LogDebug(ex, "Previous held command failed");
+                }
+
+                // Read the hold end each time round, so a PowerOn that re-arms it is respected.
+                TimeSpan wait;
+                while ((wait = HeldCommandWait()) > TimeSpan.Zero)
+                    await Task.Delay(wait);
+
+                await DispatchRequest(method, path, content);
+            }
+            finally
+            {
+                lock (_heldCommandsLock)
+                    _heldCommandCount--;
+            }
+        }
+
+        private TimeSpan HeldCommandWait()
+        {
+            lock (_heldCommandsLock)
+                return _commandsHeldUntil - DateTime.UtcNow;
         }
 
         private async Task DispatchRequest(string method, string path, string content)
@@ -1293,8 +1347,10 @@ namespace PepperDash.Essentials.Plugins
 			var content = JsonConvert.SerializeObject(jsonObject);
 
             // Commands sent right after a power on are ignored by the processor, so hold them back for a while.
+            // Held commands are queued and sent in order once the hold ends (see SendCommandAsync).
             if (_commandDelayAfterPowerOnMs > 0)
-                _commandsHeldUntil = DateTime.UtcNow.AddMilliseconds(_commandDelayAfterPowerOnMs);
+                lock (_heldCommandsLock)
+                    _commandsHeldUntil = DateTime.UtcNow.AddMilliseconds(_commandDelayAfterPowerOnMs);
 
             var _ = Task.Run(async () =>
             {
