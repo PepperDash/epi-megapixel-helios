@@ -8,8 +8,9 @@ namespace PepperDash.Essentials.Plugins
 {
     /// <summary>
     /// Mobile Control messenger for a Helios processor, at <c>/device/{key}</c>: what the core display messengers do
-    /// not cover. Power also has the core power messenger; it is repeated here so one status message describes the
-    /// processor.
+    /// not cover. Power commands are left to the core power messenger (<c>IHasPowerMessenger</c>, same path): Mobile
+    /// Control runs every messenger on a path, so registering them here too sent each power command twice. Power
+    /// feedback stays in this status message, so one message describes the processor.
     /// </summary>
     public class MegapixelHeliosMessenger : MessengerBase
     {
@@ -26,8 +27,6 @@ namespace PepperDash.Essentials.Plugins
             AddAction("/fullStatus", (id, content) => PostStatusMessage(BuildState(), id));
             AddAction("/heliosStatus", (id, content) => PostStatusMessage(BuildState(), id));
 
-            AddAction("/powerOn", (id, content) => helios.PowerOn());
-            AddAction("/powerOff", (id, content) => helios.PowerOff());
             AddAction("/selectInput", (id, content) => helios.SelectInput(StringFrom(content, "input")));
             AddAction("/testPattern", (id, content) =>
             {
