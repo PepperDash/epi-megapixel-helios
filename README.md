@@ -66,6 +66,8 @@ Otherwise more than one copy loads and registers the `megapixelHelios` type.
 - **Brightness levels are per processor.** They used to be static, so the last processor configured set the levels for every processor in the system.
 - **Bug fix:** a test pattern PATCH no longer also sends `"input": null` and `"type": null`.
 - **Mock:** the new `mockMegapixelHelios` type has the same ports, messenger and interfaces and keeps its state in memory, for bench testing. Add `"mockRedundancyRole": "backup"` for the backup processor of a pair.
+  - Give both mocks of a pair the same `mockPairKey` and they share one redundancy state: setting the active controller on either moves both, and a unit that goes offline (role `offline`, or comm status `error`) fails over to its partner.
+  - Bench control from the console: `SetMockRedundancyRole` (`main`, `backup`, `offline`), `SetMockRedundancyState` (`mixed` for the pair, `active`/`standby` for one unit, `auto` to clear) and `GetMockRedundancyStatus` (see DEVJSON Commands).
 
 ### Known limitations
 
@@ -131,6 +133,28 @@ Mock, for bench testing (no `control` block needed):
   "properties": { "mockRedundancyRole": "backup", "brightness": { "high": 60, "medium": 40, "low": 20 } } }
 ```
 
+A redundant pair of mocks: the same `mockPairKey` on both makes them share one redundancy state.
+
+```json
+{ "key": "vwp-01", "name": "Helios Main", "group": "display", "type": "mockMegapixelHelios",
+  "properties": { "mockRedundancyRole": "main", "mockPairKey": "pair-1" } },
+{ "key": "vwp-02", "name": "Helios Backup", "group": "display", "type": "mockMegapixelHelios",
+  "properties": { "mockRedundancyRole": "backup", "mockPairKey": "pair-1" } }
+```
+
+How a pair of mocks reports its state (modelled on the Helios emulator; inferred, not captured from a real pair):
+
+| Situation | State |
+|---|---|
+| `SetMockRedundancyState` `active` or `standby` on a unit | that unit, as set |
+| `SetMockRedundancyState` `mixed` on either unit | both units `mixed` |
+| the unit's role is `offline`, or its comm status is `error` | that unit `standby` |
+| both live units claim the same role | both `mixed` |
+| the unit's role is the pair's desired controller | `active`, the other `standby` |
+| no live unit has the desired role | the remaining live unit `active` (failover) |
+
+A mock without `mockPairKey` keeps its own state, as before: `active` when its role is the desired controller (default `main`), `standby` otherwise, with no failover.
+
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | control.method | string | - | `http` or `https` |
@@ -146,7 +170,8 @@ Mock, for bench testing (no `control` block needed):
 | inputs | array | HDMI 1, HDMI 2, SDI 1, SDI 2 | Each `{ key, name, ingestName, connectionType? }`: a routing input port `key`, the `name` a panel shows, the `dev.ingest.input` value |
 | commandDelayAfterPowerOnMs | int | 0 | Hold other commands this long after a power on |
 | warningTimeoutMs / errorTimeoutMs | long | 180000 / 300000 | Communication monitor: no response for this long is a warning / error |
-| mockRedundancyRole | string | `main` | `mockMegapixelHelios` only: `main` or `backup` |
+| mockRedundancyRole | string | `main` | `mockMegapixelHelios` only: `main`, `backup` or `offline` |
+| mockPairKey | string | - | `mockMegapixelHelios` only: mocks with the same key share one redundancy state, like a real pair |
 
 ### Bridge
 
@@ -281,6 +306,17 @@ devjson:1 {"deviceKey":"display-1","methodName":"TestPatternOff"             ,"p
 devjson:1 {"deviceKey":"display-1","methodName":"RecallInputByName"          ,"params":["hdmi1"]}
 devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi1"               ,"params":[       ]}
 devjson:1 {"deviceKey":"display-1","methodName":"HotplugHdmi2"               ,"params":[       ]}
+```
+
+`mockMegapixelHelios` bench controls:
+
+```json
+devjson:1 {"deviceKey":"vwp-01","methodName":"SetCommStatus"          ,"params":["error"  ]}
+devjson:1 {"deviceKey":"vwp-01","methodName":"SetActiveController"    ,"params":["backup" ]}
+devjson:1 {"deviceKey":"vwp-01","methodName":"SetMockRedundancyRole"  ,"params":["offline"]}
+devjson:1 {"deviceKey":"vwp-01","methodName":"SetMockRedundancyState" ,"params":["mixed"  ]}
+devjson:1 {"deviceKey":"vwp-01","methodName":"SetMockRedundancyState" ,"params":["auto"   ]}
+devjson:1 {"deviceKey":"vwp-01","methodName":"GetMockRedundancyStatus","params":[         ]}
 ```
 
 
