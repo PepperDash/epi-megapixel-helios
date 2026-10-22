@@ -843,6 +843,7 @@ namespace PepperDash.Essentials.Plugins
 				}
 
                 var feedback = JsonConvert.DeserializeObject<RootDevObject>(contentString);
+                WarnOnUnknownRedundancyValues(jToken, feedback.Dev?.Display?.Redundancy);
                 if (feedback.Dev.Display != null)
                 {
                     if (feedback.Dev.Display.Blackout != null)
@@ -921,6 +922,35 @@ namespace PepperDash.Essentials.Plugins
 			{
 				this.LogError(ex, "Error processing device response");
 			}
+        }
+
+        // Unknown redundancy values already warned about, as "field:value", so each is logged once.
+        private readonly HashSet<string> _unknownRedundancyValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The redundancy state and role parse leniently (see <see cref="LenientStringEnumConverter"/>): a value
+        /// outside the enum reads as null, so the rest of the reply still applies. Warn once per distinct value.
+        /// </summary>
+        private void WarnOnUnknownRedundancyValues(JToken reply, RedundancyObject parsed)
+        {
+            WarnOnUnknownRedundancyValue(reply, "state", parsed?.State);
+            WarnOnUnknownRedundancyValue(reply, "role", parsed?.Role);
+        }
+
+        private void WarnOnUnknownRedundancyValue<T>(JToken reply, string field, T? parsed) where T : struct
+        {
+            var raw = reply?.SelectToken("dev.display.redundancy." + field);
+            if (raw == null || raw.Type == JTokenType.Null) return;
+            if (parsed.HasValue && Enum.IsDefined(typeof(T), parsed.Value)) return;
+
+            var value = raw.ToString(Formatting.None);
+            bool isNew;
+            lock (_unknownRedundancyValues)
+                isNew = _unknownRedundancyValues.Add(field + ":" + value);
+
+            if (isNew)
+                this.LogWarning("Unknown redundancy {Field} {Value} from the processor; treating it as unknown. The rest of the reply is still applied",
+                    field, value);
         }
 
         #endregion

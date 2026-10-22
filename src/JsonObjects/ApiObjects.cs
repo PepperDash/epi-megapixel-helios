@@ -119,12 +119,14 @@ namespace PepperDash.Essentials.Plugins
 
     public class RedundancyObject
     {
+        // Lenient: a value outside the enum (a newer firmware's "inactive", say) reads as null rather than
+        // throwing, which would lose the whole reply, power and input included.
         [JsonProperty("state", NullValueHandling = NullValueHandling.Ignore)]
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(LenientStringEnumConverter))]
         public eRedundancyState? State { get; set; }
 
         [JsonProperty("role", NullValueHandling = NullValueHandling.Ignore)]
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(LenientStringEnumConverter))]
         public eRedundancyRole? Role { get; set; }
         /// <summary>The processor the pair prefers to run on ("main" or "backup"). Read only here.</summary>
         [JsonProperty("desired", NullValueHandling = NullValueHandling.Ignore)]
@@ -135,6 +137,25 @@ namespace PepperDash.Essentials.Plugins
         /// <summary>Human readable status, e.g. "Fail over - Main (Active)". Read only here.</summary>
         [JsonProperty("info", NullValueHandling = NullValueHandling.Ignore)]
         public string Info { get; set; }
+    }
+
+    /// <summary>
+    /// A <see cref="StringEnumConverter"/> that reads a value it doesn't know into a nullable enum as null
+    /// instead of throwing. Writes exactly as StringEnumConverter does.
+    /// </summary>
+    public class LenientStringEnumConverter : StringEnumConverter
+    {
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            try
+            {
+                return base.ReadJson(reader, objectType, existingValue, serializer);
+            }
+            catch (JsonSerializationException) when (Nullable.GetUnderlyingType(objectType) != null)
+            {
+                return null;
+            }
+        }
     }
 
     public enum eRedundancyState
