@@ -64,6 +64,7 @@ Otherwise more than one copy loads and registers the `megapixelHelios` type.
 - **`ICommunicationMonitor`**: OK while the processor answers; warning after `warningTimeoutMs` (3 minutes) and error after `errorTimeoutMs` (5 minutes) without a response.
 - **`commandDelayAfterPowerOnMs`**: commands sent within this window after a power on are delayed, not dropped. Polls and power commands are not held.
 - **Brightness levels are per processor.** They used to be static, so the last processor configured set the levels for every processor in the system.
+- **`requestTimeoutMs`** (default 10 s): how long a request waits for the processor. It used to be HttpClient's 100 s, so a hung processor stayed online for 100 s while requests piled up.
 - **Bug fix:** a test pattern PATCH no longer also sends `"input": null` and `"type": null`.
 - **Mock:** the new `mockMegapixelHelios` type has the same ports, messenger and interfaces and keeps its state in memory, for bench testing. Add `"mockRedundancyRole": "backup"` for the backup processor of a pair.
 
@@ -100,6 +101,7 @@ Type: `megapixelHelios`
 			}
 		},
 		"pollTimeMs": 15000,
+		"requestTimeoutMs": 10000,
 		"brightness":{
 		"high": 60,
 		"medium": 40,
@@ -139,6 +141,7 @@ Mock, for bench testing (no `control` block needed):
 | control.tcpSshProperties.username | string | - | Authentication username |
 | control.tcpSshProperties.password | string | - | Authentication password |
 | pollTimeMs | long | 15000 | Polling interval in milliseconds |
+| requestTimeoutMs | long | 10000 | How long one request waits for the processor before it fails and the processor reads offline. 0 or less uses the default |
 | brightness.high | ushort | - | Brightness level for "high" preset (0-100) |
 | brightness.medium | ushort | - | Brightness level for "medium" preset (0-100) |
 | brightness.low | ushort | - | Brightness level for "low" preset (0-100) |

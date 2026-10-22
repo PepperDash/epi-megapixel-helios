@@ -73,6 +73,16 @@ namespace PepperDash.Essentials.Plugins
         [JsonProperty("errorTimeoutMs", NullValueHandling = NullValueHandling.Ignore)]
         public long ErrorTimeoutMs { get; set; } = 300000;
 
+        /// <summary>
+        /// How long one HTTP request waits for the processor before failing. Default 10000 (10 seconds), so a hung
+        /// processor is noticed about as fast as one that refuses the connection. 0 or less uses the default.
+        /// </summary>
+        [JsonProperty("requestTimeoutMs", NullValueHandling = NullValueHandling.Ignore)]
+        public long RequestTimeoutMs { get; set; } = DefaultRequestTimeoutMs;
+
+        /// <summary>The default <see cref="RequestTimeoutMs"/>.</summary>
+        public const long DefaultRequestTimeoutMs = 10000;
+
         /// <summary>The configured inputs, or the processor's own four when none are configured.</summary>
         public List<MegapixelHeliosInputConfig> InputsOrDefault() =>
             Inputs != null && Inputs.Count > 0
