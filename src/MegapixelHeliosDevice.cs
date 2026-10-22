@@ -30,10 +30,14 @@ namespace PepperDash.Essentials.Plugins
         private readonly HeliosBrightnessLevels _brightnessLevels = new HeliosBrightnessLevels();
         private readonly int _commandDelayAfterPowerOnMs;
         private DateTime _commandsHeldUntil = DateTime.MinValue;
-        // Commands held after a power on wait in this queue, see SendCommandAsync. Guarded by _heldCommandsLock.
+        // Commands held after a power on wait here, one per kind, see SendCommandAsync. Guarded by _heldCommandsLock.
         private readonly object _heldCommandsLock = new object();
-        private Task _heldCommandsTail = Task.CompletedTask;
-        private int _heldCommandCount;
+        private readonly List<HeldCommand> _heldCommands = new List<HeldCommand>();
+        private bool _drainingHeldCommands;
+        private DateTime _holdStartedUtc = DateTime.MinValue;
+        // When the processor last reported power and input, so a held command is only skipped on fresh state.
+        private DateTime _powerReadUtc = DateTime.MinValue;
+        private DateTime _inputReadUtc = DateTime.MinValue;
         private readonly HeliosResponseMonitor _monitor;
 
         /// <summary>Reports the processor OK while it answers, then warning and error once it stops.</summary>
@@ -848,6 +852,7 @@ namespace PepperDash.Essentials.Plugins
                     if (feedback.Dev.Display.Blackout != null)
                     {
                         PowerIsOn = !(bool)feedback.Dev.Display.Blackout;
+                        _powerReadUtc = DateTime.UtcNow;
                     }
 
                     if (feedback.Dev.Display.Brightness != null)
@@ -886,6 +891,7 @@ namespace PepperDash.Essentials.Plugins
                     if (feedback.Dev.Ingest.Input != null)
                     {
                         CurrentInputName = (string)feedback.Dev.Ingest.Input;
+                        _inputReadUtc = DateTime.UtcNow;
                     }
 
                     if (feedback.Dev.Ingest.Inputs != null)
@@ -930,61 +936,136 @@ namespace PepperDash.Essentials.Plugins
 
         /// <summary>
         /// Send a command, waiting first for the hold after a power on (see <c>commandDelayAfterPowerOnMs</c>).
-        /// Polls and power commands go straight to <see cref="DispatchRequest"/>.
+        /// Polls go straight to <see cref="DispatchRequest"/>.
         /// </summary>
         /// <remarks>
-        /// Commands issued during the hold go into a FIFO and are sent one at a time, in the order they were
-        /// issued, once the hold ends; each waits for the previous one's reply. Order matters because the
-        /// processor applies whatever arrives last: if held commands were released together (each on its own
-        /// timer, as before), a route's input issued at power on could land after a technician's later choice
-        /// and silently override it. A command issued while the queue is still draining joins the queue too, so
-        /// it can't overtake the held ones. A PowerOn during the hold re-arms it, which delays every command still
-        /// queued, not only the newer ones, so the order is kept.
+        /// <para>
+        /// While the hold lasts, and until the held commands have all gone out, each new command waits in a
+        /// queue that keeps only the latest of each kind (power, input, test pattern, brightness, redundancy
+        /// role, redundancy state, preset; each hotplug input on its own). A newer command of the same kind
+        /// replaces the older one, so the last choice wins and the processor doesn't step through the earlier
+        /// ones. When the hold ends, a held power command goes first, then the rest in the order they were last
+        /// issued, one at a time, each after the previous reply.
+        /// </para>
+        /// <para>
+        /// A held power or input command is dropped instead of sent when the processor already reports that
+        /// state, but only if it reported it after the hold started (the driver polls 2 s after a power on), so
+        /// stale feedback never suppresses a command. On, off, on pressed during the hold therefore sends
+        /// nothing more.
+        /// </para>
         /// </remarks>
-        private Task SendCommandAsync(string method, string path, string content)
+        /// <param name="armsHold">Start the hold when the command goes out (a power on to a processor not
+        /// already reported on).</param>
+        private Task SendCommandAsync(string method, string path, string content, bool armsHold = false)
         {
             lock (_heldCommandsLock)
             {
-                var wait = _commandsHeldUntil - DateTime.UtcNow;
-                if (wait <= TimeSpan.Zero && _heldCommandCount == 0)
+                if (!CommandsHeld())
+                {
+                    if (armsHold) ArmCommandHold();
                     return DispatchRequest(method, path, content);
+                }
 
-                _heldCommandCount++;
-                this.LogDebug("Holding {Method} {Path} after power on ({Queued} queued, hold ends in {Ms} ms)",
-                    method, path, _heldCommandCount, Math.Max(0, (int)wait.TotalMilliseconds));
+                var command = new HeldCommand(method, path, content);
+                var older = _heldCommands.FindIndex(c => c.Kind == command.Kind);
+                if (older >= 0)
+                {
+                    this.LogDebug("Dropping held {Method} {Path} {Content}: superseded", method, path, _heldCommands[older].Content);
+                    _heldCommands[older].Done.TrySetResult(false);
+                    _heldCommands.RemoveAt(older);
+                }
 
-                _heldCommandsTail = SendHeldCommandAsync(_heldCommandsTail, method, path, content);
-                return _heldCommandsTail;
+                _heldCommands.Add(command);
+                this.LogDebug("Holding {Method} {Path} {Content} after power on ({Queued} queued, hold ends in {Ms} ms)",
+                    method, path, content, _heldCommands.Count, Math.Max(0, (int)(_commandsHeldUntil - DateTime.UtcNow).TotalMilliseconds));
+
+                if (!_drainingHeldCommands)
+                {
+                    _drainingHeldCommands = true;
+                    _ = DrainHeldCommandsAsync();
+                }
+
+                return command.Done.Task;
             }
         }
 
-        private async Task SendHeldCommandAsync(Task previous, string method, string path, string content)
+        private async Task DrainHeldCommandsAsync()
         {
-            try
+            // Leave the caller's lock before waiting or sending.
+            await Task.Yield();
+
+            while (true)
             {
-                // Leave the caller's lock before waiting or sending.
-                await Task.Yield();
-
-                try
-                {
-                    await previous;
-                }
-                catch (Exception ex)
-                {
-                    this.LogDebug(ex, "Previous held command failed");
-                }
-
-                // Read the hold end each time round, so a PowerOn that re-arms it is respected.
+                // Read the hold end each time round, so a power on sent from the queue that re-arms it is respected.
                 TimeSpan wait;
                 while ((wait = HeldCommandWait()) > TimeSpan.Zero)
                     await Task.Delay(wait);
 
-                await DispatchRequest(method, path, content);
-            }
-            finally
-            {
+                HeldCommand next;
                 lock (_heldCommandsLock)
-                    _heldCommandCount--;
+                {
+                    if (_heldCommands.Count == 0)
+                    {
+                        _drainingHeldCommands = false;
+                        return;
+                    }
+
+                    var index = _heldCommands.FindIndex(c => c.Kind == HeldCommand.PowerKind);
+                    next = _heldCommands[index < 0 ? 0 : index];
+                    _heldCommands.Remove(next);
+
+                    if (AlreadyApplied(next))
+                    {
+                        this.LogDebug("Skipping held {Method} {Path} {Content}: the processor already reports it", next.Method, next.Path, next.Content);
+                        next.Done.TrySetResult(false);
+                        continue;
+                    }
+
+                    // A power on from the queue to a processor that isn't on starts a new hold for what follows.
+                    if (next.Kind == HeldCommand.PowerKind && next.Value?.Type == JTokenType.Boolean
+                        && !(bool)next.Value && !PowerIsOn)
+                        ArmCommandHold();
+                }
+
+                try
+                {
+                    await DispatchRequest(next.Method, next.Path, next.Content);
+                    next.Done.TrySetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    this.LogDebug(ex, "Held command failed");
+                    next.Done.TrySetResult(false);
+                }
+            }
+        }
+
+        /// <summary>True while the hold lasts or held commands are still going out. Call under _heldCommandsLock.</summary>
+        private bool CommandsHeld() => _drainingHeldCommands || _commandsHeldUntil > DateTime.UtcNow;
+
+        /// <summary>Call under _heldCommandsLock.</summary>
+        private void ArmCommandHold()
+        {
+            if (_commandDelayAfterPowerOnMs <= 0) return;
+            _holdStartedUtc = DateTime.UtcNow;
+            _commandsHeldUntil = _holdStartedUtc.AddMilliseconds(_commandDelayAfterPowerOnMs);
+        }
+
+        /// <summary>Whether the processor reported this power or input state since the hold started.</summary>
+        private bool AlreadyApplied(HeldCommand command)
+        {
+            if (command.Value == null) return false;
+
+            switch (command.Kind)
+            {
+                case HeldCommand.PowerKind:
+                    return command.Value.Type == JTokenType.Boolean && _powerReadUtc > _holdStartedUtc
+                        && PowerIsOn == !(bool)command.Value;
+                case HeldCommand.InputKind:
+                    return _inputReadUtc > _holdStartedUtc
+                        && string.Equals(CurrentInputName, (string)command.Value, StringComparison.OrdinalIgnoreCase);
+                default:
+                    return false;
             }
         }
 
@@ -992,6 +1073,50 @@ namespace PepperDash.Essentials.Plugins
         {
             lock (_heldCommandsLock)
                 return _commandsHeldUntil - DateTime.UtcNow;
+        }
+
+        /// <summary>A command waiting out the hold. Its kind is the request path plus the fields its body sets, so
+        /// a newer command that sets the same fields replaces it.</summary>
+        private sealed class HeldCommand
+        {
+            public const string PowerKind = "PATCH /api/v1/public dev.display.blackout";
+            public const string InputKind = "PATCH /api/v1/public dev.ingest.input";
+
+            public HeldCommand(string method, string path, string content)
+            {
+                Method = method;
+                Path = path;
+                Content = content;
+
+                // Both preset recalls (by id and by name) are one kind: only the last preset matters.
+                if (path.StartsWith("/api/v1/presets/", StringComparison.OrdinalIgnoreCase))
+                {
+                    Kind = method + " /api/v1/presets";
+                    return;
+                }
+
+                var leaves = new List<JValue>();
+                try
+                {
+                    if (!string.IsNullOrEmpty(content))
+                        leaves.AddRange(JToken.Parse(content).SelectTokens("..*").OfType<JValue>());
+                }
+                catch (JsonException)
+                {
+                }
+
+                Kind = method + " " + path + " " + string.Join(",", leaves.Select(v => v.Path));
+                if (leaves.Count == 1) Value = leaves[0];
+            }
+
+            public string Method { get; }
+            public string Path { get; }
+            public string Content { get; }
+            public string Kind { get; }
+            /// <summary>The one value the command sets, when it sets exactly one.</summary>
+            public JValue Value { get; }
+            /// <summary>Completes true when sent, false when replaced or skipped.</summary>
+            public TaskCompletionSource<bool> Done { get; } = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
         private async Task DispatchRequest(string method, string path, string content)
@@ -1346,15 +1471,14 @@ namespace PepperDash.Essentials.Plugins
 
 			var content = JsonConvert.SerializeObject(jsonObject);
 
-            // Commands sent right after a power on are ignored by the processor, so hold them back for a while.
-            // Held commands are queued and sent in order once the hold ends (see SendCommandAsync).
-            if (_commandDelayAfterPowerOnMs > 0)
-                lock (_heldCommandsLock)
-                    _commandsHeldUntil = DateTime.UtcNow.AddMilliseconds(_commandDelayAfterPowerOnMs);
-
+            // Commands sent right after a power on are ignored by the processor, so a power on to a processor not
+            // already reported on starts a hold; commands issued meanwhile wait, the latest of each kind winning
+            // (see SendCommandAsync). A power on during the hold waits like any other command.
+            // Queued (or sent) here, not inside the task, so commands issued right after this one see the hold.
+            var send = SendCommandAsync("PATCH", "/api/v1/public", content, armsHold: !PowerIsOn);
             var _ = Task.Run(async () =>
             {
-                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await send;
                 await Task.Delay(2000);
                 await PollAsync();
             });
@@ -1404,9 +1528,11 @@ namespace PepperDash.Essentials.Plugins
 
             var content = JsonConvert.SerializeObject(jsonObject);
 
+            // During the hold after a power on this waits too, so only the last power choice is sent.
+            var send = SendCommandAsync("PATCH", "/api/v1/public", content);
             var _ = Task.Run(async () =>
             {
-                await DispatchRequest("PATCH", "/api/v1/public", content);
+                await send;
                 await Task.Delay(2000);
                 await PollAsync();
             });
